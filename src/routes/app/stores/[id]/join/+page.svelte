@@ -2,6 +2,7 @@
 	import { Card, Button, Input } from '$lib/components/ui';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
+	import { onMount, onDestroy } from 'svelte';
 	import {
 		ArrowLeft,
 		Store,
@@ -11,18 +12,65 @@
 		Phone,
 		Users,
 		Key,
-		FileText
+		FileText,
+		XCircle,
+		AlertTriangle
 	} from 'lucide-svelte';
 
 	let { data, form } = $props();
 
 	let message = $state('');
 	let loading = $state(false);
+	let remainingMs = $state(data.cooldownMs);
+	let timerInterval: ReturnType<typeof setInterval> | null = null;
 
 	let formError = $derived(form?.error || '');
 	let formSuccess = $derived(form?.success || false);
 	let isLoggedIn = $derived($page.data.user != null);
 	let isFormValid = $derived(message.length >= 10);
+
+	// Format remaining time
+	function formatRemainingTime(ms: number): string {
+		if (ms <= 0) return '0 detik';
+
+		const seconds = Math.floor(ms / 1000);
+		const minutes = Math.floor(seconds / 60);
+		const hours = Math.floor(minutes / 60);
+		const days = Math.floor(hours / 24);
+
+		const remainingHours = hours % 24;
+		const remainingMinutes = minutes % 60;
+		const remainingSeconds = seconds % 60;
+
+		const parts: string[] = [];
+		if (days > 0) parts.push(`${days} hari`);
+		if (remainingHours > 0) parts.push(`${remainingHours} jam`);
+		if (remainingMinutes > 0) parts.push(`${remainingMinutes} menit`);
+		if (remainingSeconds > 0 && days === 0) parts.push(`${remainingSeconds} detik`);
+
+		return parts.join(', ') || '0 detik';
+	}
+
+	let formattedTime = $derived(formatRemainingTime(remainingMs));
+
+	onMount(() => {
+		if (remainingMs > 0) {
+			timerInterval = setInterval(() => {
+				remainingMs = Math.max(0, remainingMs - 1000);
+				if (remainingMs <= 0 && timerInterval) {
+					clearInterval(timerInterval);
+					// Reload page when cooldown ends
+					window.location.reload();
+				}
+			}, 1000);
+		}
+	});
+
+	onDestroy(() => {
+		if (timerInterval) {
+			clearInterval(timerInterval);
+		}
+	});
 </script>
 
 <svelte:head>
@@ -54,8 +102,69 @@
 			</Button>
 		</Card>
 
+	{:else if data.existingMember?.status === 'rejected' && !data.canRejoin}
+		<!-- Rejected with Cooldown -->
+		<Card class="text-center py-12">
+			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+				<XCircle class="h-8 w-8 text-red-600 dark:text-red-400" />
+			</div>
+			<h1 class="text-2xl font-bold text-foreground">Permintaan Ditolak</h1>
+			<p class="mt-2 text-muted-foreground">
+				Permintaan bergabung ke <strong>{data.store.name}</strong> sebelumnya ditolak.
+			</p>
+
+			{#if data.existingMember.rejectionReason}
+				<div class="mx-auto mt-4 max-w-md rounded-lg bg-muted p-4">
+					<p class="text-sm text-muted-foreground">
+						<strong>Alasan:</strong> {data.existingMember.rejectionReason}
+					</p>
+				</div>
+			{/if}
+
+			<!-- Cooldown Timer -->
+			<div class="mx-auto mt-6 max-w-md rounded-lg bg-yellow-100 dark:bg-yellow-900/20 p-4">
+				<div class="flex items-start gap-3">
+					<Clock class="h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+					<div class="text-left">
+						<p class="font-medium text-yellow-800 dark:text-yellow-300">
+							Masa Tunggu
+						</p>
+						<p class="mt-1 text-2xl font-bold text-yellow-700 dark:text-yellow-400 font-mono">
+							{formattedTime}
+						</p>
+						<p class="mt-2 text-sm text-yellow-700 dark:text-yellow-400">
+							Anda dapat mengajukan permintaan kembali setelah masa tunggu berakhir.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Bypass Option -->
+			<div class="mx-auto mt-4 max-w-md rounded-lg bg-primary/10 p-4">
+				<div class="flex items-start gap-3">
+					<Key class="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
+					<div class="text-left">
+						<p class="font-medium text-foreground">
+							Punya Kode Undangan?
+						</p>
+						<p class="mt-1 text-sm text-muted-foreground">
+							Jika Anda memiliki kode undangan dari pemilik lapak, Anda bisa langsung bergabung tanpa menunggu.
+						</p>
+						<Button href="/app/join" variant="outline" size="sm" class="mt-3 gap-2">
+							<Key class="h-4 w-4" />
+							Masukkan Kode Undangan
+						</Button>
+					</div>
+				</div>
+			</div>
+
+			<Button href="/app/stores" variant="outline" class="mt-6">
+				Kembali ke Daftar Lapak
+			</Button>
+		</Card>
+
 	{:else if data.existingMember}
-		<!-- Already member -->
+		<!-- Already member (active, pending, leaving) -->
 		<Card class="text-center py-12">
 			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
 				<Clock class="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
@@ -76,6 +185,23 @@
 				<Button href="/app/stores" class="mt-6" variant="outline">
 					Kembali
 				</Button>
+			{:else if data.existingMember.status === 'leaving'}
+				<h1 class="text-2xl font-bold text-foreground">Permintaan Keluar Pending</h1>
+				<p class="mt-2 text-muted-foreground">
+					Anda sedang mengajukan keluar dari <strong>{data.store.name}</strong>.
+				</p>
+				<Button href="/app/stores" class="mt-6" variant="outline">
+					Kembali
+				</Button>
+			{:else if data.existingMember.status === 'rejected' && data.canRejoin}
+				<!-- Can rejoin after cooldown passed -->
+				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+					<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
+				</div>
+				<h1 class="text-2xl font-bold text-foreground">Anda Bisa Mendaftar Lagi!</h1>
+				<p class="mt-2 text-muted-foreground">
+					Masa tunggu sudah berakhir. Anda dapat mengajukan permintaan bergabung kembali ke <strong>{data.store.name}</strong>.
+				</p>
 			{/if}
 		</Card>
 

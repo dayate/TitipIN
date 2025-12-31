@@ -1,7 +1,8 @@
 import type { PageServerLoad, Actions } from './$types';
 import { error, fail } from '@sveltejs/kit';
 import { getStoreById } from '$lib/server/stores';
-import { joinStore, getMemberByUserAndStore } from '$lib/server/members';
+import { joinStore, getMemberByUserAndStore, getRejectionCooldownMs, getRejectionCooldownDays, canRejoinAfterRejection } from '$lib/server/members';
+import { notifyNewJoinRequest } from '$lib/server/notifications';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const storeId = parseInt(params.id);
@@ -19,11 +20,20 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 	// Check if user already joined
 	let existingMember = null;
+	let cooldownMs = 0;
+	let canRejoin = true;
+
 	if (locals.user) {
 		existingMember = await getMemberByUserAndStore(locals.user.id, storeId);
+
+		// If rejected, calculate cooldown info
+		if (existingMember?.status === 'rejected') {
+			cooldownMs = getRejectionCooldownMs(existingMember.rejectedAt);
+			canRejoin = canRejoinAfterRejection(existingMember.rejectedAt);
+		}
 	}
 
-	return { store, existingMember };
+	return { store, existingMember, cooldownMs, canRejoin };
 };
 
 export const actions: Actions = {
@@ -46,6 +56,12 @@ export const actions: Actions = {
 				return fail(400, { error: 'Anda sudah menjadi anggota lapak ini' });
 			} else if (existingMember.status === 'pending') {
 				return fail(400, { error: 'Permintaan Anda sedang menunggu persetujuan' });
+			} else if (existingMember.status === 'rejected') {
+				// Check cooldown
+				if (!canRejoinAfterRejection(existingMember.rejectedAt)) {
+					const days = getRejectionCooldownDays(existingMember.rejectedAt);
+					return fail(400, { error: `Anda harus menunggu ${days} hari lagi untuk mengajukan permintaan bergabung` });
+				}
 			}
 		}
 
@@ -57,15 +73,18 @@ export const actions: Actions = {
 		}
 
 		try {
-			await joinStore(locals.user.id, storeId, {
+			const member = await joinStore(locals.user.id, storeId, {
 				message,
 				autoApprove: false // Public join always needs approval
 			});
 
+			// Notify store owner about new join request
+			await notifyNewJoinRequest(storeId, locals.user.name, member.id);
+
 			return { success: true };
-		} catch (err) {
+		} catch (err: any) {
 			console.error('Join store error:', err);
-			return fail(500, { error: 'Gagal mengirim permintaan, silakan coba lagi' });
+			return fail(500, { error: err.message || 'Gagal mengirim permintaan, silakan coba lagi' });
 		}
 	}
 };

@@ -5,7 +5,7 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 // ============================================
 export type UserRole = 'owner' | 'supplier';
 export type UserStatus = 'pending' | 'active' | 'suspended';
-export type MemberStatus = 'pending' | 'active' | 'suspended' | 'rejected';
+export type MemberStatus = 'pending' | 'active' | 'suspended' | 'rejected' | 'leaving';
 export type ProductStatus = 'pending' | 'approved' | 'rejected';
 export type TransactionStatus = 'draft' | 'verified' | 'completed';
 export type StoreVisibility = 'public' | 'private';
@@ -99,6 +99,7 @@ export const storeBranches = sqliteTable('store_branches', {
 });
 
 // 6. Store Members
+
 export const storeMembers = sqliteTable('store_members', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	storeId: integer('store_id')
@@ -112,6 +113,9 @@ export const storeMembers = sqliteTable('store_members', {
 	inviteCodeUsed: text('invite_code_used'),
 	requestMessage: text('request_message'),
 	rejectionReason: text('rejection_reason'),
+	rejectedAt: integer('rejected_at', { mode: 'timestamp' }), // For cooldown period
+	leaveReason: text('leave_reason'), // Reason for leaving
+	leaveRequestedAt: integer('leave_requested_at', { mode: 'timestamp' }), // When user requested to leave
 	joinedAt: integer('joined_at', { mode: 'timestamp' }),
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
 });
@@ -169,13 +173,25 @@ export const transactionItems = sqliteTable('transaction_items', {
 });
 
 // 10. Notifications
+export type NotificationType =
+	| 'join_request'      // Admin: ada user request join
+	| 'join_approved'     // User: request disetujui
+	| 'join_rejected'     // User: request ditolak
+	| 'member_kicked'     // User: dikeluarkan dari lapak
+	| 'info'              // General info
+	| 'system';           // System notification
+
 export const notifications = sqliteTable('notifications', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
-	storeId: integer('store_id').references(() => stores.id, { onDelete: 'cascade' }),
-	type: text('type').notNull().default('info'),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	type: text('type').$type<NotificationType>().notNull().default('info'),
 	title: text('title').notNull(),
 	message: text('message').notNull(),
+	detailUrl: text('detail_url'),  // Link ke halaman terkait
+	relatedStoreId: integer('related_store_id').references(() => stores.id, { onDelete: 'set null' }),
+	relatedMemberId: integer('related_member_id'),
 	isRead: integer('is_read', { mode: 'boolean' }).notNull().default(false),
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
 });

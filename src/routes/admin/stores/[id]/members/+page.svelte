@@ -11,7 +11,8 @@
 		CheckCircle2,
 		XCircle,
 		MessageSquare,
-		User
+		User,
+		LogOut
 	} from 'lucide-svelte';
 
 	let { data } = $props();
@@ -21,6 +22,7 @@
 
 	let pendingMembers = $derived(data.members.filter(m => m.member.status === 'pending'));
 	let activeMembers = $derived(data.members.filter(m => m.member.status === 'active'));
+	let leavingMembers = $derived(data.members.filter(m => m.member.status === 'leaving'));
 
 	function openRejectModal(memberId: number) {
 		rejectingMemberId = memberId;
@@ -60,13 +62,11 @@
 				{#each pendingMembers as { member, user }}
 					<div class="py-4 first:pt-0 last:pb-0">
 						<div class="flex items-start gap-4">
-							<!-- Avatar -->
 							<div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
 								<User class="h-6 w-6 text-primary" />
 							</div>
 
 							<div class="flex-1 min-w-0">
-								<!-- User Info -->
 								<div class="flex items-start justify-between gap-4">
 									<div>
 										<h3 class="font-semibold text-foreground">{user.name}</h3>
@@ -77,7 +77,6 @@
 									</div>
 								</div>
 
-								<!-- Request Message -->
 								{#if member.requestMessage}
 									<div class="mt-3 rounded-lg bg-muted p-3">
 										<div class="flex items-center gap-2 mb-1">
@@ -94,7 +93,6 @@
 									</p>
 								{/if}
 
-								<!-- Actions -->
 								<div class="mt-4 flex gap-2">
 									<form method="POST" action="?/approve" use:enhance>
 										<input type="hidden" name="memberId" value={member.id} />
@@ -113,6 +111,67 @@
 										<UserX class="h-4 w-4" />
 										Tolak
 									</Button>
+								</div>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</Card>
+	{/if}
+
+	<!-- Leave Requests -->
+	{#if leavingMembers.length > 0}
+		<Card>
+			<div class="mb-4 flex items-center gap-2">
+				<LogOut class="h-5 w-5 text-orange-600" />
+				<h2 class="text-lg font-semibold text-foreground">Permintaan Keluar ({leavingMembers.length})</h2>
+			</div>
+
+			<div class="divide-y divide-border">
+				{#each leavingMembers as { member, user }}
+					<div class="py-4 first:pt-0 last:pb-0">
+						<div class="flex items-start gap-4">
+							<div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+								<LogOut class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+							</div>
+
+							<div class="flex-1 min-w-0">
+								<div class="flex items-start justify-between gap-4">
+									<div>
+										<h3 class="font-semibold text-foreground">{user.name}</h3>
+										<p class="text-sm text-muted-foreground">{user.whatsapp}</p>
+										<p class="mt-1 text-xs text-muted-foreground">
+											Diajukan: {formatDate(member.leaveRequestedAt!)}
+										</p>
+									</div>
+								</div>
+
+								{#if member.leaveReason}
+									<div class="mt-3 rounded-lg bg-orange-100 dark:bg-orange-900/20 p-3">
+										<div class="flex items-center gap-2 mb-1">
+											<MessageSquare class="h-4 w-4 text-orange-600 dark:text-orange-400" />
+											<span class="text-xs font-medium text-orange-600 dark:text-orange-400">Alasan Keluar:</span>
+										</div>
+										<p class="text-sm text-foreground">{member.leaveReason}</p>
+									</div>
+								{/if}
+
+								<div class="mt-4 flex gap-2">
+									<form method="POST" action="?/approveLeave" use:enhance>
+										<input type="hidden" name="memberId" value={member.id} />
+										<Button type="submit" size="sm" variant="outline" class="gap-2">
+											<CheckCircle2 class="h-4 w-4" />
+											Setujui Keluar
+										</Button>
+									</form>
+									<form method="POST" action="?/cancelLeave" use:enhance>
+										<input type="hidden" name="memberId" value={member.id} />
+										<Button type="submit" size="sm" variant="ghost" class="gap-2">
+											<XCircle class="h-4 w-4" />
+											Tolak
+										</Button>
+									</form>
 								</div>
 							</div>
 						</div>

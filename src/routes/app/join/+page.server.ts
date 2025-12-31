@@ -1,8 +1,9 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { validateInviteCode, useInviteCode } from '$lib/server/invites';
-import { joinStore, getMemberByUserAndStore } from '$lib/server/members';
+import { joinStore, getMemberByUserAndStore, getMemberById } from '$lib/server/members';
 import { getStoreById } from '$lib/server/stores';
+import { notifyNewJoinRequest, notifyJoinApproved } from '$lib/server/notifications';
 
 export const load: PageServerLoad = async () => {
 	return {};
@@ -40,20 +41,30 @@ export const actions: Actions = {
 		try {
 			// Get store to check autoApprove setting
 			const storeData = await getStoreById(store!.id);
+			const autoApprove = storeData?.autoApprove || false;
 
 			// Join store with auto-approve if enabled
-			await joinStore(locals.user!.id, store!.id, {
+			const member = await joinStore(locals.user!.id, store!.id, {
 				inviteCode: code,
-				autoApprove: storeData?.autoApprove || false
+				autoApprove
 			});
 
 			// Increment usage counter
 			await useInviteCode(code);
 
+			// Send notifications
+			if (autoApprove) {
+				// Notify user they're auto-approved
+				await notifyJoinApproved(locals.user!.id, store!.name, store!.id);
+			} else {
+				// Notify store owner about new join request
+				await notifyNewJoinRequest(store!.id, locals.user!.name, member.id);
+			}
+
 			return {
 				success: true,
 				storeName: store!.name,
-				autoApproved: storeData?.autoApprove || false
+				autoApproved: autoApprove
 			};
 		} catch (err) {
 			console.error('Join store error:', err);

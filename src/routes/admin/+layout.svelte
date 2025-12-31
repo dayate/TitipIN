@@ -3,6 +3,8 @@
 	import { Button } from '$lib/components/ui';
 	import { getInitials } from '$lib/utils';
 	import { page } from '$app/stores';
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import {
 		Store,
 		LayoutDashboard,
@@ -24,6 +26,7 @@
 	let sidebarOpen = $state(false);
 	let sidebarCollapsed = $state(false);
 	let userMenuOpen = $state(false);
+	let notificationMenuOpen = $state(false);
 
 	const navItems = [
 		{ href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
@@ -84,7 +87,6 @@
 			</button>
 		</div>
 
-		<!-- Navigation -->
 		<nav class="flex-1 space-y-1 overflow-y-auto p-2">
 			{#each navItems as item}
 				<a
@@ -97,7 +99,14 @@
 						{sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''}"
 					title={sidebarCollapsed ? item.label : ''}
 				>
-					<item.icon class="h-5 w-5 flex-shrink-0" />
+					<div class="relative flex-shrink-0">
+						<item.icon class="h-5 w-5" />
+						{#if item.label === 'Notifikasi' && data.unreadNotifications > 0}
+							<span class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+								{data.unreadNotifications > 9 ? '9+' : data.unreadNotifications}
+							</span>
+						{/if}
+					</div>
 					{#if !sidebarCollapsed}
 						<span class="lg:block">{item.label}</span>
 					{/if}
@@ -150,6 +159,111 @@
 			</button>
 
 			<div class="flex-1"></div>
+
+			<!-- Notification Bell with Dropdown -->
+			<div class="relative">
+				<button
+					onclick={() => (notificationMenuOpen = !notificationMenuOpen)}
+					class="relative flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted"
+					aria-label="Notifications"
+				>
+					<Bell class="h-5 w-5 text-muted-foreground" />
+					{#if data.unreadNotifications > 0}
+						<span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+							{data.unreadNotifications > 9 ? '9+' : data.unreadNotifications}
+						</span>
+					{/if}
+				</button>
+
+				{#if notificationMenuOpen}
+					<!-- Backdrop -->
+					<div
+						class="fixed inset-0 z-40"
+						onclick={() => (notificationMenuOpen = false)}
+						onkeydown={(e) => e.key === 'Escape' && (notificationMenuOpen = false)}
+						role="button"
+						tabindex="0"
+						aria-label="Close notifications"
+					></div>
+					<!-- Dropdown -->
+					<div class="absolute right-0 top-full z-50 mt-2 w-80 max-h-96 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+						<div class="flex items-center justify-between border-b border-border px-4 py-3">
+							<h3 class="font-semibold text-foreground">Notifikasi</h3>
+							{#if data.unreadNotifications > 0}
+							<form
+								method="POST"
+								action="/admin/notifications?/markAllAsRead"
+								class="inline"
+								use:enhance={() => {
+									notificationMenuOpen = false;
+									return async () => {
+										await invalidateAll();
+									};
+								}}
+							>
+								<button type="submit" class="text-xs text-primary hover:underline">
+									Tandai Dibaca
+								</button>
+							</form>
+						{/if}
+						</div>
+						<div class="max-h-72 overflow-y-auto">
+							{#if data.notifications && data.notifications.length > 0}
+								{#each data.notifications.slice(0, 5) as notification}
+									<form
+										method="POST"
+										action="/admin/notifications?/markAsRead"
+										use:enhance={() => {
+											notificationMenuOpen = false;
+											return async () => {
+												await invalidateAll();
+												window.location.href = notification.detailUrl || '/admin/notifications';
+											};
+										}}
+										class="block"
+									>
+										<input type="hidden" name="notificationId" value={notification.id} />
+										<button
+											type="submit"
+											class="w-full text-left px-4 py-3 border-b border-border last:border-0 transition-all cursor-pointer
+												{!notification.isRead
+													? 'bg-primary/5 hover:bg-primary/10'
+													: 'hover:bg-muted'}
+												active:bg-muted/80"
+										>
+											<div class="flex items-start gap-2">
+												{#if !notification.isRead}
+													<div class="h-2 w-2 mt-1.5 flex-shrink-0 rounded-full bg-primary"></div>
+												{:else}
+													<div class="w-2 flex-shrink-0"></div>
+												{/if}
+												<div class="min-w-0 flex-1">
+													<p class="text-sm font-medium text-foreground truncate {!notification.isRead ? 'font-semibold' : ''}">{notification.title}</p>
+													<p class="text-xs text-muted-foreground line-clamp-1">{notification.message}</p>
+													<p class="mt-1 text-[10px] text-muted-foreground/70">
+														{new Date(notification.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {new Date(notification.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+													</p>
+												</div>
+											</div>
+										</button>
+									</form>
+								{/each}
+							{:else}
+								<div class="px-4 py-8 text-center text-sm text-muted-foreground">
+									Tidak ada notifikasi
+								</div>
+							{/if}
+						</div>
+						<a
+							href="/admin/notifications"
+							onclick={() => (notificationMenuOpen = false)}
+							class="flex items-center justify-center border-t border-border px-4 py-3 text-sm font-medium text-primary hover:bg-muted"
+						>
+							Lihat Semua Notifikasi
+						</a>
+					</div>
+				{/if}
+			</div>
 
 			<ThemeToggle />
 

@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { Card, Button } from '$lib/components/ui';
-	import { Store, Plus, Clock, CheckCircle2, XCircle, Eye, EyeOff, Users } from 'lucide-svelte';
+	import { enhance } from '$app/forms';
+	import { Store, Plus, Clock, CheckCircle2, LogOut, Eye, EyeOff, Users } from 'lucide-svelte';
 
 	let { data } = $props();
+
+	let leaveModalOpen = $state(false);
+	let leavingStoreId = $state<number | null>(null);
+	let leavingStoreName = $state('');
+	let leavingMemberId = $state<number | null>(null);
+	let leaveReason = $state('');
 
 	function getStatusBadge(status: string) {
 		switch (status) {
@@ -10,11 +17,27 @@
 				return { class: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', label: 'Aktif', Icon: CheckCircle2 };
 			case 'pending':
 				return { class: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', label: 'Menunggu', Icon: Clock };
-			case 'rejected':
-				return { class: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', label: 'Ditolak', Icon: XCircle };
+			case 'leaving':
+				return { class: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', label: 'Minta Keluar', Icon: LogOut };
 			default:
 				return { class: 'bg-muted text-muted-foreground', label: status, Icon: Store };
 		}
+	}
+
+	function openLeaveModal(storeId: number, storeName: string, memberId: number) {
+		leavingStoreId = storeId;
+		leavingStoreName = storeName;
+		leavingMemberId = memberId;
+		leaveReason = '';
+		leaveModalOpen = true;
+	}
+
+	function closeLeaveModal() {
+		leaveModalOpen = false;
+		leavingStoreId = null;
+		leavingStoreName = '';
+		leavingMemberId = null;
+		leaveReason = '';
 	}
 </script>
 
@@ -89,19 +112,27 @@
 					{/if}
 
 					{#if member.status === 'active'}
-						<Button href="/app/setor?store={store.id}" class="mt-4 w-full">
-							Setor Produk
-						</Button>
+						<div class="mt-4 flex gap-2">
+							<Button href="/app/setor?store={store.id}" class="flex-1">
+								Setor Produk
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								class="text-destructive"
+								onclick={() => openLeaveModal(store.id, store.name, member.id)}
+							>
+								<LogOut class="h-4 w-4" />
+							</Button>
+						</div>
 					{:else if member.status === 'pending'}
 						<p class="mt-4 text-center text-sm text-muted-foreground">
 							Menunggu persetujuan pemilik lapak
 						</p>
-					{:else if member.status === 'rejected'}
-						<div class="mt-4 rounded-lg bg-destructive/10 p-3">
-							<p class="text-sm font-medium text-destructive">Permintaan Ditolak</p>
-							{#if member.rejectionReason}
-								<p class="mt-1 text-sm text-muted-foreground">{member.rejectionReason}</p>
-							{/if}
+					{:else if member.status === 'leaving'}
+						<div class="mt-4 rounded-lg bg-orange-100 dark:bg-orange-900/20 p-3">
+							<p class="text-sm font-medium text-orange-700 dark:text-orange-400">Permintaan Keluar Diajukan</p>
+							<p class="mt-1 text-xs text-muted-foreground">Menunggu persetujuan admin</p>
 						</div>
 					{/if}
 				</Card>
@@ -155,3 +186,51 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Leave Store Modal -->
+{#if leaveModalOpen}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+		<Card class="w-full max-w-md">
+			<h3 class="text-lg font-semibold text-foreground">Keluar dari {leavingStoreName}?</h3>
+			<p class="mt-2 text-muted-foreground">
+				Permintaan keluar akan dikirim ke admin untuk disetujui. Berikan alasan Anda ingin keluar.
+			</p>
+
+			<form
+				method="POST"
+				action="?/requestLeave"
+				use:enhance={() => {
+					return async ({ update }) => {
+						closeLeaveModal();
+						await update();
+					};
+				}}
+				class="mt-4 space-y-4"
+			>
+				<input type="hidden" name="memberId" value={leavingMemberId} />
+
+				<div class="space-y-2">
+					<label for="leaveReason" class="text-sm font-medium text-foreground">Alasan Keluar</label>
+					<textarea
+						id="leaveReason"
+						name="reason"
+						rows="3"
+						class="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						placeholder="Jelaskan alasan Anda ingin keluar dari lapak ini..."
+						bind:value={leaveReason}
+						required
+					></textarea>
+				</div>
+
+				<div class="flex gap-3">
+					<Button type="button" variant="outline" class="flex-1" onclick={closeLeaveModal}>
+						Batal
+					</Button>
+					<Button type="submit" variant="destructive" class="flex-1">
+						Ajukan Keluar
+					</Button>
+				</div>
+			</form>
+		</Card>
+	</div>
+{/if}

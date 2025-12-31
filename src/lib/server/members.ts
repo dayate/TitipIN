@@ -14,8 +14,25 @@ export async function joinStore(
 ): Promise<StoreMember> {
 	// Check if already a member
 	const existing = await getMemberByUserAndStore(userId, storeId);
+
 	if (existing) {
-		throw new Error('Anda sudah terdaftar di lapak ini');
+		// If rejected and has invite code, delete old and allow rejoin
+		if (existing.status === 'rejected' && options?.inviteCode) {
+			await db.delete(storeMembers).where(eq(storeMembers.id, existing.id));
+		}
+		// If rejected and cooldown passed, delete old and allow rejoin
+		else if (existing.status === 'rejected' && canRejoinAfterRejection(existing.rejectedAt)) {
+			await db.delete(storeMembers).where(eq(storeMembers.id, existing.id));
+		}
+		// If rejected but cooldown not passed
+		else if (existing.status === 'rejected') {
+			const days = getRejectionCooldownDays(existing.rejectedAt);
+			throw new Error(`Anda harus menunggu ${days} hari lagi untuk mengajukan permintaan bergabung`);
+		}
+		// Other statuses (active, pending, leaving)
+		else {
+			throw new Error('Anda sudah terdaftar di lapak ini');
+		}
 	}
 
 	const status = options?.autoApprove ? 'active' : 'pending';
@@ -81,7 +98,8 @@ export async function rejectJoinRequest(memberId: number, reason?: string): Prom
 		.update(storeMembers)
 		.set({
 			status: 'rejected',
-			rejectionReason: reason || null
+			rejectionReason: reason || null,
+			rejectedAt: new Date()
 		})
 		.where(eq(storeMembers.id, memberId))
 		.returning();
@@ -134,7 +152,7 @@ export async function getActiveMembers(storeId: number) {
 	return getStoreMembers(storeId, 'active');
 }
 
-// Get user's joined stores
+// Get user's joined stores (active, pending, leaving only - NOT rejected)
 export async function getUserStores(userId: number) {
 	const memberships = await db
 		.select({
@@ -146,7 +164,8 @@ export async function getUserStores(userId: number) {
 		.where(eq(storeMembers.userId, userId))
 		.orderBy(desc(storeMembers.createdAt));
 
-	return memberships;
+	// Filter out rejected memberships (they should not appear in "Lapak Saya")
+	return memberships.filter(m => m.member.status !== 'rejected');
 }
 
 // Get user's active stores (approved memberships)
@@ -160,3 +179,79 @@ export async function isActiveMember(userId: number, storeId: number): Promise<b
 	const member = await getMemberByUserAndStore(userId, storeId);
 	return member?.status === 'active';
 }
+
+// Check if user can rejoin after rejection (7 day cooldown)
+export function canRejoinAfterRejection(rejectedAt: Date | null): boolean {
+	if (!rejectedAt) return true;
+	const cooldownDays = 7;
+	const cooldownMs = cooldownDays * 24 * 60 * 60 * 1000;
+	const now = new Date().getTime();
+	const rejectedTime = new Date(rejectedAt).getTime();
+	return (now - rejectedTime) >= cooldownMs;
+}
+
+// Get remaining cooldown time in milliseconds
+export function getRejectionCooldownMs(rejectedAt: Date | null): number {
+	if (!rejectedAt) return 0;
+	const cooldownDays = 7;
+	const cooldownMs = cooldownDays * 24 * 60 * 60 * 1000;
+	const now = new Date().getTime();
+	const rejectedTime = new Date(rejectedAt).getTime();
+	const remaining = cooldownMs - (now - rejectedTime);
+	return Math.max(0, remaining);
+}
+
+// Get days remaining for cooldown (for display/error messages)
+export function getRejectionCooldownDays(rejectedAt: Date | null): number {
+	const remainingMs = getRejectionCooldownMs(rejectedAt);
+	return Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
+}
+
+// Request to leave store
+export async function requestLeaveStore(memberId: number, reason: string): Promise<StoreMember | null> {
+	const [updated] = await db
+		.update(storeMembers)
+		.set({
+			status: 'leaving',
+			leaveReason: reason,
+			leaveRequestedAt: new Date()
+		})
+		.where(eq(storeMembers.id, memberId))
+		.returning();
+
+	return updated || null;
+}
+
+// Approve leave request (delete member)
+export async function approveLeaveRequest(memberId: number): Promise<boolean> {
+	await db
+		.delete(storeMembers)
+		.where(eq(storeMembers.id, memberId));
+
+	return true;
+}
+
+// Cancel leave request
+export async function cancelLeaveRequest(memberId: number): Promise<StoreMember | null> {
+	const [updated] = await db
+		.update(storeMembers)
+		.set({
+			status: 'active',
+			leaveReason: null,
+			leaveRequestedAt: null
+		})
+		.where(eq(storeMembers.id, memberId))
+		.returning();
+
+	return updated || null;
+}
+
+// Delete rejected membership (so user can rejoin)
+export async function deleteRejectedMembership(memberId: number): Promise<boolean> {
+	await db
+		.delete(storeMembers)
+		.where(eq(storeMembers.id, memberId));
+
+	return true;
+}
+

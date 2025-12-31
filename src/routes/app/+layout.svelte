@@ -3,6 +3,8 @@
 	import { Button } from '$lib/components/ui';
 	import { getInitials } from '$lib/utils';
 	import { page } from '$app/stores';
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import {
 		Store,
 		Home,
@@ -13,200 +15,305 @@
 		LogOut,
 		Menu,
 		X,
-		ChevronDown
+		ChevronDown,
+		PanelLeftClose,
+		PanelLeft
 	} from 'lucide-svelte';
 
 	let { data, children } = $props();
-	let mobileMenuOpen = $state(false);
+	let sidebarOpen = $state(false);
+	let sidebarCollapsed = $state(false);
 	let userMenuOpen = $state(false);
+	let notificationMenuOpen = $state(false);
 
 	const navItems = [
 		{ href: '/app', icon: Home, label: 'Beranda' },
 		{ href: '/app/stores', icon: Store, label: 'Lapak' },
 		{ href: '/app/setor', icon: Package, label: 'Setor' },
-		{ href: '/app/history', icon: History, label: 'Riwayat' }
+		{ href: '/app/history', icon: History, label: 'Riwayat' },
+		{ href: '/app/notifications', icon: Bell, label: 'Notifikasi' }
 	];
 
 	let currentPath = $derived($page.url.pathname);
 
-	function closeMobileMenu() {
-		mobileMenuOpen = false;
-	}
-
-	function closeUserMenu() {
-		userMenuOpen = false;
+	function closeMobileSidebar() {
+		sidebarOpen = false;
 	}
 </script>
 
-<div class="flex min-h-screen flex-col bg-background">
-	<!-- Top Navigation -->
-	<header class="sticky top-0 z-50 border-b border-border bg-card">
-		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-			<!-- Logo -->
-			<a href="/app" class="flex items-center gap-2">
-				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-					<Store class="h-6 w-6 text-primary-foreground" />
-				</div>
-				<span class="hidden text-xl font-bold text-foreground sm:block">Mak Unyil</span>
-			</a>
+<div class="flex min-h-screen bg-background">
+	<!-- Sidebar Overlay (Mobile) -->
+	{#if sidebarOpen}
+		<div
+			class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+			onclick={closeMobileSidebar}
+			onkeydown={(e) => e.key === 'Escape' && closeMobileSidebar()}
+			role="button"
+			tabindex="0"
+			aria-label="Close sidebar"
+		></div>
+	{/if}
 
-			<!-- Desktop Navigation -->
-			<nav class="hidden items-center gap-1 md:flex">
-				{#each navItems as item}
-					<a
-						href={item.href}
-						class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors
-							{currentPath === item.href
-								? 'bg-primary text-primary-foreground'
-								: 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
-					>
-						<item.icon class="h-4 w-4" />
-						{item.label}
-					</a>
-				{/each}
-			</nav>
-
-			<!-- Right Section -->
-			<div class="flex items-center gap-2">
-				<ThemeToggle />
-
-				<!-- User Menu (Desktop) -->
-				<div class="relative hidden md:block">
-					<button
-						onclick={() => (userMenuOpen = !userMenuOpen)}
-						class="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-muted"
-					>
-						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-							{getInitials(data.user.name)}
-						</div>
-						<span class="text-sm font-medium text-foreground">{data.user.name}</span>
-						<ChevronDown class="h-4 w-4 text-muted-foreground" />
-					</button>
-
-					{#if userMenuOpen}
-						<!-- Backdrop -->
-						<div
-							class="fixed inset-0 z-40"
-							onclick={closeUserMenu}
-							onkeydown={(e) => e.key === 'Escape' && closeUserMenu()}
-							role="button"
-							tabindex="0"
-							aria-label="Close menu"
-						></div>
-						<div class="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-border bg-card py-1 shadow-lg">
-							<a
-								href="/app/profile"
-								onclick={closeUserMenu}
-								class="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted"
-							>
-								<User class="h-4 w-4" />
-								Profil Saya
-							</a>
-							<hr class="my-1 border-border" />
-							<form action="/auth/logout" method="POST">
-								<button
-									type="submit"
-									class="flex w-full items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-muted"
-								>
-									<LogOut class="h-4 w-4" />
-									Keluar
-								</button>
-							</form>
-						</div>
-					{/if}
-				</div>
-
-				<!-- Mobile Menu Button -->
-				<button
-					onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
-					class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted md:hidden"
-					aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-				>
-					{#if mobileMenuOpen}
-						<X class="h-6 w-6 text-foreground" />
-					{:else}
-						<Menu class="h-6 w-6 text-foreground" />
-					{/if}
-				</button>
+	<!-- Sidebar -->
+	<aside
+		class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card transition-all duration-300
+			lg:static
+			{sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'}
+			{sidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:translate-x-0'}"
+	>
+		<!-- Logo -->
+		<div class="flex h-16 items-center gap-3 border-b border-border px-4">
+			<div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary">
+				<Store class="h-6 w-6 text-primary-foreground" />
 			</div>
+			{#if !sidebarCollapsed}
+				<div class="min-w-0 flex-1 lg:block">
+					<span class="font-bold text-foreground">Mak Unyil</span>
+					<span class="block truncate text-xs text-muted-foreground">Penyetor</span>
+				</div>
+			{/if}
+			<!-- Close button (Mobile) -->
+			<button
+				onclick={closeMobileSidebar}
+				class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg hover:bg-muted lg:hidden"
+				aria-label="Close sidebar"
+			>
+				<X class="h-5 w-5 text-foreground" />
+			</button>
 		</div>
 
-		<!-- Mobile Dropdown Menu -->
-		{#if mobileMenuOpen}
-			<!-- Backdrop -->
-			<div
-				class="fixed inset-0 top-16 z-40 bg-black/50 md:hidden"
-				onclick={closeMobileMenu}
-				onkeydown={(e) => e.key === 'Escape' && closeMobileMenu()}
-				role="button"
-				tabindex="0"
-				aria-label="Close menu"
-			></div>
-			<div class="absolute left-0 right-0 top-16 z-50 border-b border-border bg-card p-4 shadow-lg md:hidden">
-				<nav class="space-y-1">
-					{#each navItems as item}
-						<a
-							href={item.href}
-							onclick={closeMobileMenu}
-							class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors
-								{currentPath === item.href
-									? 'bg-primary text-primary-foreground'
-									: 'text-foreground hover:bg-muted'}"
-						>
-							<item.icon class="h-5 w-5" />
-							{item.label}
-						</a>
-					{/each}
-				</nav>
-
-				<hr class="my-4 border-border" />
-
-				<div class="flex items-center gap-3 px-3 py-2">
-					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-						{getInitials(data.user.name)}
-					</div>
-					<div>
-						<p class="font-medium text-foreground">{data.user.name}</p>
-						<p class="text-sm text-muted-foreground">Penyetor</p>
-					</div>
-				</div>
-
-				<form action="/auth/logout" method="POST" class="mt-4">
-					<Button type="submit" variant="outline" class="w-full gap-2">
-						<LogOut class="h-4 w-4" />
-						Keluar
-					</Button>
-				</form>
-			</div>
-		{/if}
-	</header>
-
-	<!-- Page Content -->
-	<main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 pb-20 md:pb-6">
-		{@render children()}
-	</main>
-
-	<!-- Bottom Navigation (Mobile) -->
-	<nav class="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card safe-area-bottom md:hidden">
-		<div class="grid h-16 grid-cols-4">
+		<!-- Navigation -->
+		<nav class="flex-1 space-y-1 overflow-y-auto p-2">
 			{#each navItems as item}
 				<a
 					href={item.href}
-					class="flex flex-col items-center justify-center gap-0.5 transition-colors
+					onclick={closeMobileSidebar}
+					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors
 						{currentPath === item.href
-							? 'text-primary'
-							: 'text-muted-foreground hover:text-foreground'}"
+							? 'bg-primary text-primary-foreground'
+							: 'text-foreground hover:bg-muted'}
+						{sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''}"
+					title={sidebarCollapsed ? item.label : ''}
 				>
-					<item.icon class="h-5 w-5" />
-					<span class="text-[10px] font-medium">{item.label}</span>
+					<div class="relative flex-shrink-0">
+						<item.icon class="h-5 w-5" />
+						{#if item.label === 'Notifikasi' && data.unreadNotifications > 0}
+							<span class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+								{data.unreadNotifications > 9 ? '9+' : data.unreadNotifications}
+							</span>
+						{/if}
+					</div>
+					{#if !sidebarCollapsed}
+						<span class="lg:block">{item.label}</span>
+					{/if}
 				</a>
 			{/each}
-		</div>
-	</nav>
-</div>
+		</nav>
 
-<style>
-	.safe-area-bottom {
-		padding-bottom: env(safe-area-inset-bottom, 0);
-	}
-</style>
+		<!-- Logout Button -->
+		<div class="border-t border-border p-2">
+			<form action="/auth/logout" method="POST">
+				<button
+					type="submit"
+					class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground hover:bg-muted
+						{sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''}"
+					title={sidebarCollapsed ? 'Keluar' : ''}
+				>
+					<LogOut class="h-5 w-5 flex-shrink-0" />
+					{#if !sidebarCollapsed}
+						<span class="lg:block">Keluar</span>
+					{/if}
+				</button>
+			</form>
+		</div>
+	</aside>
+
+	<!-- Main Content -->
+	<div class="flex min-w-0 flex-1 flex-col">
+		<!-- Top Header -->
+		<header class="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-4">
+			<!-- Mobile menu button -->
+			<button
+				onclick={() => (sidebarOpen = true)}
+				class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted lg:hidden"
+				aria-label="Open sidebar"
+			>
+				<Menu class="h-6 w-6 text-foreground" />
+			</button>
+
+			<!-- Desktop sidebar toggle -->
+			<button
+				onclick={() => (sidebarCollapsed = !sidebarCollapsed)}
+				class="hidden h-10 w-10 items-center justify-center rounded-lg hover:bg-muted lg:flex"
+				aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+			>
+				{#if sidebarCollapsed}
+					<PanelLeft class="h-5 w-5 text-foreground" />
+				{:else}
+					<PanelLeftClose class="h-5 w-5 text-foreground" />
+				{/if}
+			</button>
+
+			<div class="flex-1"></div>
+
+			<!-- Notification Bell with Dropdown -->
+			<div class="relative">
+				<button
+					onclick={() => (notificationMenuOpen = !notificationMenuOpen)}
+					class="relative flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted"
+					aria-label="Notifications"
+				>
+					<Bell class="h-5 w-5 text-muted-foreground" />
+					{#if data.unreadNotifications > 0}
+						<span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+							{data.unreadNotifications > 9 ? '9+' : data.unreadNotifications}
+						</span>
+					{/if}
+				</button>
+
+				{#if notificationMenuOpen}
+					<!-- Backdrop -->
+					<div
+						class="fixed inset-0 z-40"
+						onclick={() => (notificationMenuOpen = false)}
+						onkeydown={(e) => e.key === 'Escape' && (notificationMenuOpen = false)}
+						role="button"
+						tabindex="0"
+						aria-label="Close notifications"
+					></div>
+					<!-- Dropdown -->
+					<div class="absolute right-0 top-full z-50 mt-2 w-80 max-h-96 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+						<div class="flex items-center justify-between border-b border-border px-4 py-3">
+							<h3 class="font-semibold text-foreground">Notifikasi</h3>
+							{#if data.unreadNotifications > 0}
+								<form
+									method="POST"
+									action="/app/notifications?/markAllAsRead"
+									class="inline"
+									use:enhance={() => {
+										notificationMenuOpen = false;
+										return async () => {
+											await invalidateAll();
+										};
+									}}
+								>
+									<button type="submit" class="text-xs text-primary hover:underline">
+										Tandai Dibaca
+									</button>
+								</form>
+							{/if}
+						</div>
+						<div class="max-h-72 overflow-y-auto">
+							{#if data.notifications && data.notifications.length > 0}
+								{#each data.notifications.slice(0, 5) as notification}
+									<form
+										method="POST"
+										action="/app/notifications?/markAsRead"
+										use:enhance={() => {
+											notificationMenuOpen = false;
+											return async () => {
+												await invalidateAll();
+												window.location.href = notification.detailUrl || '/app/notifications';
+											};
+										}}
+										class="block"
+									>
+										<input type="hidden" name="notificationId" value={notification.id} />
+										<button
+											type="submit"
+											class="w-full text-left px-4 py-3 border-b border-border last:border-0 transition-all cursor-pointer
+												{!notification.isRead
+													? 'bg-primary/5 hover:bg-primary/10'
+													: 'hover:bg-muted'}
+												active:bg-muted/80"
+										>
+											<div class="flex items-start gap-2">
+												{#if !notification.isRead}
+													<div class="h-2 w-2 mt-1.5 flex-shrink-0 rounded-full bg-primary"></div>
+												{:else}
+													<div class="w-2 flex-shrink-0"></div>
+												{/if}
+												<div class="min-w-0 flex-1">
+													<p class="text-sm font-medium text-foreground truncate {!notification.isRead ? 'font-semibold' : ''}">{notification.title}</p>
+													<p class="text-xs text-muted-foreground line-clamp-1">{notification.message}</p>
+													<p class="mt-1 text-[10px] text-muted-foreground/70">
+														{new Date(notification.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {new Date(notification.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+													</p>
+												</div>
+											</div>
+										</button>
+									</form>
+								{/each}
+							{:else}
+								<div class="px-4 py-8 text-center text-sm text-muted-foreground">
+									Tidak ada notifikasi
+								</div>
+							{/if}
+						</div>
+						<a
+							href="/app/notifications"
+							onclick={() => (notificationMenuOpen = false)}
+							class="flex items-center justify-center border-t border-border px-4 py-3 text-sm font-medium text-primary hover:bg-muted"
+						>
+							Lihat Semua Notifikasi
+						</a>
+					</div>
+				{/if}
+			</div>
+
+			<ThemeToggle />
+
+			<!-- User Menu -->
+			<div class="relative">
+				<button
+					onclick={() => (userMenuOpen = !userMenuOpen)}
+					class="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-muted"
+				>
+					<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+						{getInitials(data.user.name)}
+					</div>
+					<div class="hidden text-left md:block">
+						<div class="text-sm font-medium text-foreground">{data.user.name}</div>
+						<div class="text-xs text-muted-foreground">Penyetor</div>
+					</div>
+					<ChevronDown class="hidden h-4 w-4 text-muted-foreground md:block" />
+				</button>
+
+				{#if userMenuOpen}
+					<!-- Backdrop to close menu -->
+					<div
+						class="fixed inset-0 z-40"
+						onclick={() => (userMenuOpen = false)}
+						onkeydown={(e) => e.key === 'Escape' && (userMenuOpen = false)}
+						role="button"
+						tabindex="0"
+						aria-label="Close menu"
+					></div>
+					<div class="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-border bg-card py-1 shadow-lg">
+						<a
+							href="/app/profile"
+							onclick={() => (userMenuOpen = false)}
+							class="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+						>
+							Profil Saya
+						</a>
+						<hr class="my-1 border-border" />
+						<form action="/auth/logout" method="POST">
+							<button
+								type="submit"
+								class="block w-full px-4 py-2 text-left text-sm text-destructive hover:bg-muted"
+							>
+								Keluar
+							</button>
+						</form>
+					</div>
+				{/if}
+			</div>
+		</header>
+
+		<!-- Page Content -->
+		<main class="flex-1 overflow-auto p-4 md:p-6">
+			{@render children()}
+		</main>
+	</div>
+</div>

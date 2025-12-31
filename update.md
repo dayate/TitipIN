@@ -43,3 +43,26 @@ Beberapa perbaikan yang perlu dilakukan :
 
 1. isi form request join harusnya ditampilkan di panel admin, agar admin dapat membacanya dan memutuskan apakah ACC atau TIDAK ACC.
 2. kemudian buat agar admin menyertakan alasan penolakan, jika tidak di acc. kemudian alasan tersebut juga ditampilkan pada user yang request join.
+
+
+
+Sekarang saya ingin menambahkan fitur baru, yaitu notification. Notification ini akan berisi seluruh notifikasi dari fitur-fitur yang ada, misalnya notifikasi join lapak, notifikasi join lapak diterima/ditolak dan lain-lainnya. saya ingin notifikasi seperti pada notifikasi sistem lainnya, jadi notifikasi ada fitur baca selengkapnya/baca detail, notifikasi terdapat date dan time notifikasi, status dibaca/belum dibaca. nofitikasi ada baik di panel admin maupun di panel user, tetapi notifikasinya berbeda sesuai dengan fitur-yang digunakan.
+
+
+Hal yang perlu diperbaiki :
+1. Pada navbar panel admin, tidak ada icons notifikasi.. tetapi notifikasi ada di sidebar, jadi harus buka sidebar terlebih dahulu untuk melihat notifikasi. saya ingin pada navbar terdapat icons notifikasi, jika diklik akan membuka modal/dialog mengambang yang berisi daftar notifikasi yang ada. seperti pada tampilan notifikasi pada umumnya di aplikasi populer.
+
+
+1. Pada dropdown  notifikasi, sertakan juga tanggal, dan jamnya, serta berikan juga fitur tandai semua notifikasi sebagai dibaca.
+2. Saya lihat layout navbar, sidebar pada panel admin dan panel user berbeda. saya ingin hal ini dibuat saya. jadi perbarui panel user agar layoutnya sama dengan panel admin tetapi dengan fiturnya tetap menampilkan fitur untuk user saja.
+
+
+Kembali ke fitur pengelolan lapak :
+1. perhatikan pada gambar, terdapat kondisi dimana join ditolak. dan lapak masih muncul di menu lapak saya dengan notifikasi ditolak. seharusnya jika sudah ditolak jangan dimasukkan ke menu lapak saya. kembalikan ke menu lapak public(jika statusnya public) hilangkan jika statusnya private.
+2. jika join ditolak, buat masa penolakan. artinya suatu saat user diperbolehkan request join lagi. misalnya setalah 7 hari user bisa request join lagi. atau user bisa langsung join jika mendapatkan url/invite kode dari admin langsung.
+3. buat fitur keluar lapak. tetapi dengan from juga (tidak langsung keluar). buat form alasan keluar, kemudian jika sudah di setujui admin otomatis keluar lapak (tidak menjadi anggota lagi).
+
+
+1. gambar 1 merupakan gambar pemberitahuan setalah request join ditolak, tidak muncul couldown waktu sisa untuk request join ulang
+2. Pada panel admin, notifikasi request user keluar lapak tidak muncul. seharusnya notifikasi request keluar muncul, dan status anggota menjadi pending
+3. ketika bilah notifikasi diklik, maka otomatis notifikasi sudah dibuka dan tandai sebagai telah dibaca. perhatikan gambar 2, jika notifikasi diklik pada bilah tertentu, misalnya pada urutan teratas, maka notifikasi teratas tandai sebagai terbaca. berikan efek hover, aktive dan nonaktif juga agar memudahkan user. terapkan pada kedua panel, admin dan user.
