@@ -1,175 +1,228 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { Button } from '$lib/components/ui/button';
-  import { Input } from '$lib/components/ui/input';
-  import { Card, CardContent } from '$lib/components/ui/card';
-  import { Loader2, Store, Package } from 'lucide-svelte';
-  import { toast } from 'svelte-sonner';
+	import { Button, Input, Card } from '$lib/components/ui';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import { Store, ArrowLeft, User, Building2, CheckCircle2 } from 'lucide-svelte';
+	import { enhance } from '$app/forms';
 
-  let name = $state('');
-  let whatsapp = $state('');
-  let pin = $state('');
-  let confirmPin = $state('');
-  let role = $state<'owner' | 'supplier'>('supplier');
-  let loading = $state(false);
+	let { form } = $props();
 
-  async function handleRegister() {
-    // Validation
-    if (!name || !whatsapp || !pin || !confirmPin) {
-      toast.error('Semua field wajib diisi');
-      return;
-    }
+	let name = $state('');
+	let whatsapp = $state('');
+	let pin = $state('');
+	let confirmPin = $state('');
+	let role = $state<'owner' | 'supplier'>('supplier');
+	let loading = $state(false);
 
-    if (pin.length !== 6) {
-      toast.error('PIN harus 6 digit');
-      return;
-    }
+	// Validation states
+	let nameError = $derived(() => {
+		if (name.length === 0) return '';
+		if (name.length < 3) return 'Nama minimal 3 karakter';
+		if (name.length > 50) return 'Nama maksimal 50 karakter';
+		if (!/^[a-zA-Z\s]+$/.test(name)) return 'Nama hanya boleh huruf dan spasi';
+		return '';
+	});
 
-    if (pin !== confirmPin) {
-      toast.error('Konfirmasi PIN tidak sama');
-      return;
-    }
+	let whatsappError = $derived(() => {
+		if (whatsapp.length === 0) return '';
+		const cleaned = whatsapp.replace(/\D/g, '');
+		if (cleaned.length < 10) return 'Nomor minimal 10 digit';
+		if (cleaned.length > 15) return 'Nomor maksimal 15 digit';
+		if (!cleaned.startsWith('08') && !cleaned.startsWith('62')) return 'Nomor harus diawali 08 atau 62';
+		return '';
+	});
 
-    loading = true;
+	let pinError = $derived(() => {
+		if (pin.length === 0) return '';
+		if (!/^\d+$/.test(pin)) return 'PIN hanya boleh angka';
+		if (pin.length < 6) return 'PIN minimal 6 digit';
+		if (pin.length > 6) return 'PIN maksimal 6 digit';
+		return '';
+	});
 
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, whatsapp, pin, role }),
-      });
+	let confirmPinError = $derived(() => {
+		if (confirmPin.length === 0) return '';
+		if (pin !== confirmPin) return 'PIN tidak cocok';
+		return '';
+	});
 
-      const data = await res.json();
+	let formError = $derived(form?.error || '');
+	let formSuccess = $derived(form?.success || false);
 
-      if (!res.ok) {
-        toast.error(data.error || 'Pendaftaran gagal');
-        return;
-      }
-
-      toast.success('Pendaftaran berhasil!');
-
-      if (role === 'owner') {
-        // Owner goes to create first store
-        setTimeout(() => goto('/auth/login'), 2000);
-      } else {
-        // Supplier needs approval
-        toast.info('Tunggu persetujuan dari pemilik lapak.');
-        setTimeout(() => goto('/auth/login'), 2000);
-      }
-    } catch (e) {
-      toast.error('Terjadi kesalahan. Coba lagi.');
-    } finally {
-      loading = false;
-    }
-  }
+	let isFormValid = $derived(
+		name.length >= 3 &&
+		name.length <= 50 &&
+		/^[a-zA-Z\s]+$/.test(name) &&
+		whatsapp.replace(/\D/g, '').length >= 10 &&
+		whatsapp.replace(/\D/g, '').length <= 15 &&
+		pin.length === 6 &&
+		/^\d+$/.test(pin) &&
+		pin === confirmPin &&
+		!nameError() &&
+		!whatsappError() &&
+		!pinError() &&
+		!confirmPinError()
+	);
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-primary via-primary/90 to-primary/80 dark:from-primary/30 dark:via-background dark:to-background flex flex-col items-center justify-center p-4">
-  <!-- Logo & Title -->
-  <div class="text-center mb-6">
-    <div class="w-16 h-16 bg-white rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg">
-      <span class="text-3xl">🍩</span>
-    </div>
-    <h1 class="text-2xl font-bold text-white">Daftar Akun</h1>
-    <p class="text-white/80 mt-1 text-sm">Pilih jenis akun Anda</p>
-  </div>
+<svelte:head>
+	<title>Daftar - Mak Unyil</title>
+</svelte:head>
 
-  <!-- Register Card -->
-  <Card class="w-full max-w-sm">
-    <CardContent class="pt-6">
-      <form onsubmit={(e) => { e.preventDefault(); handleRegister(); }}>
+<div class="flex min-h-screen flex-col bg-background">
+	<!-- Header -->
+	<header class="border-b border-border bg-card">
+		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+			<a href="/" class="flex items-center gap-2">
+				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+					<Store class="h-6 w-6 text-primary-foreground" />
+				</div>
+				<span class="text-xl font-bold text-foreground">Mak Unyil</span>
+			</a>
+			<ThemeToggle />
+		</div>
+	</header>
 
-        <!-- Role Selection -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium mb-3">Daftar Sebagai</label>
-          <div class="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onclick={() => role = 'owner'}
-              class="p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 {role === 'owner' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
-            >
-              <Store class="h-8 w-8 {role === 'owner' ? 'text-primary' : 'text-muted-foreground'}" />
-              <span class="font-medium text-sm {role === 'owner' ? 'text-primary' : ''}">Pemilik Lapak</span>
-              <span class="text-xs text-muted-foreground text-center">Buat & kelola lapak</span>
-            </button>
-            <button
-              type="button"
-              onclick={() => role = 'supplier'}
-              class="p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 {role === 'supplier' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
-            >
-              <Package class="h-8 w-8 {role === 'supplier' ? 'text-primary' : 'text-muted-foreground'}" />
-              <span class="font-medium text-sm {role === 'supplier' ? 'text-primary' : ''}">Penyetor</span>
-              <span class="text-xs text-muted-foreground text-center">Titip produk ke lapak</span>
-            </button>
-          </div>
-        </div>
+	<!-- Main Content -->
+	<main class="flex flex-1 items-center justify-center px-4 py-12">
+		<Card class="w-full max-w-md">
+			<!-- Back Link -->
+			<a href="/" class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+				<ArrowLeft class="h-4 w-4" />
+				Kembali ke Beranda
+			</a>
 
-        <!-- Name Input -->
-        <div class="mb-4">
-          <label for="name" class="block text-sm font-medium mb-1">Nama Lengkap</label>
-          <Input
-            id="name"
-            type="text"
-            bind:value={name}
-            placeholder="Masukkan nama"
-            disabled={loading}
-          />
-        </div>
+			{#if formSuccess}
+				<!-- Success State -->
+				<div class="text-center">
+					<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+						<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
+					</div>
+					<h1 class="text-2xl font-bold text-foreground">Pendaftaran Berhasil! 🎉</h1>
+					<p class="mt-2 text-muted-foreground">
+						Akun Anda telah berhasil dibuat. Silakan login untuk melanjutkan.
+					</p>
+					<Button href="/auth/login" class="mt-6 w-full">
+						Masuk Sekarang
+					</Button>
+				</div>
+			{:else}
+				<div class="mb-6 text-center">
+					<h1 class="text-2xl font-bold text-foreground">Buat Akun Baru</h1>
+					<p class="mt-2 text-muted-foreground">Pilih tipe akun dan isi data diri Anda</p>
+				</div>
 
-        <!-- WhatsApp Input -->
-        <div class="mb-4">
-          <label for="whatsapp" class="block text-sm font-medium mb-1">Nomor WhatsApp</label>
-          <Input
-            id="whatsapp"
-            type="tel"
-            bind:value={whatsapp}
-            placeholder="08xxxxxxxxxx"
-            disabled={loading}
-          />
-        </div>
+				<!-- Role Selection -->
+				<div class="mb-6 grid grid-cols-2 gap-4">
+					<button
+						type="button"
+						onclick={() => (role = 'supplier')}
+						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {role === 'supplier' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
+					>
+						<div class="flex h-12 w-12 items-center justify-center rounded-full {role === 'supplier' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}">
+							<User class="h-6 w-6" />
+						</div>
+						<span class="font-medium text-foreground">Penyetor</span>
+						<span class="text-xs text-muted-foreground">Titip produk ke lapak</span>
+					</button>
 
-        <!-- PIN Input -->
-        <div class="mb-4">
-          <label for="pin" class="block text-sm font-medium mb-1">PIN (6 Digit)</label>
-          <Input
-            id="pin"
-            type="password"
-            bind:value={pin}
-            placeholder="Masukkan PIN"
-            maxlength={6}
-            disabled={loading}
-          />
-        </div>
+					<button
+						type="button"
+						onclick={() => (role = 'owner')}
+						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {role === 'owner' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
+					>
+						<div class="flex h-12 w-12 items-center justify-center rounded-full {role === 'owner' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}">
+							<Building2 class="h-6 w-6" />
+						</div>
+						<span class="font-medium text-foreground">Pemilik Lapak</span>
+						<span class="text-xs text-muted-foreground">Kelola lapak sendiri</span>
+					</button>
+				</div>
 
-        <!-- Confirm PIN Input -->
-        <div class="mb-6">
-          <label for="confirmPin" class="block text-sm font-medium mb-1">Konfirmasi PIN</label>
-          <Input
-            id="confirmPin"
-            type="password"
-            bind:value={confirmPin}
-            placeholder="Ulangi PIN"
-            maxlength={6}
-            disabled={loading}
-          />
-        </div>
+				<!-- Register Form -->
+				<form
+					method="POST"
+					use:enhance={() => {
+						loading = true;
+						return async ({ update }) => {
+							loading = false;
+							await update();
+						};
+					}}
+					class="space-y-4"
+				>
+					<input type="hidden" name="role" value={role} />
 
-        <!-- Register Button -->
-        <Button type="submit" class="w-full" size="lg" disabled={loading}>
-          {#if loading}
-            <Loader2 class="h-4 w-4 animate-spin" />
-            Memproses...
-          {:else}
-            Daftar sebagai {role === 'owner' ? 'Pemilik Lapak' : 'Penyetor'}
-          {/if}
-        </Button>
-      </form>
+					<Input
+						id="name"
+						name="name"
+						label="Nama Lengkap"
+						placeholder="Masukkan nama lengkap (huruf saja)"
+						required
+						bind:value={name}
+						error={nameError()}
+					/>
 
-      <!-- Login Link -->
-      <p class="text-center text-sm text-muted-foreground mt-4">
-        Sudah punya akun?
-        <a href="/auth/login" class="text-primary font-medium hover:underline">Masuk</a>
-      </p>
-    </CardContent>
-  </Card>
+					<Input
+						id="whatsapp"
+						name="whatsapp"
+						type="tel"
+						label="Nomor WhatsApp"
+						placeholder="08xxxxxxxxxx"
+						required
+						bind:value={whatsapp}
+						error={whatsappError()}
+					/>
+
+					<Input
+						id="pin"
+						name="pin"
+						type="password"
+						label="PIN (6 digit angka)"
+						placeholder="Masukkan 6 digit PIN"
+						minlength={6}
+						maxlength={6}
+						required
+						bind:value={pin}
+						error={pinError()}
+						showPasswordToggle={true}
+					/>
+
+					<Input
+						id="confirmPin"
+						name="confirmPin"
+						type="password"
+						label="Konfirmasi PIN"
+						placeholder="Ulangi 6 digit PIN"
+						minlength={6}
+						maxlength={6}
+						required
+						bind:value={confirmPin}
+						error={confirmPinError()}
+						showPasswordToggle={true}
+					/>
+
+					{#if formError}
+						<div class="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+							{formError}
+						</div>
+					{/if}
+
+					<Button type="submit" class="w-full" disabled={!isFormValid || loading}>
+						{#if loading}
+							Mendaftar...
+						{:else}
+							Daftar Sekarang
+						{/if}
+					</Button>
+				</form>
+
+				<p class="mt-6 text-center text-sm text-muted-foreground">
+					Sudah punya akun?
+					<a href="/auth/login" class="font-medium text-primary hover:underline">
+						Masuk di sini
+					</a>
+				</p>
+			{/if}
+		</Card>
+	</main>
 </div>

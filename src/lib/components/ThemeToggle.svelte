@@ -1,46 +1,39 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { Button } from '$lib/components/ui/button';
-  import { Sun, Moon } from 'lucide-svelte';
+	import { Sun, Moon } from 'lucide-svelte';
 
-  let isDark = $state(false);
+	let isDark = $state(false);
 
-  onMount(() => {
-    // Check localStorage and system preference
-    const stored = localStorage.getItem('theme');
-    if (stored) {
-      isDark = stored === 'dark';
-    } else {
-      isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    applyTheme();
-  });
+	function toggleTheme() {
+		isDark = !isDark;
+		if (isDark) {
+			document.documentElement.classList.add('dark');
+			localStorage.setItem('theme', 'dark');
+		} else {
+			document.documentElement.classList.remove('dark');
+			localStorage.setItem('theme', 'light');
+		}
+	}
 
-  function applyTheme() {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }
+	$effect(() => {
+		// Check for saved theme or system preference
+		const savedTheme = localStorage.getItem('theme');
+		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  function toggle() {
-    isDark = !isDark;
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    applyTheme();
-  }
+		if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+			isDark = true;
+			document.documentElement.classList.add('dark');
+		}
+	});
 </script>
 
-<Button
-  variant="ghost"
-  size="icon"
-  onclick={toggle}
-  class="text-current hover:bg-white/10"
-  aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+<button
+	onclick={toggleTheme}
+	class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-foreground transition-colors hover:bg-muted"
+	aria-label="Toggle theme"
 >
-  {#if isDark}
-    <Sun class="h-5 w-5" />
-  {:else}
-    <Moon class="h-5 w-5" />
-  {/if}
-</Button>
+	{#if isDark}
+		<Sun class="h-5 w-5" />
+	{:else}
+		<Moon class="h-5 w-5" />
+	{/if}
+</button>

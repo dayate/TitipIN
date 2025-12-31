@@ -1,135 +1,212 @@
 <script lang="ts">
-  import { page } from '$app/stores';
-  import { Button } from '$lib/components/ui/button';
-  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import { Menu, LogOut, ChevronLeft, Home, Package, Cookie, History, Bell } from 'lucide-svelte';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import { Button } from '$lib/components/ui';
+	import { getInitials } from '$lib/utils';
+	import { page } from '$app/stores';
+	import {
+		Store,
+		Home,
+		Package,
+		History,
+		Bell,
+		User,
+		LogOut,
+		Menu,
+		X,
+		ChevronDown
+	} from 'lucide-svelte';
 
-  let { children, data } = $props();
+	let { data, children } = $props();
+	let mobileMenuOpen = $state(false);
+	let userMenuOpen = $state(false);
 
-  const menuItems = [
-    { href: '/app', icon: Home, label: 'Beranda' },
-    { href: '/app/setor', icon: Package, label: 'Setor Barang' },
-    { href: '/app/products', icon: Cookie, label: 'Produk Saya' },
-    { href: '/app/history', icon: History, label: 'Riwayat' },
-    { href: '/app/notifications', icon: Bell, label: 'Notifikasi' },
-  ];
+	const navItems = [
+		{ href: '/app', icon: Home, label: 'Beranda' },
+		{ href: '/app/stores', icon: Store, label: 'Lapak' },
+		{ href: '/app/setor', icon: Package, label: 'Setor' },
+		{ href: '/app/history', icon: History, label: 'Riwayat' }
+	];
 
-  let sidebarOpen = $state(true);
-  let sidebarMobileOpen = $state(false);
+	let currentPath = $derived($page.url.pathname);
+
+	function closeMobileMenu() {
+		mobileMenuOpen = false;
+	}
+
+	function closeUserMenu() {
+		userMenuOpen = false;
+	}
 </script>
 
-<!-- Mobile Header -->
-<header class="lg:hidden bg-primary text-primary-foreground p-4 sticky top-0 z-40">
-  <div class="flex items-center justify-between">
-    <Button variant="ghost" size="icon" onclick={() => sidebarMobileOpen = true} class="text-current hover:bg-white/10">
-      <Menu class="h-6 w-6" />
-    </Button>
-    <h1 class="font-bold">Mak Unyil</h1>
-    <div class="flex items-center gap-1">
-      <ThemeToggle />
-      <Button variant="ghost" size="icon" class="text-current hover:bg-white/10" onclick={() => window.location.href = '/app/notifications'}>
-        <Bell class="h-5 w-5" />
-      </Button>
-    </div>
-  </div>
-</header>
+<div class="flex min-h-screen flex-col bg-background">
+	<!-- Top Navigation -->
+	<header class="sticky top-0 z-50 border-b border-border bg-card">
+		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+			<!-- Logo -->
+			<a href="/app" class="flex items-center gap-2">
+				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+					<Store class="h-6 w-6 text-primary-foreground" />
+				</div>
+				<span class="hidden text-xl font-bold text-foreground sm:block">Mak Unyil</span>
+			</a>
 
-<div class="flex min-h-screen bg-background">
-  <!-- Sidebar Overlay (Mobile) -->
-  {#if sidebarMobileOpen}
-    <button
-      type="button"
-      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
-      onclick={() => sidebarMobileOpen = false}
-      aria-label="Close sidebar"
-    ></button>
-  {/if}
+			<!-- Desktop Navigation -->
+			<nav class="hidden items-center gap-1 md:flex">
+				{#each navItems as item}
+					<a
+						href={item.href}
+						class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors
+							{currentPath === item.href
+								? 'bg-primary text-primary-foreground'
+								: 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+					>
+						<item.icon class="h-4 w-4" />
+						{item.label}
+					</a>
+				{/each}
+			</nav>
 
-  <!-- Sidebar -->
-  <aside class="
-    fixed lg:sticky inset-y-0 left-0 z-50 top-0 h-screen
-    bg-card shadow-lg transition-all duration-300 ease-in-out border-r
-    {sidebarMobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
-    {sidebarOpen ? 'w-64' : 'w-16'}
-  ">
-    <!-- Sidebar Header -->
-    <div class="p-4 border-b bg-primary flex items-center justify-between">
-      {#if sidebarOpen}
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <span class="text-lg">🍩</span>
-          </div>
-          <div class="text-primary-foreground">
-            <h2 class="font-bold text-sm">Mak Unyil</h2>
-            <p class="text-xs opacity-80">Penyetor</p>
-          </div>
-        </div>
-      {:else}
-        <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center mx-auto">
-          <span class="text-lg">🍩</span>
-        </div>
-      {/if}
+			<!-- Right Section -->
+			<div class="flex items-center gap-2">
+				<ThemeToggle />
 
-      <!-- Toggle Button (Desktop) -->
-      <Button
-        variant="ghost"
-        size="icon"
-        class="hidden lg:flex text-primary-foreground hover:bg-white/20"
-        onclick={() => sidebarOpen = !sidebarOpen}
-      >
-        <ChevronLeft class="h-5 w-5 transition-transform {sidebarOpen ? '' : 'rotate-180'}" />
-      </Button>
-    </div>
+				<!-- User Menu (Desktop) -->
+				<div class="relative hidden md:block">
+					<button
+						onclick={() => (userMenuOpen = !userMenuOpen)}
+						class="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-muted"
+					>
+						<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+							{getInitials(data.user.name)}
+						</div>
+						<span class="text-sm font-medium text-foreground">{data.user.name}</span>
+						<ChevronDown class="h-4 w-4 text-muted-foreground" />
+					</button>
 
-    <!-- User Info -->
-    {#if sidebarOpen}
-      <div class="p-4 border-b bg-accent">
-        <p class="text-xs text-muted-foreground">Selamat datang,</p>
-        <p class="font-medium truncate">{data?.user?.name || 'Penyetor'}</p>
-      </div>
-    {/if}
+					{#if userMenuOpen}
+						<!-- Backdrop -->
+						<div
+							class="fixed inset-0 z-40"
+							onclick={closeUserMenu}
+							onkeydown={(e) => e.key === 'Escape' && closeUserMenu()}
+							role="button"
+							tabindex="0"
+							aria-label="Close menu"
+						></div>
+						<div class="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-border bg-card py-1 shadow-lg">
+							<a
+								href="/app/profile"
+								onclick={closeUserMenu}
+								class="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted"
+							>
+								<User class="h-4 w-4" />
+								Profil Saya
+							</a>
+							<hr class="my-1 border-border" />
+							<form action="/auth/logout" method="POST">
+								<button
+									type="submit"
+									class="flex w-full items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-muted"
+								>
+									<LogOut class="h-4 w-4" />
+									Keluar
+								</button>
+							</form>
+						</div>
+					{/if}
+				</div>
 
-    <!-- Navigation -->
-    <nav class="p-2 overflow-y-auto" style="height: calc(100vh - {sidebarOpen ? '200px' : '140px'})">
-      <ul class="space-y-1">
-        {#each menuItems as item}
-          {@const isActive = $page.url.pathname === item.href ||
-            (item.href !== '/app' && $page.url.pathname.startsWith(item.href))}
-          {@const Icon = item.icon}
-          <li>
-            <a
-              href={item.href}
-              class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-accent'}"
-              onclick={() => sidebarMobileOpen = false}
-              title={!sidebarOpen ? item.label : ''}
-            >
-              <Icon class="h-5 w-5 {sidebarOpen ? '' : 'mx-auto'}" />
-              {#if sidebarOpen}
-                <span class="text-sm">{item.label}</span>
-              {/if}
-            </a>
-          </li>
-        {/each}
-      </ul>
-    </nav>
+				<!-- Mobile Menu Button -->
+				<button
+					onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
+					class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted md:hidden"
+					aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+				>
+					{#if mobileMenuOpen}
+						<X class="h-6 w-6 text-foreground" />
+					{:else}
+						<Menu class="h-6 w-6 text-foreground" />
+					{/if}
+				</button>
+			</div>
+		</div>
 
-    <!-- Logout -->
-    <div class="absolute bottom-0 left-0 right-0 p-2 border-t bg-card">
-      <a
-        href="/api/auth/logout"
-        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
-        title={!sidebarOpen ? 'Keluar' : ''}
-      >
-        <LogOut class="h-5 w-5 {sidebarOpen ? '' : 'mx-auto'}" />
-        {#if sidebarOpen}
-          <span class="text-sm">Keluar</span>
-        {/if}
-      </a>
-    </div>
-  </aside>
+		<!-- Mobile Dropdown Menu -->
+		{#if mobileMenuOpen}
+			<!-- Backdrop -->
+			<div
+				class="fixed inset-0 top-16 z-40 bg-black/50 md:hidden"
+				onclick={closeMobileMenu}
+				onkeydown={(e) => e.key === 'Escape' && closeMobileMenu()}
+				role="button"
+				tabindex="0"
+				aria-label="Close menu"
+			></div>
+			<div class="absolute left-0 right-0 top-16 z-50 border-b border-border bg-card p-4 shadow-lg md:hidden">
+				<nav class="space-y-1">
+					{#each navItems as item}
+						<a
+							href={item.href}
+							onclick={closeMobileMenu}
+							class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors
+								{currentPath === item.href
+									? 'bg-primary text-primary-foreground'
+									: 'text-foreground hover:bg-muted'}"
+						>
+							<item.icon class="h-5 w-5" />
+							{item.label}
+						</a>
+					{/each}
+				</nav>
 
-  <!-- Main Content -->
-  <main class="flex-1 min-w-0">
-    {@render children()}
-  </main>
+				<hr class="my-4 border-border" />
+
+				<div class="flex items-center gap-3 px-3 py-2">
+					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+						{getInitials(data.user.name)}
+					</div>
+					<div>
+						<p class="font-medium text-foreground">{data.user.name}</p>
+						<p class="text-sm text-muted-foreground">Penyetor</p>
+					</div>
+				</div>
+
+				<form action="/auth/logout" method="POST" class="mt-4">
+					<Button type="submit" variant="outline" class="w-full gap-2">
+						<LogOut class="h-4 w-4" />
+						Keluar
+					</Button>
+				</form>
+			</div>
+		{/if}
+	</header>
+
+	<!-- Page Content -->
+	<main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 pb-20 md:pb-6">
+		{@render children()}
+	</main>
+
+	<!-- Bottom Navigation (Mobile) -->
+	<nav class="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card safe-area-bottom md:hidden">
+		<div class="grid h-16 grid-cols-4">
+			{#each navItems as item}
+				<a
+					href={item.href}
+					class="flex flex-col items-center justify-center gap-0.5 transition-colors
+						{currentPath === item.href
+							? 'text-primary'
+							: 'text-muted-foreground hover:text-foreground'}"
+				>
+					<item.icon class="h-5 w-5" />
+					<span class="text-[10px] font-medium">{item.label}</span>
+				</a>
+			{/each}
+		</div>
+	</nav>
 </div>
+
+<style>
+	.safe-area-bottom {
+		padding-bottom: env(safe-area-inset-bottom, 0);
+	}
+</style>

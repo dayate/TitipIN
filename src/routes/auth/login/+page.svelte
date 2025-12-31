@@ -1,156 +1,153 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
-  import { Button } from '$lib/components/ui/button';
-  import { Input } from '$lib/components/ui/input';
-  import { Card, CardHeader, CardTitle, CardContent } from '$lib/components/ui/card';
-  import { Eye, EyeOff, Loader2 } from 'lucide-svelte';
-  import { toast } from 'svelte-sonner';
-  import { onMount } from 'svelte';
+	import { Button, Input, Card } from '$lib/components/ui';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import { Store, ArrowLeft } from 'lucide-svelte';
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 
-  let whatsapp = $state('');
-  let pin = $state('');
-  let loading = $state(false);
-  let showPin = $state(false);
+	let { form } = $props();
 
-  onMount(() => {
-    // Check for error params (e.g., from hooks redirect)
-    const errorParam = $page.url.searchParams.get('error');
-    if (errorParam === 'pending') {
-      toast.error('Akun belum diaktifkan. Tunggu persetujuan admin.');
-    }
-  });
+	let whatsapp = $state('');
+	let pin = $state('');
+	let loading = $state(false);
 
-  async function handleLogin() {
-    if (!whatsapp || pin.length !== 6) {
-      toast.error('Masukkan nomor WA dan PIN 6 digit');
-      return;
-    }
+	// Validation
+	let whatsappError = $derived(() => {
+		if (whatsapp.length === 0) return '';
+		const cleaned = whatsapp.replace(/\D/g, '');
+		if (cleaned.length < 10) return 'Nomor minimal 10 digit';
+		if (cleaned.length > 15) return 'Nomor maksimal 15 digit';
+		if (!cleaned.startsWith('08') && !cleaned.startsWith('62')) return 'Harus diawali 08 atau 62';
+		return '';
+	});
 
-    loading = true;
+	let pinError = $derived(() => {
+		if (pin.length === 0) return '';
+		if (!/^\d+$/.test(pin)) return 'PIN hanya boleh angka';
+		if (pin.length < 6) return 'PIN minimal 6 digit';
+		return '';
+	});
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ whatsapp, pin }),
-      });
+	let formError = $derived(form?.error || '');
+	let isFormValid = $derived(
+		whatsapp.replace(/\D/g, '').length >= 10 &&
+		whatsapp.replace(/\D/g, '').length <= 15 &&
+		pin.length >= 6 &&
+		/^\d+$/.test(pin) &&
+		!whatsappError() &&
+		!pinError()
+	);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error || 'Login gagal');
-        return;
-      }
-
-      toast.success('Login berhasil!');
-
-      // Redirect based on role
-      setTimeout(() => {
-        if (data.user.role === 'admin') {
-          goto('/admin');
-        } else {
-          goto('/app');
-        }
-      }, 500);
-    } catch (e) {
-      toast.error('Terjadi kesalahan. Coba lagi.');
-    } finally {
-      loading = false;
-    }
-  }
+	// Get redirect URL from query params
+	let redirectTo = $derived($page.url.searchParams.get('redirect') || '');
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-primary via-primary/90 to-primary/80 dark:from-primary/30 dark:via-background dark:to-background flex flex-col items-center justify-center p-4">
-  <!-- Logo & Title -->
-  <div class="text-center mb-8">
-    <div class="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
-      <span class="text-4xl">🍩</span>
-    </div>
-    <h1 class="text-3xl font-bold text-white">Mak Unyil</h1>
-    <p class="text-white/80 mt-1">Konsinyasi Digital</p>
-  </div>
+<svelte:head>
+	<title>Masuk - Mak Unyil</title>
+</svelte:head>
 
-  <!-- Login Card -->
-  <Card class="w-full max-w-sm">
-    <CardHeader class="text-center pb-2">
-      <CardTitle class="text-xl">Masuk ke Akun</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form onsubmit={(e) => { e.preventDefault(); handleLogin(); }}>
-        <!-- WhatsApp Input -->
-        <div class="mb-4">
-          <label for="whatsapp" class="block text-sm font-medium mb-2">Nomor WhatsApp</label>
-          <Input
-            id="whatsapp"
-            type="tel"
-            bind:value={whatsapp}
-            placeholder="08xxxxxxxxxx"
-            disabled={loading}
-          />
-        </div>
+<div class="flex min-h-screen flex-col bg-background">
+	<!-- Header -->
+	<header class="border-b border-border bg-card">
+		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+			<a href="/" class="flex items-center gap-2">
+				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+					<Store class="h-6 w-6 text-primary-foreground" />
+				</div>
+				<span class="text-xl font-bold text-foreground">Mak Unyil</span>
+			</a>
+			<ThemeToggle />
+		</div>
+	</header>
 
-        <!-- PIN Input -->
-        <div class="mb-6">
-          <label for="pin" class="block text-sm font-medium mb-2">PIN (6 Digit)</label>
-          <div class="relative">
-            <Input
-              id="pin"
-              type={showPin ? 'text' : 'password'}
-              bind:value={pin}
-              placeholder="••••••"
-              maxlength={6}
-              disabled={loading}
-              class="pr-10"
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              class="absolute right-0 top-0 h-10 w-10 text-muted-foreground hover:text-foreground"
-              onclick={() => showPin = !showPin}
-            >
-              {#if showPin}
-                <EyeOff class="h-4 w-4" />
-              {:else}
-                <Eye class="h-4 w-4" />
-              {/if}
-            </Button>
-          </div>
-          <p class="text-xs text-muted-foreground mt-1">Masukkan 6 digit PIN Anda</p>
-        </div>
+	<!-- Main Content -->
+	<main class="flex flex-1 items-center justify-center px-4 py-12">
+		<Card class="w-full max-w-md">
+			<!-- Back Link -->
+			<a href="/" class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+				<ArrowLeft class="h-4 w-4" />
+				Kembali ke Beranda
+			</a>
 
-        <!-- Login Button -->
-        <Button
-          type="submit"
-          class="w-full"
-          size="lg"
-          disabled={loading || pin.length !== 6}
-        >
-          {#if loading}
-            <Loader2 class="h-4 w-4 animate-spin" />
-            Memproses...
-          {:else}
-            Masuk
-          {/if}
-        </Button>
-      </form>
+			<div class="mb-8 text-center">
+				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
+					<Store class="h-8 w-8 text-primary-foreground" />
+				</div>
+				<h1 class="text-2xl font-bold text-foreground">Selamat Datang</h1>
+				<p class="mt-2 text-muted-foreground">Masuk ke akun Mak Unyil Anda</p>
+			</div>
 
-      <!-- Links -->
-      <div class="text-center text-sm text-muted-foreground mt-4 space-y-2">
-        <p>
-          <a href="/auth/forgot-pin" class="text-primary font-medium hover:underline">Lupa PIN?</a>
-        </p>
-        <p>
-          Belum punya akun?
-          <a href="/auth/register" class="text-primary font-medium hover:underline">Daftar</a>
-        </p>
-      </div>
-    </CardContent>
-  </Card>
+			<!-- Login Form -->
+			<form
+				method="POST"
+				use:enhance={() => {
+					loading = true;
+					return async ({ update }) => {
+						loading = false;
+						await update();
+					};
+				}}
+				class="space-y-4"
+			>
+				<input type="hidden" name="redirect" value={redirectTo} />
 
-  <!-- Footer -->
-  <p class="text-white/60 text-xs mt-8">
-    © 2024 Mak Unyil. All rights reserved.
-  </p>
+				<Input
+					id="whatsapp"
+					name="whatsapp"
+					type="tel"
+					label="Nomor WhatsApp"
+					placeholder="08xxxxxxxxxx"
+					required
+					bind:value={whatsapp}
+					error={whatsappError()}
+				/>
+
+				<Input
+					id="pin"
+					name="pin"
+					type="password"
+					label="PIN (6 digit angka)"
+					placeholder="Masukkan 6 digit PIN"
+					minlength={6}
+					maxlength={6}
+					required
+					bind:value={pin}
+					error={pinError()}
+					showPasswordToggle={true}
+				/>
+
+				{#if formError}
+					<div class="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+						{formError}
+					</div>
+				{/if}
+
+				<Button type="submit" class="w-full" disabled={!isFormValid || loading}>
+					{#if loading}
+						Memproses...
+					{:else}
+						Masuk
+					{/if}
+				</Button>
+			</form>
+
+			<div class="my-6 flex items-center gap-4">
+				<div class="h-px flex-1 bg-border"></div>
+				<span class="text-sm text-muted-foreground">atau</span>
+				<div class="h-px flex-1 bg-border"></div>
+			</div>
+
+			<div class="space-y-3">
+				<a href="/auth/reset-pin" class="block text-center text-sm text-primary hover:underline">
+					Lupa PIN?
+				</a>
+				<p class="text-center text-sm text-muted-foreground">
+					Belum punya akun?
+					<a href="/auth/register" class="font-medium text-primary hover:underline">
+						Daftar sekarang
+					</a>
+				</p>
+			</div>
+		</Card>
+	</main>
 </div>

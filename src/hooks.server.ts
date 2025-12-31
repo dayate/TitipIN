@@ -1,58 +1,81 @@
 import type { Handle } from '@sveltejs/kit';
-import { redirect } from '@sveltejs/kit';
-import { validateSession, getSessionId } from '$lib/server/auth';
+import { validateSession } from '$lib/server/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // Get session from cookie
-  const sessionId = getSessionId(event);
+	// Get session ID from cookies
+	const sessionId = event.cookies.get('session_id');
 
-  if (sessionId) {
-    const user = await validateSession(sessionId);
-    event.locals.user = user;
-  } else {
-    event.locals.user = null;
-  }
+	if (sessionId) {
+		try {
+			const result = await validateSession(sessionId);
 
-  const { pathname } = event.url;
+			if (result) {
+				event.locals.user = {
+					id: result.user.id,
+					name: result.user.name,
+					whatsapp: result.user.whatsapp,
+					role: result.user.role,
+					status: result.user.status,
+					avatarUrl: result.user.avatarUrl
+				};
+				event.locals.session = result.session;
+			} else {
+				// Invalid or expired session, clear cookie
+				event.cookies.delete('session_id', { path: '/' });
+				event.locals.user = null;
+				event.locals.session = null;
+			}
+		} catch {
+			// Database error, clear session
+			event.cookies.delete('session_id', { path: '/' });
+			event.locals.user = null;
+			event.locals.session = null;
+		}
+	} else {
+		event.locals.user = null;
+		event.locals.session = null;
+	}
 
-  // Protect owner routes (pemilik lapak area)
-  if (pathname.startsWith('/owner')) {
-    if (!event.locals.user) {
-      throw redirect(302, '/auth/login');
-    }
-    if (event.locals.user.role !== 'owner') {
-      throw redirect(302, '/app');
-    }
-    if (event.locals.user.status !== 'active') {
-      throw redirect(302, '/auth/login?error=pending');
-    }
-  }
+	// Protected routes
+	const { pathname } = event.url;
 
-  // Protect app routes (supplier/penyetor area)
-  if (pathname.startsWith('/app')) {
-    if (!event.locals.user) {
-      throw redirect(302, '/auth/login');
-    }
-    if (event.locals.user.status !== 'active') {
-      throw redirect(302, '/auth/login?error=pending');
-    }
-  }
+	// Admin routes - require owner role
+	if (pathname.startsWith('/admin')) {
+		if (!event.locals.user) {
+			return new Response(null, {
+				status: 302,
+				headers: { Location: '/auth/login?redirect=' + encodeURIComponent(pathname) }
+			});
+		}
+		if (event.locals.user.role !== 'owner') {
+			return new Response(null, {
+				status: 302,
+				headers: { Location: '/app' }
+			});
+		}
+	}
 
-  // Protect stores routes that require auth (join, etc)
-  if (pathname.match(/^\/stores\/[^\/]+\/join/)) {
-    if (!event.locals.user) {
-      throw redirect(302, '/auth/login');
-    }
-  }
+	// App routes - require any authenticated user
+	if (pathname.startsWith('/app')) {
+		if (!event.locals.user) {
+			return new Response(null, {
+				status: 302,
+				headers: { Location: '/auth/login?redirect=' + encodeURIComponent(pathname) }
+			});
+		}
+	}
 
-  // Redirect authenticated users away from auth pages
-  if (pathname.startsWith('/auth/') && event.locals.user) {
-    if (event.locals.user.role === 'owner') {
-      throw redirect(302, '/owner');
-    } else {
-      throw redirect(302, '/app');
-    }
-  }
+	// Auth routes - redirect if already logged in
+	if (pathname.startsWith('/auth/login') || pathname.startsWith('/auth/register')) {
+		if (event.locals.user) {
+			const redirectTo = event.locals.user.role === 'owner' ? '/admin' : '/app';
+			return new Response(null, {
+				status: 302,
+				headers: { Location: redirectTo }
+			});
+		}
+	}
 
-  return resolve(event);
+	const response = await resolve(event);
+	return response;
 };
