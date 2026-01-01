@@ -191,27 +191,34 @@
 		{#if activeMembers.length === 0}
 			<p class="text-center text-muted-foreground py-8">Belum ada anggota aktif</p>
 		{:else}
-			<div class="divide-y divide-border">
-				{#each activeMembers as { member, user }}
-					<div class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
-						<div class="flex items-center gap-3">
-							<div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-								<CheckCircle2 class="h-5 w-5 text-green-600 dark:text-green-400" />
-							</div>
-							<div>
-								<h3 class="font-medium text-foreground">{user.name}</h3>
-								<p class="text-sm text-muted-foreground">{user.whatsapp}</p>
-							</div>
-						</div>
-
-						<form method="POST" action="?/kick" use:enhance>
-							<input type="hidden" name="memberId" value={member.id} />
-							<Button type="submit" size="sm" variant="ghost" class="text-destructive hover:bg-destructive/10">
-								<XCircle class="h-4 w-4" />
-							</Button>
-						</form>
-					</div>
-				{/each}
+			<div class="overflow-x-auto">
+				<table class="w-full text-sm">
+					<thead>
+						<tr class="border-b border-border">
+							<th class="py-3 text-left font-medium text-muted-foreground">Nama</th>
+							<th class="py-3 text-left font-medium text-muted-foreground">WhatsApp</th>
+							<th class="py-3 text-left font-medium text-muted-foreground">Bergabung</th>
+							<th class="py-3 text-center font-medium text-muted-foreground">Aksi</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-border">
+						{#each activeMembers as { member, user }}
+							<tr class="hover:bg-muted/50">
+								<td class="py-3 font-medium text-foreground">{user.name}</td>
+								<td class="py-3 text-muted-foreground">{user.whatsapp}</td>
+								<td class="py-3 text-muted-foreground text-xs">{formatDate(member.createdAt!)}</td>
+								<td class="py-3 text-center">
+									<form method="POST" action="?/kick" use:enhance>
+										<input type="hidden" name="memberId" value={member.id} />
+										<Button type="submit" size="sm" variant="ghost" class="text-destructive hover:bg-destructive/10">
+											<XCircle class="h-4 w-4" />
+										</Button>
+									</form>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			</div>
 		{/if}
 	</Card>

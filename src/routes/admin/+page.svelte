@@ -7,7 +7,6 @@
 		TrendingUp,
 		DollarSign,
 		ArrowUpRight,
-		ArrowDownRight,
 		Clock,
 		CheckCircle2,
 		AlertCircle
@@ -15,44 +14,43 @@
 
 	let { data } = $props();
 
-	// Sample stats (in real app, these would come from database)
+	// Real stats from database
 	const stats = [
 		{
 			label: 'Total Anggota',
-			value: '24',
-			change: '+3',
+			value: data.stats.totalMembers.toString(),
+			change: data.stats.pendingMembers > 0 ? `+${data.stats.pendingMembers} pending` : '',
 			changeType: 'positive',
 			icon: Users
 		},
 		{
 			label: 'Produk Aktif',
-			value: '156',
-			change: '+12',
+			value: data.stats.totalProducts.toString(),
+			change: data.stats.pendingProducts > 0 ? `+${data.stats.pendingProducts} pending` : '',
 			changeType: 'positive',
 			icon: Package
 		},
 		{
 			label: 'Transaksi Hari Ini',
-			value: '42',
-			change: '-5',
-			changeType: 'negative',
+			value: data.stats.todayTransactions.toString(),
+			change: data.stats.todayPendingValidation > 0 ? `${data.stats.todayPendingValidation} perlu validasi` : '',
+			changeType: data.stats.todayPendingValidation > 0 ? 'negative' : 'positive',
 			icon: TrendingUp
 		},
 		{
 			label: 'Pendapatan Bulan Ini',
-			value: formatCurrency(12450000),
-			change: '+18%',
+			value: formatCurrency(data.stats.monthlyPayout),
+			change: '',
 			changeType: 'positive',
 			icon: DollarSign
 		}
 	];
 
 	const recentActivities = [
-		{ type: 'join', message: 'Ahmad Fauzi mengajukan bergabung', time: '5 menit lalu', status: 'pending' },
-		{ type: 'transaction', message: 'Ibu Siti mengirim setoran 25 item', time: '30 menit lalu', status: 'success' },
-		{ type: 'product', message: 'Produk "Kue Lapis" menunggu approval', time: '1 jam lalu', status: 'pending' },
-		{ type: 'transaction', message: 'Pak Budi menyelesaikan retur', time: '2 jam lalu', status: 'success' },
-		{ type: 'alert', message: 'Stok "Roti Manis" hampir habis', time: '3 jam lalu', status: 'warning' }
+		{ type: 'info', message: `Anda memiliki ${data.storeCount} lapak`, time: 'Hari ini', status: 'success' },
+		{ type: 'info', message: `${data.stats.pendingMembers} anggota menunggu approval`, time: 'Aktif', status: data.stats.pendingMembers > 0 ? 'pending' : 'success' },
+		{ type: 'info', message: `${data.stats.pendingProducts} produk menunggu approval`, time: 'Aktif', status: data.stats.pendingProducts > 0 ? 'pending' : 'success' },
+		{ type: 'info', message: `${data.stats.todayPendingValidation} setoran perlu divalidasi`, time: 'Hari ini', status: data.stats.todayPendingValidation > 0 ? 'warning' : 'success' }
 	];
 </script>
 

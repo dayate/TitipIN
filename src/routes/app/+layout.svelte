@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import ServerClock from '$lib/components/ServerClock.svelte';
 	import { Button } from '$lib/components/ui';
 	import { getInitials } from '$lib/utils';
 	import { page } from '$app/stores';
@@ -29,6 +30,7 @@
 	const navItems = [
 		{ href: '/app', icon: Home, label: 'Beranda' },
 		{ href: '/app/stores', icon: Store, label: 'Lapak' },
+		{ href: '/app/products', icon: Package, label: 'Produk Saya' },
 		{ href: '/app/setor', icon: Package, label: 'Setor' },
 		{ href: '/app/history', icon: History, label: 'Riwayat' },
 		{ href: '/app/notifications', icon: Bell, label: 'Notifikasi' }
@@ -153,6 +155,11 @@
 					<PanelLeftClose class="h-5 w-5 text-foreground" />
 				{/if}
 			</button>
+
+			<!-- Server Clock -->
+			<div class="hidden sm:block">
+				<ServerClock />
+			</div>
 
 			<div class="flex-1"></div>
 

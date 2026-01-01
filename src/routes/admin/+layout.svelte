@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import ServerClock from '$lib/components/ServerClock.svelte';
 	import { Button } from '$lib/components/ui';
 	import { getInitials } from '$lib/utils';
 	import { page } from '$app/stores';
@@ -157,6 +158,11 @@
 					<PanelLeftClose class="h-5 w-5 text-foreground" />
 				{/if}
 			</button>
+
+			<!-- Server Clock -->
+			<div class="hidden sm:block">
+				<ServerClock />
+			</div>
 
 			<div class="flex-1"></div>
 

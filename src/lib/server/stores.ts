@@ -119,7 +119,7 @@ export async function isStoreOwner(storeId: number, userId: number): Promise<boo
 	return store?.ownerId === userId;
 }
 
-// Get store with member count
+// Get store with full stats
 export async function getStoreWithStats(storeId: number) {
 	const store = await getStoreById(storeId);
 	if (!store) return null;
@@ -140,10 +140,31 @@ export async function getStoreWithStats(storeId: number) {
 			eq(storeMembers.status, 'pending')
 		));
 
+	// Import products and transactions tables
+	const { products, dailyTransactions } = await import('./db/schema');
+
+	const productList = await db
+		.select()
+		.from(products)
+		.where(eq(products.storeId, storeId));
+
+	const transactionList = await db
+		.select()
+		.from(dailyTransactions)
+		.where(eq(dailyTransactions.storeId, storeId));
+
+	// Calculate total revenue
+	const totalRevenue = transactionList
+		.filter(t => t.status === 'completed')
+		.reduce((sum, t) => sum + t.totalPayout, 0);
+
 	return {
 		...store,
 		memberCount: members.length,
-		pendingCount: pending.length
+		pendingCount: pending.length,
+		productCount: productList.length,
+		transactionCount: transactionList.length,
+		totalRevenue
 	};
 }
 
