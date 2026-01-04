@@ -15,6 +15,7 @@ export async function createProduct(data: {
 	imageUrl?: string;
 	priceBuy: number;
 	priceSell: number;
+	suggestedPriceSell?: number;
 }): Promise<Product> {
 	const [product] = await db
 		.insert(products)
@@ -26,6 +27,7 @@ export async function createProduct(data: {
 			imageUrl: data.imageUrl || null,
 			priceBuy: data.priceBuy,
 			priceSell: data.priceSell,
+			suggestedPriceSell: data.suggestedPriceSell || null,
 			status: 'pending',
 			isActive: true
 		})
@@ -124,6 +126,7 @@ export async function updateProduct(
 		imageUrl?: string;
 		priceBuy?: number;
 		priceSell?: number;
+		suggestedPriceSell?: number | null;
 		isActive?: boolean;
 		status?: 'pending' | 'approved' | 'rejected';
 	}

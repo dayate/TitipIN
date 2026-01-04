@@ -273,7 +273,6 @@
 						<p class="text-xs text-muted-foreground">Setujui member otomatis</p>
 					</div>
 				</div>
-				<input type="hidden" name="autoApprove" value="false" />
 				<button
 					type="button"
 					onclick={() => autoApprove = !autoApprove}

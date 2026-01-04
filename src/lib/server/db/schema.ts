@@ -54,7 +54,7 @@ export const stores = sqliteTable('stores', {
 	// Settings
 	visibility: text('visibility').$type<StoreVisibility>().notNull().default('private'),
 	isOpen: integer('is_open', { mode: 'boolean' }).notNull().default(true),
-	autoApprove: integer('auto_approve', { mode: 'boolean' }).notNull().default(false),
+	autoApprove: integer('auto_approve', { mode: 'boolean' }).notNull().default(true),
 	// Operating Hours
 	operatingDays: text('operating_days').default('Senin-Sabtu'), // e.g., "Senin-Sabtu"
 	openTime: text('open_time').default('04:00'),
@@ -134,6 +134,7 @@ export const products = sqliteTable('products', {
 	imageUrl: text('image_url'),
 	priceBuy: integer('price_buy').notNull(),
 	priceSell: integer('price_sell').notNull(),
+	suggestedPriceSell: integer('suggested_price_sell'), // Rekomendasi harga jual dari penyetor
 	status: text('status').$type<ProductStatus>().notNull().default('pending'),
 	isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date())

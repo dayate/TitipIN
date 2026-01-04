@@ -198,13 +198,16 @@
 												<input type="hidden" name="productId" value={product.id} />
 												<div class="flex flex-col">
 													<label for="price-{product.id}" class="text-xs text-muted-foreground">Harga Jual</label>
+													{#if product.suggestedPriceSell}
+														<span class="text-xs text-primary mb-1">💡 Saran: {formatCurrency(product.suggestedPriceSell)}</span>
+													{/if}
 													<input
 														id="price-{product.id}"
 														type="number"
 														name="priceSell"
-														value={priceSellInputs[product.id] || Math.round(product.priceBuy * 1.3)}
+														value={priceSellInputs[product.id] || product.suggestedPriceSell || Math.round(product.priceBuy * 1.3)}
 														onchange={(e) => priceSellInputs[product.id] = parseInt(e.currentTarget.value) || 0}
-														class="w-24 rounded border border-input bg-background px-2 py-1 text-sm"
+														class="w-24 rounded border border-input bg-background px-2 py-1 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
 														min={product.priceBuy}
 														required
 													/>

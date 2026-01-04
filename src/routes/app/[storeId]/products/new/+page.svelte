@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Button, Input } from '$lib/components/ui';
+	import { Card, Button, Input, NumberInput } from '$lib/components/ui';
 	import { enhance } from '$app/forms';
 	import { ArrowLeft, Package, Save, Upload, X, ImageOff } from 'lucide-svelte';
 
@@ -7,13 +7,14 @@
 
 	let name = $state('');
 	let description = $state('');
-	let priceBuy = $state('');
+	let priceBuy = $state(0);
+	let suggestedPrice = $state(0);
 	let loading = $state(false);
 	let imagePreview = $state<string | null>(null);
 	let imageFile = $state<File | null>(null);
 
 	let formError = $derived(form?.error || '');
-	let isFormValid = $derived(name.length >= 3 && parseInt(priceBuy) > 0);
+	let isFormValid = $derived(name.length >= 3 && priceBuy > 0);
 
 	function handleImageChange(event: Event) {
 		const input = event.target as HTMLInputElement;
@@ -148,20 +149,37 @@
 				></textarea>
 			</div>
 
-			<!-- Price Buy Only -->
-			<Input
+			<!-- Price Buy -->
+			<NumberInput
 				id="priceBuy"
 				name="priceBuy"
 				label="Harga Setor (Rp)"
-				type="number"
-				placeholder="10000"
-				required
+				min={0}
+				step={500}
 				bind:value={priceBuy}
 			/>
 
+			<!-- Suggested Price -->
+			<div class="space-y-2">
+				<NumberInput
+					id="suggestedPrice"
+					name="suggestedPrice"
+					label="Rekomendasi Harga Jual (Rp) - Opsional"
+					min={0}
+					step={500}
+					bind:value={suggestedPrice}
+				/>
+				{#if suggestedPrice > 0 && priceBuy > 0}
+					{@const margin = ((suggestedPrice - priceBuy) / priceBuy * 100).toFixed(0)}
+					<p class="text-xs text-muted-foreground">
+						Margin keuntungan: <span class="font-medium {parseInt(margin) >= 20 ? 'text-green-600' : parseInt(margin) >= 10 ? 'text-yellow-600' : 'text-red-600'}">{margin}%</span>
+					</p>
+				{/if}
+			</div>
+
 			<div class="rounded-lg bg-muted p-4">
 				<p class="text-sm text-muted-foreground">
-					💡 <strong>Catatan:</strong> Harga jual akan ditentukan oleh admin lapak saat menyetujui produk Anda.
+					💡 <strong>Catatan:</strong> Harga jual final akan ditentukan oleh admin lapak saat menyetujui produk Anda. Rekomendasi harga jual akan dipertimbangkan.
 				</p>
 			</div>
 

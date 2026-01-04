@@ -1,4 +1,3 @@
-1. Coba perhatikan gambar tersebut. saya ingin Informasi dasar, jam operasional, informasi kontak, pengaturan tidak ditampilkan langsung seperti sekarang. buatkan halaman tersendiri, kemudian tambahkan button shortcutnya seperti pada button kelola produk, anggota, validasi setoran, input retur, riwayat setoran pada gambar.
-2. Kemudian saya juga ingin pada panel user juga menggunakan prinsip yang sama tetapi dengan fitur-fitur milik user sendiri.
-3. kemudian perbarui terkait riwayat setoran juga sertakan informasi produk yang disetorkan. misalnya nama produk, harga setor, harga jual, gambar produk, total terjual, total retur, keuntungan bersih, data waktu setoran, status setoran dan lain-lain
-4. perbarui ui/ux input agar lebih terlihat modern
+1. Pisahkan halaman lapak saya dan temukan lapak
+2. Perbaiki UI notifikasi (dropdown) agar responsive
+3. Jadikan fitur Auto-Approve via invite code nilai defaultnya adalah true. jadi jika membuat lapak baru auto-approve defaultnya aktif

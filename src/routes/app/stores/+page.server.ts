@@ -1,18 +1,11 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { getUserStores, requestLeaveStore, getMemberById } from '$lib/server/members';
-import { getPublicStores, getStoreById } from '$lib/server/stores';
 import { notifyLeaveRequest } from '$lib/server/notifications';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const memberships = await getUserStores(locals.user!.id);
-	const publicStores = await getPublicStores();
-
-	// Filter out stores user has already joined (active, pending, leaving)
-	const joinedStoreIds = new Set(memberships.map(m => m.store.id));
-	const discoverStores = publicStores.filter(s => !joinedStoreIds.has(s.id));
-
-	return { memberships, discoverStores };
+	return { memberships };
 };
 
 export const actions: Actions = {

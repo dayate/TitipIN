@@ -48,11 +48,6 @@ export const actions: Actions = {
 			return fail(403, { error: 'Anda tidak memiliki akses untuk menghapus produk ini' });
 		}
 
-		// Only allow delete if pending or rejected
-		if (product.status === 'approved') {
-			return fail(400, { error: 'Produk yang sudah disetujui tidak dapat dihapus' });
-		}
-
 		await deleteProduct(productId);
 		return { success: true };
 	}

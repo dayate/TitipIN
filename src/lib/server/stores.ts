@@ -20,7 +20,7 @@ export async function createStore(ownerId: number, data: {
 			description: data.description || null,
 			visibility: data.visibility || 'private',
 			isOpen: true,
-			autoApprove: false
+			autoApprove: true
 		})
 		.returning();
 

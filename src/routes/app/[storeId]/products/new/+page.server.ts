@@ -46,6 +46,7 @@ export const actions: Actions = {
 		const name = data.get('name')?.toString().trim();
 		const description = data.get('description')?.toString().trim();
 		const priceBuy = parseInt(data.get('priceBuy')?.toString() || '0');
+		const suggestedPrice = parseInt(data.get('suggestedPrice')?.toString() || '0') || undefined;
 		const imageFile = data.get('image') as File | null;
 
 		// Validation
@@ -95,7 +96,8 @@ export const actions: Actions = {
 				description: description || undefined,
 				imageUrl,
 				priceBuy,
-				priceSell: 0 // Will be set by admin during approval
+				priceSell: 0, // Will be set by admin during approval
+				suggestedPriceSell: suggestedPrice
 			});
 
 			// Notify admin about new product

@@ -18,7 +18,8 @@
 		X,
 		ChevronDown,
 		PanelLeftClose,
-		PanelLeft
+		PanelLeft,
+		Search
 	} from 'lucide-svelte';
 
 	let { data, children } = $props();
@@ -29,9 +30,8 @@
 
 	const navItems = [
 		{ href: '/app', icon: Home, label: 'Beranda' },
-		{ href: '/app/stores', icon: Store, label: 'Lapak' },
-		{ href: '/app/products', icon: Package, label: 'Produk Saya' },
-		{ href: '/app/setor', icon: Package, label: 'Setor' },
+		{ href: '/app/stores', icon: Store, label: 'Lapak Saya' },
+		{ href: '/app/discover', icon: Search, label: 'Temukan Lapak' },
 		{ href: '/app/history', icon: History, label: 'Riwayat' },
 		{ href: '/app/notifications', icon: Bell, label: 'Notifikasi' }
 	];
@@ -188,8 +188,8 @@
 						tabindex="0"
 						aria-label="Close notifications"
 					></div>
-					<!-- Dropdown -->
-					<div class="absolute right-0 top-full z-50 mt-2 w-80 max-h-96 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+					<!-- Dropdown - Responsive -->
+					<div class="fixed inset-x-4 top-16 z-50 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] sm:max-h-96 overflow-hidden rounded-xl border border-border bg-card shadow-xl">
 						<div class="flex items-center justify-between border-b border-border px-4 py-3">
 							<h3 class="font-semibold text-foreground">Notifikasi</h3>
 							{#if data.unreadNotifications > 0}
@@ -210,7 +210,7 @@
 								</form>
 							{/if}
 						</div>
-						<div class="max-h-72 overflow-y-auto">
+						<div class="max-h-[50vh] sm:max-h-72 overflow-y-auto">
 							{#if data.notifications && data.notifications.length > 0}
 								{#each data.notifications.slice(0, 5) as notification}
 									<form
@@ -242,9 +242,11 @@
 												{/if}
 												<div class="min-w-0 flex-1">
 													<p class="text-sm font-medium text-foreground truncate {!notification.isRead ? 'font-semibold' : ''}">{notification.title}</p>
-													<p class="text-xs text-muted-foreground line-clamp-1">{notification.message}</p>
+													<p class="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
 													<p class="mt-1 text-[10px] text-muted-foreground/70">
-														{new Date(notification.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {new Date(notification.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+														{#if notification.createdAt}
+															{new Date(notification.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {new Date(notification.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+														{/if}
 													</p>
 												</div>
 											</div>

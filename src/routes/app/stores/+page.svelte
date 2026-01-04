@@ -2,12 +2,12 @@
 	import { Card, Button } from '$lib/components/ui';
 	import { enhance } from '$app/forms';
 	import {
-		Store, Plus, Clock, CheckCircle2, LogOut, Eye, EyeOff, Users,
-		Package, History, TrendingUp, ArrowRight
+		Store, Clock, CheckCircle2, LogOut, Eye, EyeOff, Package, MapPin, Search
 	} from 'lucide-svelte';
 
 	let { data } = $props();
 
+	// State for leave modal
 	let leaveModalOpen = $state(false);
 	let leavingStoreId = $state<number | null>(null);
 	let leavingStoreName = $state('');
@@ -42,6 +42,11 @@
 		leavingMemberId = null;
 		leaveReason = '';
 	}
+
+	function formatTime(time: string | null) {
+		if (!time) return '';
+		return time;
+	}
 </script>
 
 <svelte:head>
@@ -62,9 +67,9 @@
 					<p class="text-muted-foreground">Daftar lapak yang Anda ikuti</p>
 				</div>
 			</div>
-			<Button href="/app/join" class="gap-2 rounded-xl shadow-lg shadow-primary/25">
-				<Plus class="h-4 w-4" />
-				Gabung Lapak
+			<Button href="/app/discover" variant="outline" class="gap-2 rounded-xl">
+				<Search class="h-4 w-4" />
+				Cari Lapak Baru
 			</Button>
 		</div>
 	</div>
@@ -76,149 +81,110 @@
 				<Store class="h-8 w-8 text-muted-foreground" />
 			</div>
 			<h2 class="text-lg font-semibold text-foreground">Belum bergabung di lapak manapun</h2>
-			<p class="mt-2 text-muted-foreground">Minta kode undangan dari pemilik lapak untuk bergabung</p>
-			<Button href="/app/join" class="mt-4 gap-2 rounded-xl">
-				<Plus class="h-4 w-4" />
-				Gabung Lapak
+			<p class="mt-2 text-muted-foreground">Cari lapak publik atau gunakan kode undangan untuk bergabung</p>
+			<Button href="/app/discover" class="mt-4 gap-2 rounded-xl">
+				<Search class="h-4 w-4" />
+				Temukan Lapak
 			</Button>
 		</div>
 	{:else}
 		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each data.memberships as { member, store }}
 				{@const status = getStatusBadge(member.status)}
-				<div class="group relative rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
-					<!-- Status Badge -->
-					<div class="absolute right-4 top-4">
-						<span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium {status.class}">
-							<status.Icon class="h-3 w-3" />
-							{status.label}
-						</span>
-					</div>
-
-					<!-- Store Info -->
-					<div class="flex items-start gap-4">
-						<div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
-							<Store class="h-6 w-6 text-primary" />
-						</div>
-						<div class="min-w-0 flex-1">
-							<h3 class="truncate text-lg font-semibold text-foreground">{store.name}</h3>
-							<div class="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-								{#if store.visibility === 'public'}
-									<Eye class="h-3.5 w-3.5" />
-									<span>Publik</span>
-								{:else}
-									<EyeOff class="h-3.5 w-3.5" />
-									<span>Privat</span>
-								{/if}
-								<span>•</span>
-								<span class={store.isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-									{store.isOpen ? 'Buka' : 'Tutup'}
-								</span>
+				<div class="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+					<!-- Header -->
+					<div class="p-4 pb-3">
+						<div class="flex items-start justify-between">
+							<div class="flex items-center gap-3">
+								<div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
+									<Store class="h-5 w-5 text-primary" />
+								</div>
+								<div class="min-w-0">
+									<h3 class="truncate font-semibold text-foreground">{store.name}</h3>
+									<div class="flex items-center gap-2 text-xs text-muted-foreground">
+										{#if store.visibility === 'public'}
+											<Eye class="h-3 w-3" />
+											<span>Publik</span>
+										{:else}
+											<EyeOff class="h-3 w-3" />
+											<span>Privat</span>
+										{/if}
+										<span>•</span>
+										<span class={store.isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+											{store.isOpen ? 'Buka' : 'Tutup'}
+										</span>
+									</div>
+								</div>
 							</div>
-						</div>
-					</div>
-
-					{#if store.description}
-						<p class="mt-3 line-clamp-2 text-sm text-muted-foreground">{store.description}</p>
-					{/if}
-
-					{#if member.status === 'active'}
-						<!-- Quick Actions Grid -->
-						<div class="mt-4 grid grid-cols-3 gap-2">
-							<a
-								href="/app/{store.id}/setor"
-								class="flex flex-col items-center gap-1 rounded-xl bg-primary/5 p-3 text-center transition-colors hover:bg-primary/10"
-							>
-								<Package class="h-5 w-5 text-primary" />
-								<span class="text-xs font-medium text-foreground">Setor</span>
-							</a>
-							<a
-								href="/app/{store.id}/products"
-								class="flex flex-col items-center gap-1 rounded-xl bg-muted p-3 text-center transition-colors hover:bg-muted/80"
-							>
-								<TrendingUp class="h-5 w-5 text-muted-foreground" />
-								<span class="text-xs font-medium text-foreground">Produk</span>
-							</a>
-							<a
-								href="/app/{store.id}/history"
-								class="flex flex-col items-center gap-1 rounded-xl bg-muted p-3 text-center transition-colors hover:bg-muted/80"
-							>
-								<History class="h-5 w-5 text-muted-foreground" />
-								<span class="text-xs font-medium text-foreground">Riwayat</span>
-							</a>
-						</div>
-
-						<!-- Leave Button -->
-						<button
-							type="button"
-							onclick={() => openLeaveModal(store.id, store.name, member.id)}
-							class="mt-3 w-full text-center text-xs text-muted-foreground hover:text-destructive transition-colors"
-						>
-							Keluar dari lapak
-						</button>
-					{:else if member.status === 'pending'}
-						<div class="mt-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 p-3 text-center">
-							<p class="text-sm font-medium text-yellow-600 dark:text-yellow-400">Menunggu persetujuan</p>
-							<p class="mt-0.5 text-xs text-muted-foreground">Pemilik lapak akan review permintaan Anda</p>
-						</div>
-					{:else if member.status === 'leaving'}
-						<div class="mt-4 rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 text-center">
-							<p class="text-sm font-medium text-orange-600 dark:text-orange-400">Permintaan Keluar Diajukan</p>
-							<p class="mt-0.5 text-xs text-muted-foreground">Menunggu persetujuan admin</p>
-						</div>
-					{/if}
-				</div>
-			{/each}
-		</div>
-	{/if}
-
-	<!-- Discover Public Stores -->
-	{#if data.discoverStores.length > 0}
-		<div class="mt-8">
-			<div class="flex items-center justify-between mb-4">
-				<div>
-					<h2 class="text-xl font-bold text-foreground">Temukan Lapak</h2>
-					<p class="text-sm text-muted-foreground">Lapak publik yang bisa Anda ikuti</p>
-				</div>
-			</div>
-
-			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each data.discoverStores as store}
-					<div class="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
-						<!-- Visibility Badge -->
-						<div class="flex items-center justify-between mb-3">
-							<span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-medium text-primary">
-								<Eye class="h-3 w-3" />
-								Publik
-							</span>
-							<span class={`text-xs font-medium ${store.isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-								{store.isOpen ? '● Buka' : '● Tutup'}
+							<span class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium {status.class}">
+								<status.Icon class="h-3 w-3" />
+								{status.label}
 							</span>
 						</div>
 
 						<!-- Store Info -->
-						<div class="flex items-center gap-3 mb-3">
-							<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-								<Store class="h-5 w-5 text-primary" />
-							</div>
-							<h3 class="font-semibold text-foreground truncate">{store.name}</h3>
+						<div class="mt-3 space-y-1.5">
+							{#if store.operatingDays || store.openTime}
+								<div class="flex items-center gap-2 text-xs text-muted-foreground">
+									<Clock class="h-3.5 w-3.5 flex-shrink-0" />
+									<span>
+										{#if store.operatingDays}{store.operatingDays}{/if}
+										{#if store.operatingDays && store.openTime} • {/if}
+										{#if store.openTime}{formatTime(store.openTime)} - {formatTime(store.closeTime)}{/if}
+									</span>
+								</div>
+							{/if}
+							{#if store.address}
+								<div class="flex items-center gap-2 text-xs text-muted-foreground">
+									<MapPin class="h-3.5 w-3.5 flex-shrink-0" />
+									<span class="truncate">{store.address}</span>
+								</div>
+							{/if}
 						</div>
 
 						{#if store.description}
-							<p class="line-clamp-2 text-sm text-muted-foreground mb-4">{store.description}</p>
+							<p class="mt-2 line-clamp-2 text-sm text-muted-foreground">{store.description}</p>
 						{/if}
-
-						<a
-							href="/app/stores/{store.id}/join"
-							class="flex items-center justify-center gap-2 w-full rounded-xl bg-primary/10 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
-						>
-							<Users class="h-4 w-4" />
-							Minta Bergabung
-							<ArrowRight class="h-4 w-4" />
-						</a>
 					</div>
-				{/each}
-			</div>
+
+					{#if member.status === 'active'}
+						<!-- Action Buttons -->
+						<div class="border-t border-border p-3">
+							<div class="grid grid-cols-2 gap-2">
+								<a
+									href="/app/{store.id}"
+									class="flex items-center justify-center gap-2 rounded-xl border border-border bg-background py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary hover:bg-primary/5"
+								>
+									<Package class="h-4 w-4 text-primary" />
+									Kelola
+								</a>
+								<button
+									type="button"
+									onclick={() => openLeaveModal(store.id, store.name, member.id)}
+									class="flex items-center justify-center gap-2 rounded-xl border border-border bg-background py-2.5 text-sm font-medium text-destructive transition-all hover:border-destructive hover:bg-destructive/5"
+								>
+									<LogOut class="h-4 w-4" />
+									Keluar
+								</button>
+							</div>
+						</div>
+					{:else if member.status === 'pending'}
+						<div class="border-t border-border p-4">
+							<div class="rounded-xl bg-yellow-500/10 border border-yellow-500/20 p-3 text-center">
+								<p class="text-sm font-medium text-yellow-600 dark:text-yellow-400">Menunggu persetujuan</p>
+								<p class="mt-0.5 text-xs text-muted-foreground">Pemilik lapak akan review permintaan Anda</p>
+							</div>
+						</div>
+					{:else if member.status === 'leaving'}
+						<div class="border-t border-border p-4">
+							<div class="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 text-center">
+								<p class="text-sm font-medium text-orange-600 dark:text-orange-400">Permintaan Keluar Diajukan</p>
+								<p class="mt-0.5 text-xs text-muted-foreground">Menunggu persetujuan admin</p>
+							</div>
+						</div>
+					{/if}
+				</div>
+			{/each}
 		</div>
 	{/if}
 </div>

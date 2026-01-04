@@ -7,6 +7,7 @@
 		TrendingUp,
 		DollarSign,
 		ArrowUpRight,
+		ArrowDownRight,
 		Clock,
 		CheckCircle2,
 		AlertCircle

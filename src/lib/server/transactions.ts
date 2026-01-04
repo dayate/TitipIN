@@ -119,12 +119,14 @@ export async function getStoreTransactions(
 	return filtered;
 }
 
-// Get transactions by supplier
+// Get transactions by supplier with advanced filters
 export async function getSupplierTransactions(
 	supplierId: number,
 	storeId: number,
 	options?: {
 		status?: TransactionStatus;
+		startDate?: string;
+		endDate?: string;
 		limit?: number;
 	}
 ) {
@@ -145,11 +147,85 @@ export async function getSupplierTransactions(
 		filtered = filtered.filter((r) => r.status === options.status);
 	}
 
+	if (options?.startDate) {
+		filtered = filtered.filter((r) => r.date >= options.startDate!);
+	}
+
+	if (options?.endDate) {
+		filtered = filtered.filter((r) => r.date <= options.endDate!);
+	}
+
 	if (options?.limit) {
 		filtered = filtered.slice(0, options.limit);
 	}
 
 	return filtered;
+}
+
+// Delete transactions by IDs
+export async function deleteTransactions(transactionIds: number[]): Promise<number> {
+	if (transactionIds.length === 0) return 0;
+
+	let deleted = 0;
+	for (const id of transactionIds) {
+		// First delete all items for this transaction
+		await db.delete(transactionItems).where(eq(transactionItems.trxId, id));
+		// Then delete the transaction itself
+		await db.delete(dailyTransactions).where(eq(dailyTransactions.id, id));
+		deleted++;
+	}
+
+	return deleted;
+}
+
+// Export transactions to CSV format
+export function exportTransactionsToCSV(
+	transactions: Array<{
+		id: number;
+		date: string;
+		status: string;
+		totalItemsIn: number;
+		totalItemsSold: number;
+		totalPayout: number;
+		items: Array<{
+			item: { qtyActual: number; qtyReturned: number };
+			product: { name: string; priceBuy: number };
+		}>;
+	}>
+): string {
+	const headers = ['Tanggal', 'Status', 'Produk', 'Masuk', 'Terjual', 'Retur', 'Keuntungan'];
+	const rows: string[][] = [headers];
+
+	for (const trx of transactions) {
+		if (trx.items.length === 0) {
+			rows.push([
+				trx.date,
+				trx.status,
+				'-',
+				'0',
+				'0',
+				'0',
+				'0'
+			]);
+		} else {
+			for (const { item, product } of trx.items) {
+				const qtySold = item.qtyActual - item.qtyReturned;
+				const profit = qtySold * product.priceBuy;
+				rows.push([
+					trx.date,
+					trx.status,
+					product.name,
+					String(item.qtyActual),
+					String(qtySold),
+					String(item.qtyReturned),
+					String(profit)
+				]);
+			}
+		}
+	}
+
+	// Convert to CSV string
+	return rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
 }
 
 // ============================================

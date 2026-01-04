@@ -54,14 +54,48 @@
 		return quantities[productId] ?? 0;
 	}
 
+	let validationErrors = $state<Record<number, string>>({});
+	let formError = $state('');
+
+	function validateQty(value: number): string | null {
+		if (value < 0) return 'Jumlah tidak boleh negatif';
+		if (!Number.isInteger(value)) return 'Jumlah harus bilangan bulat';
+		return null;
+	}
+
+	function setQty(productId: number, value: number) {
+		const sanitized = Math.max(0, Math.floor(value));
+		const error = validateQty(sanitized);
+		if (error) {
+			validationErrors[productId] = error;
+		} else {
+			delete validationErrors[productId];
+		}
+		quantities[productId] = sanitized;
+	}
+
 	function increment(productId: number) {
-		quantities[productId] = getQty(productId) + 1;
+		setQty(productId, getQty(productId) + 1);
 	}
 
 	function decrement(productId: number) {
 		if (getQty(productId) > 0) {
-			quantities[productId] = getQty(productId) - 1;
+			setQty(productId, getQty(productId) - 1);
 		}
+	}
+
+	function handleQtyInput(productId: number, e: Event) {
+		const input = e.target as HTMLInputElement;
+		const rawValue = input.value;
+
+		// Block non-numeric characters (except empty)
+		if (rawValue !== '' && !/^\d*$/.test(rawValue)) {
+			input.value = String(getQty(productId));
+			return;
+		}
+
+		const val = parseInt(rawValue) || 0;
+		setQty(productId, val);
 	}
 
 	let totalItems = $derived(
@@ -126,8 +160,25 @@
 		</div>
 	</div>
 
-	<!-- Products List -->
-	{#if data.products.length === 0}
+	<!-- Store Closed Warning -->
+	{#if data.storeClosed}
+		<div class="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 text-center">
+			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
+				<Package class="h-8 w-8 text-red-500" />
+			</div>
+			<h2 class="text-lg font-semibold text-foreground">Lapak Sedang Tutup</h2>
+			<p class="mt-2 text-muted-foreground">
+				Anda tidak dapat melakukan setoran saat lapak sedang tutup. Silakan coba lagi saat lapak sudah buka.
+			</p>
+			<a
+				href="/app/{data.store.id}"
+				class="mt-4 inline-flex items-center gap-2 rounded-xl bg-muted px-4 py-2 font-medium text-foreground hover:bg-muted/80 transition-colors"
+			>
+				<ArrowLeft class="h-4 w-4" />
+				Kembali ke Lapak
+			</a>
+		</div>
+	{:else if data.products.length === 0}
 		<div class="rounded-2xl border border-dashed border-border bg-muted/30 p-12 text-center">
 			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
 				<Package class="h-8 w-8 text-muted-foreground" />
@@ -197,9 +248,20 @@
 								<Minus class="h-4 w-4" />
 							</button>
 
-							<div class="flex h-10 w-14 items-center justify-center border-y border-border bg-background text-lg font-bold text-foreground">
-								{qty}
-							</div>
+							<input
+								type="text"
+								inputmode="numeric"
+								pattern="[0-9]*"
+								value={qty}
+								oninput={(e) => handleQtyInput(product.id, e)}
+								onkeydown={(e) => {
+									// Block minus and certain special keys
+									if (e.key === '-' || e.key === 'e' || e.key === '+' || e.key === '.') {
+										e.preventDefault();
+									}
+								}}
+								class="h-10 w-14 border-y border-border bg-background text-center text-lg font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {validationErrors[product.id] ? 'border-destructive' : ''}"
+							/>
 
 							<button
 								type="button"

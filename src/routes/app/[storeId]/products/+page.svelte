@@ -159,39 +159,37 @@
 					</div>
 
 					<!-- Actions -->
-					{#if product.status !== 'approved'}
-						<div class="mt-4 flex gap-2">
-							<Button
-								href="/app/{data.store.id}/products/{product.id}/edit"
-								variant="outline"
-								class="flex-1"
-							>
-								Edit
-							</Button>
-							{#if deleteConfirm === product.id}
-								<form method="POST" action="?/delete" use:enhance class="flex gap-1">
-									<input type="hidden" name="productId" value={product.id} />
-									<Button type="submit" variant="destructive" size="sm">Ya</Button>
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onclick={() => (deleteConfirm = null)}
-									>
-										Batal
-									</Button>
-								</form>
-							{:else}
+					<div class="mt-4 flex gap-2">
+						<Button
+							href="/app/{data.store.id}/products/{product.id}/edit"
+							variant="outline"
+							class="flex-1"
+						>
+							Edit
+						</Button>
+						{#if deleteConfirm === product.id}
+							<form method="POST" action="?/delete" use:enhance class="flex gap-1">
+								<input type="hidden" name="productId" value={product.id} />
+								<Button type="submit" variant="destructive" size="sm">Ya</Button>
 								<Button
+									type="button"
 									variant="outline"
-									class="text-destructive"
-									onclick={() => (deleteConfirm = product.id)}
+									size="sm"
+									onclick={() => (deleteConfirm = null)}
 								>
-									<Trash2 class="h-4 w-4" />
+									Batal
 								</Button>
-							{/if}
-						</div>
-					{/if}
+							</form>
+						{:else}
+							<Button
+								variant="outline"
+								class="text-destructive"
+								onclick={() => (deleteConfirm = product.id)}
+							>
+								<Trash2 class="h-4 w-4" />
+							</Button>
+						{/if}
+					</div>
 				</Card>
 			{/each}
 		</div>

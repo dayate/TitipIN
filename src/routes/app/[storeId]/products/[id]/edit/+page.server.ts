@@ -29,11 +29,6 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw error(404, 'Produk tidak ditemukan');
 	}
 
-	// Only pending or rejected products can be edited
-	if (product.status === 'approved') {
-		throw redirect(302, `/app/${storeId}/products`);
-	}
-
 	return { store, product };
 };
 
@@ -51,14 +46,11 @@ export const actions: Actions = {
 			return fail(403, { error: 'Anda tidak memiliki akses untuk mengedit produk ini' });
 		}
 
-		if (product.status === 'approved') {
-			return fail(400, { error: 'Produk yang sudah disetujui tidak dapat diedit' });
-		}
-
 		const data = await request.formData();
 		const name = data.get('name')?.toString().trim();
 		const description = data.get('description')?.toString().trim();
 		const priceBuy = parseInt(data.get('priceBuy')?.toString() || '0');
+		const suggestedPrice = parseInt(data.get('suggestedPrice')?.toString() || '0') || null;
 		const imageFile = data.get('image') as File | null;
 
 		if (!name || name.length < 3) {
@@ -108,6 +100,7 @@ export const actions: Actions = {
 			description: description || undefined,
 			priceBuy,
 			imageUrl,
+			suggestedPriceSell: suggestedPrice,
 			status: 'pending' // Reset to pending after edit
 		});
 
