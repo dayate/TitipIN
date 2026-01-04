@@ -1,9 +1,10 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { getPublicStores, getStoreById } from '$lib/server/stores';
-import { getUserStores, joinStore, getMemberByUserAndStore, getActiveMembers } from '$lib/server/members';
+import { getUserStores, joinStore, getMemberByUserAndStore, getMemberCountsByStores } from '$lib/server/members';
 import { validateInviteCode, useInviteCode } from '$lib/server/invites';
 import { notifyNewJoinRequest, notifyJoinApproved } from '$lib/server/notifications';
+import { logger } from '$lib/server/logger';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const memberships = await getUserStores(locals.user!.id);
@@ -13,16 +14,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const joinedStoreIds = new Set(memberships.map(m => m.store.id));
 	const discoverStoresRaw = publicStores.filter(s => !joinedStoreIds.has(s.id));
 
-	// Add member count for each public store
-	const discoverStores = await Promise.all(
-		discoverStoresRaw.map(async (store) => {
-			const members = await getActiveMembers(store.id);
-			return {
-				...store,
-				memberCount: members.length
-			};
-		})
-	);
+	// Get member counts in a SINGLE query (fixes N+1 issue)
+	const storeIds = discoverStoresRaw.map(s => s.id);
+	const memberCounts = await getMemberCountsByStores(storeIds);
+
+	const discoverStores = discoverStoresRaw.map(store => ({
+		...store,
+		memberCount: memberCounts.get(store.id) || 0
+	}));
 
 	return { discoverStores };
 };
@@ -70,8 +69,11 @@ export const actions: Actions = {
 			// Increment usage counter
 			await useInviteCode(code);
 
-			// Send notifications
+			// Log and send notifications
+			logger.member.joined(locals.user!.id, store!.id);
+
 			if (autoApprove) {
+				logger.member.approved(member.id, store!.id);
 				await notifyJoinApproved(locals.user!.id, store!.name, store!.id);
 			} else {
 				await notifyNewJoinRequest(store!.id, locals.user!.name, member.id);
@@ -83,7 +85,7 @@ export const actions: Actions = {
 				autoApproved: autoApprove
 			};
 		} catch (err) {
-			console.error('Join store error:', err);
+			logger.error('Join store error', err);
 			return fail(500, { joinError: 'Gagal bergabung, silakan coba lagi' });
 		}
 	}

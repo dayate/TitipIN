@@ -1,3 +1,12 @@
-1. Pisahkan halaman lapak saya dan temukan lapak
-2. Perbaiki UI notifikasi (dropdown) agar responsive
-3. Jadikan fitur Auto-Approve via invite code nilai defaultnya adalah true. jadi jika membuat lapak baru auto-approve defaultnya aktif
+1.  Add rate limiting pada login
+2.  Fix N+1 query issues
+3. Add proper error handling
+4. Add form validation dengan Zod
+5. Implement proper logging
+6. Add loading states yang konsisten
+7. Setup proper environment config
+8. Refactor Tailwind class soup
+9. Add API documentation
+10. Performance optimization
+
+terapkan hal diatas

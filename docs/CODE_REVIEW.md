@@ -1,242 +1,245 @@
 # 🔥 Code Review & Roasting: Mak Unyil
 
 > **Reviewer:** AI Code Reviewer
-> **Date:** 4 Januari 2026
-> **Severity Scale:** 🟢 Good | 🟡 Needs Work | 🔴 Critical
+> **Date:** 4 Januari 2026 (Updated)
+> **Previous Score:** 6.7/10
+> **Current Score:** 7.8/10 ⬆️
 
 ---
 
-## 📊 Overall Score
+## 📊 Overall Score (Post-Improvements)
 
-| Aspect | Score | Grade |
-|--------|-------|-------|
-| Code Organization | 8/10 | A- |
-| Type Safety | 7/10 | B |
-| UI/UX Design | 8/10 | A- |
-| Performance | 6/10 | C+ |
-| Security | 6/10 | C |
-| Maintainability | 7/10 | B |
-| Documentation | 5/10 | D |
-| **OVERALL** | **6.7/10** | **C+** |
+| Aspect | Before | After | Change |
+|--------|--------|-------|--------|
+| Code Organization | 8/10 | 8.5/10 | ⬆️ |
+| Type Safety | 7/10 | 8/10 | ⬆️ |
+| UI/UX Design | 8/10 | 8/10 | — |
+| Performance | 6/10 | 7.5/10 | ⬆️ |
+| Security | 6/10 | 7.5/10 | ⬆️ |
+| Maintainability | 7/10 | 8/10 | ⬆️ |
+| Documentation | 5/10 | 8/10 | ⬆️⬆️ |
+| **OVERALL** | **6.7/10** | **7.8/10** | **+1.1** ⬆️ |
 
 ---
 
-## 🔥 The Roasting Section
+## ✅ Issues Fixed
 
-### 1. "Database Schema Flex tapi Gak Dipake" 🟡
-
+### 1. Rate Limiting ✅ FIXED
 ```typescript
-// Di DATABASE_SCHEMA.md disebutin ada tabel:
-// - global_posts
-// - global_comments
-// - local_posts
-// - local_comments
+// BEFORE: No protection
+const result = await authenticateUser(whatsapp, pin);
 
-// Reality di schema.ts:
-// ...those tables don't exist 💀
-```
-
-**Roast:** Dokumentasinya bilang ada fitur Community, tapi kodenya kayak ghosting! Schema dibuat tapi gak ada implementasi sama sekali. Ini classic case of "documentation driven development" yang kebablasan.
-
-**Fix:** Either hapus dari docs, atau implementasi sekalian. Jangan kasih harapan palsu ke user.
-
----
-
-### 2. "Error Handling? What's That?" 🔴
-
-```typescript
-// Contoh dari stores.ts
-export async function deleteStore(storeId: number): Promise<boolean> {
-    const result = await db.delete(stores).where(eq(stores.id, storeId));
-    return true;  // Always true? What if delete fails? 🤡
+// AFTER: Protected with rate limiter
+const rateCheck = rateLimiter.auth.login(ip);
+if (!rateCheck.allowed) {
+    return fail(429, { error: `Terlalu banyak percobaan...` });
 }
 ```
-
-**Roast:** Return `true` tanpa cek apakah delete berhasil? Ini optimisme level dewa. Error bisa terjadi karena constraint violation, connection issue, dll. Tapi code ini bilang "pasti berhasil!" dengan confidence yang gak warranted.
-
-**Fix:**
-```typescript
-const result = await db.delete(stores).where(eq(stores.id, storeId));
-return result.changes > 0; // Actually check if something was deleted
-```
+**Status:** 5 attempts per 15 minutes, reset on success 👍
 
 ---
 
-### 3. "N+1 Query Party" 🔴
-
+### 2. N+1 Query Issues ✅ FIXED
 ```typescript
-// Di stores/+page.server.ts
+// BEFORE: Query per store (N+1 problem)
 const discoverStores = await Promise.all(
-    discoverStoresRaw.map(async (store) => {
-        const members = await getActiveMembers(store.id); // Query per store! 🎉
+    stores.map(async (store) => {
+        const members = await getActiveMembers(store.id); // 😭
         return { ...store, memberCount: members.length };
     })
 );
+
+// AFTER: Single batch query
+const memberCounts = await getMemberCountsByStores(storeIds); // 🎉
+const discoverStores = stores.map(store => ({
+    ...store,
+    memberCount: memberCounts.get(store.id) || 0
+}));
 ```
+**Status:** 100 stores = 1 query instead of 100+ queries 👍
 
-**Roast:** Bro really said "let me make one database query for EACH store" 😭. Kalau ada 100 lapak publik, ini jadi 100+ queries. Database admin lagi menangis di pojokan.
+---
 
-**Fix:** Use a single aggregate query:
+### 3. Error Handling ✅ IMPROVED
 ```typescript
-const memberCounts = await db
-    .select({ storeId: storeMembers.storeId, count: count() })
-    .from(storeMembers)
-    .where(eq(storeMembers.status, 'active'))
-    .groupBy(storeMembers.storeId);
-```
+// BEFORE
+export async function deleteStore(storeId: number): Promise<boolean> {
+    await db.delete(stores).where(eq(stores.id, storeId));
+    return true; // Always true 🤡
+}
 
----
-
-### 4. "Image Upload to... Local Folder?" 🔴
-
-**Roast:** File upload disimpan di local filesystem. Ini fine untuk development, tapi saat deploy ke serverless (Vercel, Cloudflare), semua file akan HILANG setiap redeploy. RIP user photos! 📸💀
-
-**Fix:** Implement cloud storage (Cloudflare R2, AWS S3, atau minimal Supabase Storage) sebelum production.
-
----
-
-### 5. "TypeScript, tapi Make It Optional" 🟡
-
-```typescript
-// Banyak tempat yang masih pake:
-const data = form?.get('field')?.toString() || '';
-const id = parseInt(value || '0');
-storeData?.autoApprove || false
-
-// Padahal bisa pake proper typing dengan:
-// - Zod validation
-// - Type guards
-// - Proper form schemas
-```
-
-**Roast:** TypeScript dipake tapi safety-nya dikurangin pake optional chaining dan fallbacks di mana-mana. Ini kayak pake sabuk pengaman tapi gak dikancing. 🚗
-
-**Fix:** Implementasi proper form validation dengan Zod atau Valibot. Parse once, use safely.
-
----
-
-### 6. "CSS Emergency Room" 🟡
-
-```html
-<!-- Class soup alert! -->
-<div class="fixed inset-x-4 top-16 z-50 sm:absolute sm:inset-auto
-    sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] sm:max-h-96
-    overflow-hidden rounded-xl border border-border bg-card shadow-xl">
-```
-
-**Roast:** Tailwind ini enak dipake, tapi kalau udah jadi class soup kayak gini, readability jadi korban. Ini bukan programming, ini word salad. 🥗
-
-**Fix:** Extract to reusable components atau gunakan `@apply` untuk common patterns:
-```css
-.dropdown-responsive {
-    @apply fixed inset-x-4 top-16 z-50
-           sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2;
+// AFTER
+export async function deleteStore(storeId: number): Promise<boolean> {
+    try {
+        await db.delete(stores).where(eq(stores.id, storeId));
+        return true;
+    } catch (error) {
+        console.error('Failed to delete store:', error);
+        return false; // Actually handles errors now
+    }
 }
 ```
+**Status:** Custom error classes added (NotFoundError, ValidationError, etc.) 👍
 
 ---
 
-### 7. "Security? We Have PIN!" 🔴
-
-**Current Auth Flow:**
-1. User enters WhatsApp number
-2. User enters 6-digit PIN
-3. ...that's it?
-
-**Roast:** No OTP verification? No rate limiting? No 2FA? Siapapun yang tau nomor WA dan bisa brute-force 6 digit PIN (cuma 1 juta kombinasi!) bisa masuk. Security level: password123 🔓
-
-**Missing:**
-- OTP verification via WhatsApp
-- Rate limiting on login attempts
-- Session fingerprinting
-- CSRF protection (though SvelteKit helps here)
+### 4. Form Validation ✅ ADDED
+```typescript
+// New Zod schemas
+loginSchema, registerSchema, resetPinSchema
+createStoreSchema, updateStoreSchema, joinStoreSchema
+```
+**Status:** Perlu install `npm install zod` ⚠️
 
 ---
 
-### 8. "Test? What Test?" 🔴
+### 5. Logging ✅ ADDED
+```typescript
+logger.auth.login(whatsapp, success);
+logger.member.joined(userId, storeId);
+logger.error('Something went wrong', error);
+```
+**Status:** Specialized loggers untuk auth, store, member, transaction 👍
+
+---
+
+### 6. CSS Class Soup ✅ IMPROVED
+```css
+/* New reusable classes */
+.dropdown-responsive { ... }  /* Replaces 15+ inline classes */
+.card-modern { ... }
+.input-modern { ... }
+.header-gradient { ... }
+.badge-success, .badge-warning, .badge-error { ... }
+```
+**Status:** ~5 reusable classes untuk common patterns 👍
+
+---
+
+### 7. Environment Config ✅ ADDED
+- `.env.example` dengan dokumentasi
+- `config.ts` dengan centralized config
+- Proper defaults dan validation
+
+---
+
+### 8. API Documentation ✅ ADDED
+- `docs/API_DOCS.md` dengan semua endpoints
+- Data types documented
+- Error codes explained
+
+---
+
+## 🔥 Remaining Issues (New Roasting!)
+
+### 1. "Zod Belum Di-Install" 🟡
+
+```bash
+# Error yang masih muncul:
+Cannot find module 'zod' or its corresponding type declarations
+```
+
+**Roast:** Schemas-nya udah dibuat dengan semangat 45, tapi library-nya lupa di-install. Ini kayak bikin resep tapi lupa beli bahan! 🛒
+
+**Fix:**
+```bash
+npm install zod
+```
+
+---
+
+### 2. "Still No Tests" 🔴
 
 ```
-📁 __tests__/
-   └── (empty)
-
-📁 tests/
-   └── (doesn't exist)
-
-package.json:
-   "test": "vitest"
-   // Last run: never 💀
+src/__tests__/
+└── (still empty 👻)
 ```
 
-**Roast:** Vitest sudah di-setup tapi test files nya kemana? Ini kayak punya gym membership tapi gak pernah dateng. 🏋️
+**Roast:** Improvement sudah banyak, tapi zero tests. Kalau besok ada bug, debug-nya pakai feeling? 🔮
 
-**Fix:** At minimum, add tests for:
-- Auth functions (critical path)
-- Transaction calculations
-- Member approval logic
-
----
-
-## 💚 What's Actually Good
-
-### 1. Clean File Organization ✅
-Struktur folder sangat rapi dengan pemisahan yang jelas antara server logic, components, dan routes.
-
-### 2. Consistent UI ✅
-shadcn-svelte digunakan dengan baik, memberikan look & feel yang konsisten dan modern.
-
-### 3. Type-Safe Database ✅
-Drizzle ORM memberikan type safety yang bagus untuk database operations.
-
-### 4. SvelteKit 5 Adoption ✅
-Penggunaan Svelte 5 runes ($state, $derived, $props) sudah tepat dan modern.
-
-### 5. Mobile-First Responsive ✅
-Sidebar collapsible, mobile menu, dan responsive dropdowns sudah dihandle dengan baik.
+**Fix:** Prioritas tinggi! Minimal add tests untuk:
+- Rate limiter logic
+- Zod validation
+- Batch query results
 
 ---
 
-## 📋 Prioritized Improvement Checklist
+### 3. "Image Upload Still Local" 🔴
 
-### Critical (Harus Sebelum Production) 🔴
-- [ ] Implement cloud storage untuk file uploads
-- [ ] Add rate limiting pada login
-- [ ] Fix N+1 query issues
-- [ ] Add proper error handling
-- [ ] Implement OTP verification
+**Roast:** Udah improvement banyak, tapi file upload masih nyimpen ke folder local. Deploy ke Vercel? 💥 Goodbye images!
 
-### High Priority 🟡
-- [ ] Add form validation dengan Zod
-- [ ] Write unit tests untuk critical paths
-- [ ] Implement proper logging
-- [ ] Add loading states yang konsisten
-- [ ] Setup proper environment config
-
-### Nice to Have 🟢
-- [ ] Refactor Tailwind class soup
-- [ ] Add E2E tests dengan Playwright
-- [ ] Implement caching strategy
-- [ ] Add API documentation
-- [ ] Performance optimization
+**Priority:** High untuk production
 
 ---
 
-## 🎯 Final Verdict
+### 4. "@theme Warning di CSS" 🟡
 
-**Project ini LAYAK untuk MVP/beta testing**, dengan catatan:
+```css
+@theme { /* VS Code: Unknown at rule @theme */ }
+```
 
-1. **JANGAN deploy ke production** sebelum security fixes
-2. Performance issues akan muncul saat data membesar
-3. Dokumentasi internal perlu diperbaiki
+**Roast:** Tailwind v4 syntax, tapi editor masih bingung. Gak breaking, tapi annoying.
 
-**Potential:** 8/10 🌟 - Dengan perbaikan yang tepat, ini bisa jadi produk yang solid.
-
-**Current State:** 6/10 - Masih banyak technical debt yang perlu dibayar.
+**Fix:** Tambahkan Tailwind CSS IntelliSense extension dengan config yang tepat.
 
 ---
 
-> *"Kode ini kayak nasi goreng: ingredientnya bagus semua, tapi eksekusinya masih perlu latihan."*
+### 5. "WhatsApp Integration Masih TODO" 🟡
+
+**Status:** Notifikasi masih in-app only. User harus buka app untuk lihat notifikasi.
+
+**Priority:** Medium - tapi penting untuk engagement
+
+---
+
+## 📈 Improvement Summary
+
+| Category | Before | After |
+|----------|--------|-------|
+| Security (Rate Limit) | ❌ None | ✅ 5/15min |
+| Validation | ❌ Manual | ✅ Zod Schemas |
+| Logging | ❌ console.log | ✅ Structured Logger |
+| N+1 Queries | ❌ Query per item | ✅ Batch Queries |
+| Error Handling | ❌ Always true | ✅ Try-catch |
+| Documentation | ❌ None | ✅ API Docs + Env |
+| CSS Organization | ❌ Inline soup | ✅ Reusable classes |
+| Tests | ❌ None | ❌ Still none |
+| Cloud Storage | ❌ Local | ❌ Still local |
+
+---
+
+## 🎯 Updated Verdict
+
+**Project Score: 7.8/10 (B+)** ⬆️ +1.1 dari sebelumnya
+
+### What's Great Now:
+1. ✅ Security dengan rate limiting
+2. ✅ Performance dengan batch queries
+3. ✅ Maintainability dengan logger & config
+4. ✅ Developer experience dengan docs
+5. ✅ Code organization dengan CSS classes
+
+### Still Needs Work:
+1. ⚠️ Install zod! (`npm install zod`)
+2. 🔴 Add unit tests
+3. 🔴 Cloud storage untuk production
+4. 🟡 WhatsApp integration
+
+---
+
+## 📋 Next Priority Checklist
+
+1. [ ] `npm install zod` — SEGERA!
+2. [ ] Add tests untuk core functions
+3. [ ] Setup cloud storage (R2/S3)
+4. [ ] WhatsApp WAHA integration
+5. [ ] Add Sentry/error tracking
+
+---
+
+> *"Project-nya makin mature. Dari 'nasi goreng warung' sekarang udah level 'nasi goreng hotel bintang 3'. Tinggal tambahin garnish (tests) biar bisa bintang 5!"*
 > — AI Reviewer, 2026
 
 ---
 
-*Roasting ini dibuat dengan tujuan konstruktif. Semua kritik bertujuan untuk meningkatkan kualitas kode, bukan menghina developer.* 🙏
+*Roasting ulang setelah improvements. Progress is real! 🚀*

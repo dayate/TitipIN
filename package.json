@@ -35,6 +35,7 @@
 		"nanoid": "^5.0.9",
 		"svelte-sonner": "^0.3.28",
 		"tailwind-merge": "^2.6.0",
-		"tailwind-variants": "^0.3.0"
+		"tailwind-variants": "^0.3.0",
+		"zod": "^4.3.4"
 	}
 }

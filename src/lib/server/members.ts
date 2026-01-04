@@ -1,6 +1,6 @@
 import { db } from './db';
 import { storeMembers, users, stores, type StoreMember } from './db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, count, inArray } from 'drizzle-orm';
 
 // Join store (request membership)
 export async function joinStore(
@@ -150,6 +150,49 @@ export async function getPendingRequests(storeId: number) {
 // Get active members
 export async function getActiveMembers(storeId: number) {
 	return getStoreMembers(storeId, 'active');
+}
+
+// Get active member count for a single store
+export async function getActiveMemberCount(storeId: number): Promise<number> {
+	const [result] = await db
+		.select({ count: count() })
+		.from(storeMembers)
+		.where(and(
+			eq(storeMembers.storeId, storeId),
+			eq(storeMembers.status, 'active')
+		));
+	return result?.count || 0;
+}
+
+// Get member counts for multiple stores in a single query (BATCH - fixes N+1)
+export async function getMemberCountsByStores(storeIds: number[]): Promise<Map<number, number>> {
+	if (storeIds.length === 0) return new Map();
+
+	const results = await db
+		.select({
+			storeId: storeMembers.storeId,
+			count: count()
+		})
+		.from(storeMembers)
+		.where(and(
+			inArray(storeMembers.storeId, storeIds),
+			eq(storeMembers.status, 'active')
+		))
+		.groupBy(storeMembers.storeId);
+
+	const countMap = new Map<number, number>();
+	for (const row of results) {
+		countMap.set(row.storeId, row.count);
+	}
+
+	// Ensure all requested store IDs have an entry (0 if no members)
+	for (const id of storeIds) {
+		if (!countMap.has(id)) {
+			countMap.set(id, 0);
+		}
+	}
+
+	return countMap;
 }
 
 // Get user's joined stores (active, pending, leaving only - NOT rejected)

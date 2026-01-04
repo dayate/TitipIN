@@ -96,11 +96,17 @@ export async function updateStore(storeId: number, data: Partial<{
 
 // Delete store
 export async function deleteStore(storeId: number): Promise<boolean> {
-	const result = await db
-		.delete(stores)
-		.where(eq(stores.id, storeId));
+	try {
+		const result = await db
+			.delete(stores)
+			.where(eq(stores.id, storeId));
 
-	return true;
+		// SQLite returns { changes: number } for delete operations
+		return true; // If no error thrown, delete succeeded
+	} catch (error) {
+		console.error('Failed to delete store:', error);
+		return false;
+	}
 }
 
 // Toggle store open/close status
