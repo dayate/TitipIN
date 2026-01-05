@@ -3,6 +3,35 @@ import { validateSession } from '$lib/server/auth';
 import { isStoreAdmin } from '$lib/server/members';
 import { isStoreOwner } from '$lib/server/stores';
 
+/**
+ * Security Headers Configuration
+ * OWASP recommended security headers for production
+ */
+const securityHeaders = {
+	// Prevent clickjacking attacks
+	'X-Frame-Options': 'DENY',
+	// Prevent MIME type sniffing
+	'X-Content-Type-Options': 'nosniff',
+	// Enable XSS filter in older browsers
+	'X-XSS-Protection': '1; mode=block',
+	// Control referrer information
+	'Referrer-Policy': 'strict-origin-when-cross-origin',
+	// Prevent browser features
+	'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self)',
+	// Content Security Policy
+	'Content-Security-Policy': [
+		"default-src 'self'",
+		"script-src 'self' 'unsafe-inline'",
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+		"font-src 'self' https://fonts.gstatic.com",
+		"img-src 'self' data: blob: https:",
+		"connect-src 'self'",
+		"frame-ancestors 'none'",
+		"form-action 'self'",
+		"base-uri 'self'"
+	].join('; ')
+};
+
 export const handle: Handle = async ({ event, resolve }) => {
 	// Get session ID from cookies
 	const sessionId = event.cookies.get('session_id');
@@ -98,6 +127,19 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
+	// Resolve the request
 	const response = await resolve(event);
-	return response;
+
+	// Add security headers to all responses
+	const newHeaders = new Headers(response.headers);
+	for (const [key, value] of Object.entries(securityHeaders)) {
+		newHeaders.set(key, value);
+	}
+
+	return new Response(response.body, {
+		status: response.status,
+		statusText: response.statusText,
+		headers: newHeaders
+	});
 };
+
