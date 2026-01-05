@@ -1,6 +1,7 @@
 import type { PageServerLoad, Actions } from './$types';
 import { error, fail } from '@sveltejs/kit';
 import { getStoreWithStats, updateStore, isStoreOwner } from '$lib/server/stores';
+import { sanitizeInput, sanitizeAnnouncement } from '$lib/server/sanitize';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const storeId = parseInt(params.id);
@@ -58,6 +59,42 @@ export const actions: Actions = {
 		} catch (err) {
 			console.error('Update store error:', err);
 			return fail(500, { error: 'Gagal menyimpan pengaturan' });
+		}
+	},
+
+	emergencyMode: async ({ params, request, locals }) => {
+		const storeId = parseInt(params.id);
+		const isOwner = await isStoreOwner(storeId, locals.user!.id);
+		if (!isOwner) {
+			return fail(403, { error: 'Tidak memiliki akses' });
+		}
+
+		const data = await request.formData();
+		const enabled = data.get('enabled')?.toString() === 'true';
+		const reason = data.get('reason')?.toString().trim();
+
+		try {
+			const store = await updateStore(storeId, { emergencyMode: enabled });
+
+			// Log store status change
+			if (enabled) {
+				const { logEmergencyClose } = await import('$lib/server/storeStatus');
+				await logEmergencyClose(storeId, reason);
+			}
+
+			// Notify all suppliers if emergency mode is enabled
+			if (enabled && store) {
+				const { notifyStoreClosed } = await import('$lib/server/notifications');
+				await notifyStoreClosed(storeId, store.name, reason);
+			}
+
+			return {
+				success: true,
+				message: enabled ? 'Mode darurat diaktifkan' : 'Mode darurat dinonaktifkan'
+			};
+		} catch (err) {
+			console.error('Emergency mode error:', err);
+			return fail(500, { error: 'Gagal mengubah mode darurat' });
 		}
 	}
 };

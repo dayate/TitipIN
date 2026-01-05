@@ -1,0 +1,22 @@
+{
+	"css.validate": false,
+	"less.validate": false,
+	"scss.validate": false,
+	"editor.quickSuggestions": {
+		"strings": "on"
+	},
+	"tailwindCSS.includeLanguages": {
+		"svelte": "html"
+	},
+	"tailwindCSS.experimental.classRegex": [
+		["class=\\s*\"([^\"]*)\"", ""],
+		["class:\\s*\"([^\"]*)\"", ""],
+		["(?:enter|leave)(?:From|To)?\\s*=\\s*\"([^\"]*)\"", ""]
+	],
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"[svelte]": {
+		"editor.defaultFormatter": "svelte.svelte-vscode"
+	}
+}

@@ -298,3 +298,41 @@ export async function deleteRejectedMembership(memberId: number): Promise<boolea
 	return true;
 }
 
+// ============================================
+// ADMIN ROLE MANAGEMENT
+// ============================================
+
+// Promote member to admin role
+export async function promoteToAdmin(memberId: number): Promise<StoreMember | null> {
+	const [updated] = await db
+		.update(storeMembers)
+		.set({ role: 'admin' })
+		.where(eq(storeMembers.id, memberId))
+		.returning();
+
+	return updated || null;
+}
+
+// Demote admin to regular member
+export async function demoteFromAdmin(memberId: number): Promise<StoreMember | null> {
+	const [updated] = await db
+		.update(storeMembers)
+		.set({ role: 'member' })
+		.where(eq(storeMembers.id, memberId))
+		.returning();
+
+	return updated || null;
+}
+
+// Check if user is admin of store
+export async function isStoreAdmin(userId: number, storeId: number): Promise<boolean> {
+	const member = await getMemberByUserAndStore(userId, storeId);
+	return member?.status === 'active' && member?.role === 'admin';
+}
+
+// Get store admins
+export async function getStoreAdmins(storeId: number) {
+	const members = await getStoreMembers(storeId, 'active');
+	return members.filter(m => m.member.role === 'admin');
+}
+

@@ -81,6 +81,16 @@ export const actions: Actions = {
 		// Complete transaction
 		const completedTrx = await completeTransaction(trxId);
 
+		// Log audit
+		const { logTransactionAudit } = await import('$lib/server/audit');
+		await logTransactionAudit(
+			trxId,
+			'transaction_completed',
+			locals.user.id,
+			{ status: 'verified' },
+			{ status: 'completed', totalPayout: completedTrx?.totalPayout }
+		);
+
 		// Get items for detailed notification
 		const items = await getTransactionItems(trxId);
 
@@ -113,12 +123,37 @@ export const actions: Actions = {
 
 			await createNotification({
 				userId: completedTrx.supplierId,
-				type: 'info',
+				type: 'transaction_completed',
 				title: 'Transaksi Selesai! 💰',
 				message: detailMessage,
 				detailUrl: `/app/${storeId}/history`,
 				relatedStoreId: storeId
 			});
+
+			// Update supplier reliability stats
+			const { updateSupplierStatsOnComplete } = await import('$lib/server/reliability');
+
+			// Calculate totals from items
+			let totalPlanned = 0;
+			let totalActual = 0;
+			let totalSold = 0;
+
+			for (const { item } of items) {
+				totalPlanned += item.qtyPlanned;
+				totalActual += item.qtyActual;
+				totalSold += item.qtyActual - item.qtyReturned;
+			}
+
+			await updateSupplierStatsOnComplete(
+				completedTrx.supplierId,
+				storeId,
+				{
+					plannedQty: totalPlanned,
+					actualQty: totalActual,
+					soldQty: totalSold,
+					revenue: payout
+				}
+			);
 		}
 
 		return { success: true, trxId };

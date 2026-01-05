@@ -82,12 +82,22 @@ export const actions: Actions = {
 		// Verify transaction
 		await verifyTransaction(trxId, adminNote);
 
+		// Log audit
+		const { logTransactionAudit } = await import('$lib/server/audit');
+		await logTransactionAudit(
+			trxId,
+			'transaction_verified',
+			locals.user.id,
+			{ status: 'draft' },
+			{ status: 'verified', adminNote }
+		);
+
 		// Notify supplier
 		const trx = await getTransactionById(trxId);
 		if (trx) {
 			await createNotification({
 				userId: trx.supplierId,
-				type: 'info',
+				type: 'transaction_verified',
 				title: 'Setoran Divalidasi ✅',
 				message: `Setoran Anda untuk tanggal ${trx.date} telah divalidasi oleh ${store.name}. Silakan pantau penjualan.`,
 				detailUrl: `/app/${storeId}/history`,

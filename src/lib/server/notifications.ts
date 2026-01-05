@@ -229,12 +229,152 @@ export async function notifyLeaveRequest(
 
 	return createNotification({
 		userId: store.ownerId,
-		type: 'info',
+		type: 'leave_request',
 		title: 'Permintaan Keluar Lapak',
 		message: `${userName} mengajukan permintaan keluar dari ${store.name}. Alasan: ${reason}`,
 		detailUrl: `/admin/stores/${storeId}/members`,
 		relatedStoreId: storeId,
 		relatedMemberId: memberId
+	});
+}
+
+// ============================================
+// PRODUCT NOTIFICATIONS
+// ============================================
+
+export async function notifyProductApproved(
+	userId: number,
+	productName: string,
+	storeName: string,
+	storeId: number
+) {
+	return createNotification({
+		userId,
+		type: 'product_approved',
+		title: 'Produk Disetujui! 🎉',
+		message: `Produk "${productName}" telah disetujui oleh ${storeName}. Anda sekarang bisa mulai menyetor produk ini.`,
+		detailUrl: `/app/${storeId}/products`,
+		relatedStoreId: storeId
+	});
+}
+
+export async function notifyProductRejected(
+	userId: number,
+	productName: string,
+	storeName: string,
+	storeId: number,
+	reason?: string
+) {
+	const message = reason
+		? `Produk "${productName}" ditolak oleh ${storeName}. Alasan: ${reason}`
+		: `Produk "${productName}" ditolak oleh ${storeName}. Silakan hubungi pemilik lapak untuk informasi lebih lanjut.`;
+
+	return createNotification({
+		userId,
+		type: 'product_rejected',
+		title: 'Produk Ditolak',
+		message,
+		detailUrl: `/app/${storeId}/products`,
+		relatedStoreId: storeId
+	});
+}
+
+// ============================================
+// TRANSACTION NOTIFICATIONS
+// ============================================
+
+export async function notifyTransactionVerified(
+	userId: number,
+	storeName: string,
+	storeId: number,
+	date: string,
+	totalItems: number
+) {
+	return createNotification({
+		userId,
+		type: 'transaction_verified',
+		title: 'Setoran Diverifikasi ✓',
+		message: `Setoran Anda tanggal ${date} di ${storeName} (${totalItems} item) telah diverifikasi.`,
+		detailUrl: `/app/${storeId}/history`,
+		relatedStoreId: storeId
+	});
+}
+
+export async function notifyTransactionCompleted(
+	userId: number,
+	storeName: string,
+	storeId: number,
+	date: string,
+	totalSold: number,
+	payout: number
+) {
+	const formattedPayout = new Intl.NumberFormat('id-ID', {
+		style: 'currency',
+		currency: 'IDR',
+		minimumFractionDigits: 0
+	}).format(payout);
+
+	return createNotification({
+		userId,
+		type: 'transaction_completed',
+		title: 'Transaksi Selesai 💰',
+		message: `Transaksi tanggal ${date} di ${storeName} selesai! ${totalSold} item terjual, total payout: ${formattedPayout}`,
+		detailUrl: `/app/${storeId}/history`,
+		relatedStoreId: storeId
+	});
+}
+
+// ============================================
+// STORE NOTIFICATIONS
+// ============================================
+
+export async function notifyStoreClosed(
+	storeId: number,
+	storeName: string,
+	reason?: string
+) {
+	// Get all active members
+	const { storeMembers } = await import('./db/schema');
+
+	const members = await db
+		.select({ userId: storeMembers.userId })
+		.from(storeMembers)
+		.where(and(
+			eq(storeMembers.storeId, storeId),
+			eq(storeMembers.status, 'active')
+		));
+
+	const message = reason
+		? `Lapak ${storeName} tutup mendadak. Alasan: ${reason}`
+		: `Lapak ${storeName} tutup mendadak hari ini. Silakan hubungi pemilik lapak untuk informasi lebih lanjut.`;
+
+	// Create notification for each member
+	const notifications = await Promise.all(
+		members.map(m => createNotification({
+			userId: m.userId,
+			type: 'store_closed',
+			title: 'Lapak Tutup ⚠️',
+			message,
+			detailUrl: `/app/${storeId}`,
+			relatedStoreId: storeId
+		}))
+	);
+
+	return notifications;
+}
+
+export async function notifyLeaveApproved(
+	userId: number,
+	storeName: string,
+	storeId: number
+) {
+	return createNotification({
+		userId,
+		type: 'leave_approved',
+		title: 'Permintaan Keluar Disetujui',
+		message: `Permintaan keluar Anda dari lapak ${storeName} telah disetujui. Terima kasih telah bergabung!`,
+		detailUrl: `/app/stores`,
+		relatedStoreId: storeId
 	});
 }
 

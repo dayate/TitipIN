@@ -1,5 +1,7 @@
 import type { Handle } from '@sveltejs/kit';
 import { validateSession } from '$lib/server/auth';
+import { isStoreAdmin } from '$lib/server/members';
+import { isStoreOwner } from '$lib/server/stores';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// Get session ID from cookies
@@ -39,7 +41,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Protected routes
 	const { pathname } = event.url;
 
-	// Admin routes - require owner role
+	// Admin routes - require owner role OR admin member role
 	if (pathname.startsWith('/admin')) {
 		if (!event.locals.user) {
 			return new Response(null, {
@@ -47,11 +49,31 @@ export const handle: Handle = async ({ event, resolve }) => {
 				headers: { Location: '/auth/login?redirect=' + encodeURIComponent(pathname) }
 			});
 		}
-		if (event.locals.user.role !== 'owner') {
-			return new Response(null, {
-				status: 302,
-				headers: { Location: '/app' }
-			});
+
+		// Check if accessing store-specific admin route
+		const storeMatch = pathname.match(/\/admin\/stores\/(\d+)/);
+		if (storeMatch) {
+			const storeId = parseInt(storeMatch[1]);
+			const userId = event.locals.user.id;
+
+			// Allow if owner OR store admin
+			const ownerCheck = await isStoreOwner(storeId, userId);
+			const adminCheck = await isStoreAdmin(userId, storeId);
+
+			if (!ownerCheck && !adminCheck) {
+				return new Response(null, {
+					status: 302,
+					headers: { Location: '/app' }
+				});
+			}
+		} else {
+			// Non-store-specific admin routes require owner role
+			if (event.locals.user.role !== 'owner') {
+				return new Response(null, {
+					status: 302,
+					headers: { Location: '/app' }
+				});
+			}
 		}
 	}
 

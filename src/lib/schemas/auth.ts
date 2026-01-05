@@ -55,8 +55,8 @@ export const registerSchema = z.object({
 	confirmPin: z
 		.string()
 		.length(6, 'Konfirmasi PIN harus 6 digit'),
-	role: z.enum(['owner', 'supplier'], {
-		errorMap: () => ({ message: 'Role harus dipilih' })
+	role: z.enum(['owner', 'supplier'] as const, {
+		message: 'Role harus dipilih'
 	})
 }).refine((data: { pin: string; confirmPin: string }) => data.pin === data.confirmPin, {
 	message: 'PIN dan Konfirmasi PIN tidak sama',
@@ -99,10 +99,12 @@ export function validateForm<T extends z.ZodTypeAny>(
 	}
 
 	const errors: Record<string, string> = {};
-	for (const error of result.error.errors) {
-		const path = error.path.join('.');
+	// Zod v4 uses 'issues', v3 uses 'errors' - handle both
+	const issues = (result.error as any).issues || (result.error as any).errors || [];
+	for (const issue of issues) {
+		const path = issue.path.join('.');
 		if (!errors[path]) {
-			errors[path] = error.message;
+			errors[path] = issue.message;
 		}
 	}
 

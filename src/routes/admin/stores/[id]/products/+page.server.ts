@@ -72,10 +72,20 @@ export const actions: Actions = {
 
 		await approveProduct(productId, priceSell);
 
+		// Log audit
+		const { logProductAudit } = await import('$lib/server/audit');
+		await logProductAudit(
+			productId,
+			'product_approved',
+			locals.user.id,
+			{ status: 'pending' },
+			{ status: 'approved', priceSell }
+		);
+
 		// Notify supplier with price info
 		await createNotification({
 			userId: product.supplierId,
-			type: 'info',
+			type: 'product_approved',
 			title: 'Produk Disetujui! 🎉',
 			message: `Produk "${product.name}" telah disetujui dengan harga jual Rp ${priceSell.toLocaleString('id-ID')}. Anda sekarang bisa mulai menyetorkan produk ini.`,
 			detailUrl: `/app/${storeId}/products`,
@@ -111,10 +121,21 @@ export const actions: Actions = {
 
 		await rejectProduct(productId);
 
+		// Log audit
+		const { logProductAudit } = await import('$lib/server/audit');
+		await logProductAudit(
+			productId,
+			'product_rejected',
+			locals.user.id,
+			{ status: 'pending' },
+			{ status: 'rejected' },
+			reason
+		);
+
 		// Notify supplier
 		await createNotification({
 			userId: product.supplierId,
-			type: 'info',
+			type: 'product_rejected',
 			title: 'Produk Ditolak',
 			message: reason
 				? `Produk "${product.name}" ditolak oleh ${store.name}. Alasan: ${reason}`

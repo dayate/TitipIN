@@ -142,8 +142,12 @@ export async function updateProduct(
 
 // Delete product
 export async function deleteProduct(productId: number): Promise<boolean> {
-	await db.delete(products).where(eq(products.id, productId));
-	return true;
+	const result = await db
+		.delete(products)
+		.where(eq(products.id, productId))
+		.returning({ id: products.id });
+
+	return result.length > 0;
 }
 
 // ============================================
