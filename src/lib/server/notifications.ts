@@ -1,6 +1,7 @@
 import { db } from './db';
 import { notifications, users, stores, type NotificationType } from './db/schema';
 import { eq, desc, and, sql } from 'drizzle-orm';
+import { emitNotificationUpdate } from './notificationEmitter';
 
 // Create a new notification
 export async function createNotification(data: {
@@ -25,6 +26,9 @@ export async function createNotification(data: {
 			isRead: false
 		})
 		.returning();
+
+	// Emit notifikasi real-time ke client yang terhubung
+	await emitNotificationUpdate(data.userId);
 
 	return notification;
 }

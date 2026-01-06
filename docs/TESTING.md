@@ -1,8 +1,8 @@
 # 🧪 Testing Documentation
 
 > **Framework:** Vitest v4.0.16
-> **Last Updated:** 5 Januari 2026
-> **Status:** 47 tests passing ✅
+> **Last Updated:** 6 Januari 2026
+> **Status:** 60+ tests ✅
 
 ---
 
@@ -26,7 +26,9 @@ npm test
 | `schemas.test.ts` | Zod validation schemas | 20 |
 | `batchQueries.test.ts` | Sanitization & batch | 9 |
 | `phase2.test.ts` | Phase 2 features | 12 |
-| **Total** | | **47** |
+| `phase4-7.test.ts` | Scheduler, cutoff, branches, PDF | 30+ |
+| `sse-notifications.test.ts` | SSE real-time notifications | 15 |
+| **Total** | | **60+** |
 
 ---
 
@@ -43,6 +45,20 @@ npm test
 - ✅ Cut-off time calculation
 - ✅ Date utilities (getTodayDate)
 - ✅ Store status tracking
+
+### Phase 4-7 Tests
+- ✅ Scheduler functions
+- ✅ Auto-cancel logic
+- ✅ Cutoff time validation
+- ✅ Store branches CRUD
+- ✅ PDF export logic
+
+### SSE Notification Tests
+- ✅ Connection management
+- ✅ Emit to user logic
+- ✅ Store state updates
+- ✅ Event parsing
+- ✅ Heartbeat logic
 
 ---
 
