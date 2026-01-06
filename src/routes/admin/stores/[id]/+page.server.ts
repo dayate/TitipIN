@@ -1,6 +1,7 @@
 import type { PageServerLoad, Actions } from './$types';
 import { error, fail, redirect, isRedirect } from '@sveltejs/kit';
 import { getStoreWithStats, updateStore, deleteStore, isStoreOwner } from '$lib/server/stores';
+import { getStoreCutoffStatus } from '$lib/server/scheduler';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const storeId = parseInt(params.id);
@@ -16,8 +17,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw error(404, 'Lapak tidak ditemukan');
 	}
 
-	return { store };
+	// Get cutoff status
+	const cutoffStatus = await getStoreCutoffStatus(storeId);
+
+	return { store, cutoffStatus };
 };
+
 
 export const actions: Actions = {
 	update: async ({ params, request, locals }) => {

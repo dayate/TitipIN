@@ -11,7 +11,8 @@
 		"test": "vitest",
 		"test:run": "vitest run",
 		"db:push": "drizzle-kit push",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"db:seed": "npx tsx src/lib/server/db/seed.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^4.0.0",

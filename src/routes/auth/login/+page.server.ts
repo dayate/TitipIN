@@ -41,11 +41,8 @@ export const actions: Actions = {
 
 		const { whatsapp, pin } = validation.data;
 
-		// Normalize to 62 format for storage lookup
-		let normalizedWhatsapp = whatsapp.replace(/\D/g, '');
-		if (normalizedWhatsapp.startsWith('0')) {
-			normalizedWhatsapp = '62' + normalizedWhatsapp.slice(1);
-		}
+		// Use normalized whatsapp from schema (already normalized to 08xxx format)
+		const normalizedWhatsapp = whatsapp;
 
 		try {
 			const result = await authenticateUser(normalizedWhatsapp, pin);

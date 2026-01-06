@@ -10,6 +10,7 @@
     FileText,
     TrendingUp,
     Users,
+    Printer,
   } from "lucide-svelte";
 
   export let data;
@@ -177,7 +178,11 @@
     {/if}
 
     <!-- Export -->
-    <div class="flex justify-end">
+    <div class="flex justify-end gap-2 print:hidden">
+      <Button variant="outline" onclick={() => window.print()}>
+        <Printer class="h-4 w-4 mr-2" />
+        Print PDF
+      </Button>
       <form method="POST" action="?/exportCSV">
         <Button type="submit" variant="outline">
           <Download class="h-4 w-4 mr-2" />

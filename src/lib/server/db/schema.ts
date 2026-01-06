@@ -77,6 +77,10 @@ export const stores = sqliteTable('stores', {
 	closeTime: text('close_time').default('08:00'),
 	emergencyMode: integer('emergency_mode', { mode: 'boolean' }).notNull().default(false),
 	announcement: text('announcement'),
+	// Cut-off Settings
+	cutoffTime: text('cutoff_time').default('11:00'), // Batas waktu input draft
+	autoCancelEnabled: integer('auto_cancel_enabled', { mode: 'boolean' }).notNull().default(true),
+	cutoffGracePeriod: integer('cutoff_grace_period').notNull().default(30), // Menit toleransi
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
 });
@@ -203,7 +207,9 @@ export type NotificationType =
 	| 'product_rejected'       // [NEW] User: produk ditolak
 	| 'transaction_verified'   // [NEW] User: transaksi diverifikasi
 	| 'transaction_completed'  // [NEW] User: transaksi selesai
+	| 'transaction_cancelled'  // [NEW] User: transaksi dibatalkan
 	| 'store_closed'           // [NEW] User: lapak tutup mendadak
+	| 'cutoff_warning'         // [NEW] User: peringatan mendekati cutoff
 	| 'info'                   // General info
 	| 'system';                // System notification
 

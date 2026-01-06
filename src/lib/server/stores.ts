@@ -81,7 +81,12 @@ export async function updateStore(storeId: number, data: Partial<{
 	announcement: string | null;
 	openTime: string | null;
 	closeTime: string | null;
+	// Cut-off settings
+	cutoffTime: string | null;
+	autoCancelEnabled: boolean;
+	cutoffGracePeriod: number;
 }>): Promise<Store | null> {
+
 	const [updated] = await db
 		.update(stores)
 		.set({

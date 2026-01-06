@@ -21,9 +21,11 @@ describe('Audit Log Functions', () => {
 		});
 
 		it('should handle null values', () => {
-			const result = null ? JSON.stringify(null) : null;
+			const testValue: object | null = null;
+			const result = testValue ? JSON.stringify(testValue) : null;
 			expect(result).toBeNull();
 		});
+
 	});
 
 	describe('AuditAction Types', () => {
@@ -32,19 +34,33 @@ describe('Audit Log Functions', () => {
 				'transaction_created',
 				'transaction_verified',
 				'transaction_completed',
-				'transaction_cancelled'
+				'transaction_cancelled',
+				'qty_adjusted',
+				'item_added',
+				'item_removed'
 			];
 
 			expect(validActions).toContain('transaction_created');
 			expect(validActions).toContain('transaction_cancelled');
-			expect(validActions.length).toBe(4);
+			expect(validActions.length).toBe(7);
 		});
 
 		it('should validate member actions', () => {
 			const validActions = ['member_promoted', 'member_demoted'];
 			expect(validActions).toHaveLength(2);
 		});
+
+		it('should validate product actions', () => {
+			const validActions = ['product_approved', 'product_rejected'];
+			expect(validActions).toHaveLength(2);
+		});
+
+		it('should validate store actions', () => {
+			const validActions = ['store_status_changed'];
+			expect(validActions).toHaveLength(1);
+		});
 	});
+
 });
 
 // ===========================================

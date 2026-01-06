@@ -37,6 +37,10 @@ export const actions: Actions = {
 		const closeTime = data.get('closeTime')?.toString().trim();
 		const visibility = data.get('visibility')?.toString() as 'public' | 'private';
 		const autoApprove = data.get('autoApprove')?.toString() === 'true';
+		// Cut-off settings
+		const cutoffTime = data.get('cutoffTime')?.toString().trim();
+		const autoCancelEnabled = data.get('autoCancelEnabled')?.toString() === 'true';
+		const cutoffGracePeriod = parseInt(data.get('cutoffGracePeriod')?.toString() || '30');
 
 		if (!name || name.length < 3) {
 			return fail(400, { error: 'Nama lapak minimal 3 karakter' });
@@ -52,8 +56,12 @@ export const actions: Actions = {
 				openTime: openTime || null,
 				closeTime: closeTime || null,
 				visibility,
-				autoApprove
+				autoApprove,
+				cutoffTime: cutoffTime || '11:00',
+				autoCancelEnabled,
+				cutoffGracePeriod: isNaN(cutoffGracePeriod) ? 30 : cutoffGracePeriod
 			});
+
 
 			return { success: true, message: 'Pengaturan berhasil disimpan' };
 		} catch (err) {

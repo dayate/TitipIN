@@ -16,6 +16,10 @@
 		TrendingUp,
 		DollarSign,
 		ShoppingBag,
+		Timer,
+		AlertTriangle,
+		XCircle,
+		Building2,
 	} from "lucide-svelte";
 
 	let { data, form } = $props();
@@ -29,6 +33,16 @@
 			minimumFractionDigits: 0,
 		}).format(value);
 	}
+
+	// Cutoff status helpers
+	const cutoffStatus = $derived(data.cutoffStatus);
+	const cutoffWarningClass = $derived(
+		cutoffStatus?.isAfterCutoff
+			? "border-red-500/50 bg-red-500/10"
+			: cutoffStatus?.minutesUntilCutoff <= 30
+				? "border-orange-500/50 bg-orange-500/10"
+				: "border-green-500/50 bg-green-500/10",
+	);
 </script>
 
 <svelte:head>
@@ -134,7 +148,73 @@
 		</Card>
 	</div>
 
-	<!-- Main Actions -->
+	<!-- Cutoff Status Widget -->
+	{#if cutoffStatus}
+		<Card class="border {cutoffWarningClass}">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-4">
+					<div
+						class="flex h-12 w-12 items-center justify-center rounded-xl {cutoffStatus.isAfterCutoff
+							? 'bg-red-500/20'
+							: cutoffStatus.minutesUntilCutoff <= 30
+								? 'bg-orange-500/20'
+								: 'bg-green-500/20'}"
+					>
+						{#if cutoffStatus.isAfterCutoff}
+							<XCircle class="h-6 w-6 text-red-500" />
+						{:else if cutoffStatus.minutesUntilCutoff <= 30}
+							<AlertTriangle class="h-6 w-6 text-orange-500" />
+						{:else}
+							<Timer class="h-6 w-6 text-green-500" />
+						{/if}
+					</div>
+					<div>
+						<p class="font-semibold text-foreground">
+							{#if cutoffStatus.isAfterCutoff}
+								⏱️ Waktu Cut-off Terlewati
+							{:else if cutoffStatus.minutesUntilCutoff <= 30}
+								⚠️ Mendekati Cut-off
+							{:else}
+								✅ Waktu Setoran Aktif
+							{/if}
+						</p>
+						<p class="text-sm text-muted-foreground">
+							Cut-off: {cutoffStatus.cutoffTime} •
+							{#if cutoffStatus.isAfterCutoff}
+								Sudah lewat waktu
+							{:else}
+								{cutoffStatus.minutesUntilCutoff} menit lagi
+							{/if}
+						</p>
+					</div>
+				</div>
+				<div class="text-right">
+					{#if cutoffStatus.pendingDrafts > 0}
+						<p
+							class="text-2xl font-bold {cutoffStatus.isAfterCutoff
+								? 'text-red-500'
+								: 'text-orange-500'}"
+						>
+							{cutoffStatus.pendingDrafts}
+						</p>
+						<p class="text-xs text-muted-foreground">Draft Pending</p>
+					{:else}
+						<p class="text-sm text-green-500 font-medium">Tidak ada draft</p>
+					{/if}
+				</div>
+			</div>
+			{#if cutoffStatus.isAfterCutoff && cutoffStatus.pendingDrafts > 0 && cutoffStatus.autoCancelEnabled}
+				<div class="mt-4 pt-4 border-t border-border">
+					<p class="text-sm text-muted-foreground">
+						<AlertTriangle class="inline h-4 w-4 text-orange-500 mr-1" />
+						{cutoffStatus.pendingDrafts} transaksi draft akan dibatalkan otomatis
+						oleh scheduler.
+					</p>
+				</div>
+			{/if}
+		</Card>
+	{/if}
+
 	<Card>
 		<h3
 			class="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -200,6 +280,14 @@
 			>
 				<Link class="h-5 w-5 text-muted-foreground" />
 				<span>Undang</span>
+			</Button>
+			<Button
+				href="/admin/stores/{data.store.id}/branches"
+				variant="outline"
+				class="h-auto flex-col gap-1.5 py-3 text-xs"
+			>
+				<Building2 class="h-5 w-5 text-muted-foreground" />
+				<span>Cabang</span>
 			</Button>
 			<Button
 				href="/admin/stores/{data.store.id}/settings"

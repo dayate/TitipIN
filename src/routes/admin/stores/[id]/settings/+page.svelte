@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Card, Button, Input } from '$lib/components/ui';
-	import { enhance } from '$app/forms';
+	import { Card, Button, Input } from "$lib/components/ui";
+	import { enhance } from "$app/forms";
 	import {
 		ArrowLeft,
 		Save,
@@ -15,24 +15,31 @@
 		Settings,
 		Globe,
 		Lock,
-		Check
-	} from 'lucide-svelte';
+		Check,
+		Timer,
+		AlertTriangle,
+		XCircle,
+	} from "lucide-svelte";
 
 	let { data, form } = $props();
 
 	let name = $state(data.store.name);
-	let description = $state(data.store.description || '');
-	let phone = $state(data.store.phone || '');
-	let address = $state(data.store.address || '');
-	let operatingDays = $state(data.store.operatingDays || 'Senin-Sabtu');
-	let openTime = $state(data.store.openTime || '04:00');
-	let closeTime = $state(data.store.closeTime || '08:00');
-	let visibility = $state<'private' | 'public'>(data.store.visibility);
+	let description = $state(data.store.description || "");
+	let phone = $state(data.store.phone || "");
+	let address = $state(data.store.address || "");
+	let operatingDays = $state(data.store.operatingDays || "Senin-Sabtu");
+	let openTime = $state(data.store.openTime || "04:00");
+	let closeTime = $state(data.store.closeTime || "08:00");
+	let visibility = $state<"private" | "public">(data.store.visibility);
 	let autoApprove = $state(data.store.autoApprove);
+	// Cut-off settings
+	let cutoffTime = $state(data.store.cutoffTime || "11:00");
+	let autoCancelEnabled = $state(data.store.autoCancelEnabled ?? true);
+	let cutoffGracePeriod = $state(data.store.cutoffGracePeriod || 30);
 	let loading = $state(false);
 
 	let formSuccess = $derived(form?.success || false);
-	let formError = $derived(form?.error || '');
+	let formError = $derived(form?.error || "");
 </script>
 
 <svelte:head>
@@ -41,8 +48,12 @@
 
 <div class="mx-auto max-w-2xl space-y-6">
 	<!-- Header -->
-	<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6">
-		<div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl"></div>
+	<div
+		class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6"
+	>
+		<div
+			class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl"
+		></div>
 		<a
 			href="/admin/stores/{data.store.id}"
 			class="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -51,7 +62,9 @@
 			Kembali
 		</a>
 		<div class="flex items-center gap-4">
-			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
+			<div
+				class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm"
+			>
 				<Settings class="h-7 w-7 text-primary" />
 			</div>
 			<div>
@@ -76,30 +89,42 @@
 	>
 		<!-- Success / Error Messages -->
 		{#if formSuccess}
-			<div class="flex items-center gap-3 rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-green-600 dark:text-green-400">
-				<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/20">
+			<div
+				class="flex items-center gap-3 rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-green-600 dark:text-green-400"
+			>
+				<div
+					class="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/20"
+				>
 					<CheckCircle2 class="h-4 w-4" />
 				</div>
 				<span class="font-medium">Pengaturan berhasil disimpan!</span>
 			</div>
 		{/if}
 		{#if formError}
-			<div class="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-destructive">
+			<div
+				class="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-destructive"
+			>
 				{formError}
 			</div>
 		{/if}
 
 		<!-- Basic Info -->
-		<div class="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+		<div
+			class="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm"
+		>
 			<div class="flex items-center gap-3 pb-3 border-b border-border">
-				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10"
+				>
 					<Store class="h-5 w-5 text-primary" />
 				</div>
 				<h2 class="text-lg font-semibold text-foreground">Informasi Dasar</h2>
 			</div>
 			<div class="space-y-4">
 				<div class="space-y-2">
-					<label for="name" class="text-sm font-medium text-foreground">Nama Lapak</label>
+					<label for="name" class="text-sm font-medium text-foreground"
+						>Nama Lapak</label
+					>
 					<input
 						id="name"
 						name="name"
@@ -110,7 +135,9 @@
 					/>
 				</div>
 				<div class="space-y-2">
-					<label for="description" class="text-sm font-medium text-foreground">Deskripsi</label>
+					<label for="description" class="text-sm font-medium text-foreground"
+						>Deskripsi</label
+					>
 					<textarea
 						id="description"
 						name="description"
@@ -124,16 +151,22 @@
 		</div>
 
 		<!-- Operating Hours -->
-		<div class="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+		<div
+			class="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm"
+		>
 			<div class="flex items-center gap-3 pb-3 border-b border-border">
-				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10"
+				>
 					<Clock class="h-5 w-5 text-primary" />
 				</div>
 				<h2 class="text-lg font-semibold text-foreground">Jam Operasional</h2>
 			</div>
 			<div class="space-y-4">
 				<div class="space-y-2">
-					<label for="operatingDays" class="text-sm font-medium text-foreground">Hari Operasional</label>
+					<label for="operatingDays" class="text-sm font-medium text-foreground"
+						>Hari Operasional</label
+					>
 					<input
 						id="operatingDays"
 						name="operatingDays"
@@ -145,7 +178,9 @@
 				</div>
 				<div class="grid grid-cols-2 gap-4">
 					<div class="space-y-2">
-						<label for="openTime" class="text-sm font-medium text-foreground">Jam Buka</label>
+						<label for="openTime" class="text-sm font-medium text-foreground"
+							>Jam Buka</label
+						>
 						<input
 							id="openTime"
 							name="openTime"
@@ -155,7 +190,9 @@
 						/>
 					</div>
 					<div class="space-y-2">
-						<label for="closeTime" class="text-sm font-medium text-foreground">Jam Tutup</label>
+						<label for="closeTime" class="text-sm font-medium text-foreground"
+							>Jam Tutup</label
+						>
 						<input
 							id="closeTime"
 							name="closeTime"
@@ -169,16 +206,22 @@
 		</div>
 
 		<!-- Contact Info -->
-		<div class="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+		<div
+			class="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm"
+		>
 			<div class="flex items-center gap-3 pb-3 border-b border-border">
-				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10"
+				>
 					<Phone class="h-5 w-5 text-primary" />
 				</div>
 				<h2 class="text-lg font-semibold text-foreground">Kontak</h2>
 			</div>
 			<div class="space-y-4">
 				<div class="space-y-2">
-					<label for="phone" class="text-sm font-medium text-foreground">Nomor Telepon</label>
+					<label for="phone" class="text-sm font-medium text-foreground"
+						>Nomor Telepon</label
+					>
 					<input
 						id="phone"
 						name="phone"
@@ -189,7 +232,9 @@
 					/>
 				</div>
 				<div class="space-y-2">
-					<label for="address" class="text-sm font-medium text-foreground">Alamat</label>
+					<label for="address" class="text-sm font-medium text-foreground"
+						>Alamat</label
+					>
 					<textarea
 						id="address"
 						name="address"
@@ -203,12 +248,18 @@
 		</div>
 
 		<!-- Advanced Settings -->
-		<div class="rounded-2xl border border-border bg-card p-5 space-y-5 shadow-sm">
+		<div
+			class="rounded-2xl border border-border bg-card p-5 space-y-5 shadow-sm"
+		>
 			<div class="flex items-center gap-3 pb-3 border-b border-border">
-				<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10"
+				>
 					<Settings class="h-5 w-5 text-primary" />
 				</div>
-				<h2 class="text-lg font-semibold text-foreground">Pengaturan Lanjutan</h2>
+				<h2 class="text-lg font-semibold text-foreground">
+					Pengaturan Lanjutan
+				</h2>
 			</div>
 
 			<!-- Visibility Toggle -->
@@ -218,21 +269,39 @@
 					<!-- Public Option -->
 					<button
 						type="button"
-						onclick={() => visibility = 'public'}
-						class="relative flex flex-col items-center gap-3 rounded-2xl border-2 p-5 transition-all duration-200 {visibility === 'public'
+						onclick={() => (visibility = "public")}
+						class="relative flex flex-col items-center gap-3 rounded-2xl border-2 p-5 transition-all duration-200 {visibility ===
+						'public'
 							? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
 							: 'border-border bg-background hover:border-muted-foreground/30 hover:bg-muted/50'}"
 					>
-						{#if visibility === 'public'}
-							<div class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+						{#if visibility === "public"}
+							<div
+								class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
+							>
 								<Check class="h-3.5 w-3.5" />
 							</div>
 						{/if}
-						<div class="flex h-12 w-12 items-center justify-center rounded-xl {visibility === 'public' ? 'bg-primary/20' : 'bg-muted'}">
-							<Globe class="h-6 w-6 {visibility === 'public' ? 'text-primary' : 'text-muted-foreground'}" />
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-xl {visibility ===
+							'public'
+								? 'bg-primary/20'
+								: 'bg-muted'}"
+						>
+							<Globe
+								class="h-6 w-6 {visibility === 'public'
+									? 'text-primary'
+									: 'text-muted-foreground'}"
+							/>
 						</div>
 						<div class="text-center">
-							<p class="font-semibold {visibility === 'public' ? 'text-primary' : 'text-foreground'}">Publik</p>
+							<p
+								class="font-semibold {visibility === 'public'
+									? 'text-primary'
+									: 'text-foreground'}"
+							>
+								Publik
+							</p>
 							<p class="text-xs text-muted-foreground">Dapat ditemukan</p>
 						</div>
 					</button>
@@ -241,21 +310,39 @@
 					<!-- Private Option -->
 					<button
 						type="button"
-						onclick={() => visibility = 'private'}
-						class="relative flex flex-col items-center gap-3 rounded-2xl border-2 p-5 transition-all duration-200 {visibility === 'private'
+						onclick={() => (visibility = "private")}
+						class="relative flex flex-col items-center gap-3 rounded-2xl border-2 p-5 transition-all duration-200 {visibility ===
+						'private'
 							? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
 							: 'border-border bg-background hover:border-muted-foreground/30 hover:bg-muted/50'}"
 					>
-						{#if visibility === 'private'}
-							<div class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+						{#if visibility === "private"}
+							<div
+								class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
+							>
 								<Check class="h-3.5 w-3.5" />
 							</div>
 						{/if}
-						<div class="flex h-12 w-12 items-center justify-center rounded-xl {visibility === 'private' ? 'bg-primary/20' : 'bg-muted'}">
-							<Lock class="h-6 w-6 {visibility === 'private' ? 'text-primary' : 'text-muted-foreground'}" />
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-xl {visibility ===
+							'private'
+								? 'bg-primary/20'
+								: 'bg-muted'}"
+						>
+							<Lock
+								class="h-6 w-6 {visibility === 'private'
+									? 'text-primary'
+									: 'text-muted-foreground'}"
+							/>
 						</div>
 						<div class="text-center">
-							<p class="font-semibold {visibility === 'private' ? 'text-primary' : 'text-foreground'}">Privat</p>
+							<p
+								class="font-semibold {visibility === 'private'
+									? 'text-primary'
+									: 'text-foreground'}"
+							>
+								Privat
+							</p>
 							<p class="text-xs text-muted-foreground">Hanya via undangan</p>
 						</div>
 					</button>
@@ -265,7 +352,9 @@
 			<!-- Auto Approve Toggle -->
 			<div class="flex items-center justify-between rounded-xl bg-muted/50 p-4">
 				<div class="flex items-center gap-3">
-					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-background">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-xl bg-background"
+					>
 						<UserCheck class="h-5 w-5 text-muted-foreground" />
 					</div>
 					<div>
@@ -275,15 +364,147 @@
 				</div>
 				<button
 					type="button"
-					onclick={() => autoApprove = !autoApprove}
-					class="relative h-7 w-12 rounded-full transition-colors duration-200 {autoApprove ? 'bg-primary' : 'bg-muted'}"
+					onclick={() => (autoApprove = !autoApprove)}
+					class="relative h-7 w-12 rounded-full transition-colors duration-200 {autoApprove
+						? 'bg-primary'
+						: 'bg-muted'}"
 				>
-					<input type="hidden" name="autoApprove" value={autoApprove ? 'true' : 'false'} />
+					<input
+						type="hidden"
+						name="autoApprove"
+						value={autoApprove ? "true" : "false"}
+					/>
 					<span
-						class="absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 {autoApprove ? 'translate-x-5' : 'translate-x-0'}"
+						class="absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 {autoApprove
+							? 'translate-x-5'
+							: 'translate-x-0'}"
 					></span>
 				</button>
 			</div>
+		</div>
+
+		<!-- Cut-off Settings -->
+		<div
+			class="rounded-2xl border border-border bg-card p-5 space-y-5 shadow-sm"
+		>
+			<div class="flex items-center gap-3 pb-3 border-b border-border">
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10"
+				>
+					<Timer class="h-5 w-5 text-orange-500" />
+				</div>
+				<div>
+					<h2 class="text-lg font-semibold text-foreground">
+						Pengaturan Cut-off
+					</h2>
+					<p class="text-xs text-muted-foreground">
+						Batas waktu input transaksi harian
+					</p>
+				</div>
+			</div>
+
+			<!-- Cutoff Time -->
+			<div class="space-y-2">
+				<label for="cutoffTime" class="text-sm font-medium text-foreground"
+					>Waktu Cut-off</label
+				>
+				<p class="text-xs text-muted-foreground">
+					Batas waktu supplier untuk menyetor draft transaksi
+				</p>
+				<input
+					id="cutoffTime"
+					name="cutoffTime"
+					type="time"
+					bind:value={cutoffTime}
+					class="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+				/>
+			</div>
+
+			<!-- Grace Period -->
+			<div class="space-y-2">
+				<label
+					for="cutoffGracePeriod"
+					class="text-sm font-medium text-foreground"
+				>
+					Toleransi: {cutoffGracePeriod} menit
+				</label>
+				<p class="text-xs text-muted-foreground">
+					Waktu tambahan setelah cut-off sebelum draft dibatalkan otomatis
+				</p>
+				<input
+					id="cutoffGracePeriod"
+					name="cutoffGracePeriod"
+					type="range"
+					min="0"
+					max="120"
+					step="5"
+					bind:value={cutoffGracePeriod}
+					class="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+				/>
+				<div class="flex justify-between text-xs text-muted-foreground">
+					<span>0 menit</span>
+					<span>1 jam</span>
+					<span>2 jam</span>
+				</div>
+			</div>
+
+			<!-- Auto-cancel Toggle -->
+			<div
+				class="flex items-center justify-between rounded-xl bg-orange-500/5 border border-orange-500/20 p-4"
+			>
+				<div class="flex items-center gap-3">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10"
+					>
+						<XCircle class="h-5 w-5 text-orange-500" />
+					</div>
+					<div>
+						<p class="font-medium text-foreground">Auto-Cancel Draft</p>
+						<p class="text-xs text-muted-foreground">
+							Batalkan draft otomatis setelah cut-off + toleransi
+						</p>
+					</div>
+				</div>
+				<button
+					type="button"
+					onclick={() => (autoCancelEnabled = !autoCancelEnabled)}
+					class="relative h-7 w-12 rounded-full transition-colors duration-200 {autoCancelEnabled
+						? 'bg-orange-500'
+						: 'bg-muted'}"
+				>
+					<input
+						type="hidden"
+						name="autoCancelEnabled"
+						value={autoCancelEnabled ? "true" : "false"}
+					/>
+					<span
+						class="absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 {autoCancelEnabled
+							? 'translate-x-5'
+							: 'translate-x-0'}"
+					></span>
+				</button>
+			</div>
+
+			<!-- Info Box -->
+			{#if autoCancelEnabled}
+				<div class="flex items-start gap-3 rounded-xl bg-muted/50 p-4">
+					<AlertTriangle class="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+					<div class="text-xs text-muted-foreground">
+						<p class="font-medium text-foreground mb-1">
+							Cara kerja Auto-Cancel:
+						</p>
+						<ul class="list-disc pl-4 space-y-1">
+							<li>
+								Transaksi draft yang belum disetor akan dibatalkan otomatis
+							</li>
+							<li>Supplier akan menerima notifikasi pembatalan</li>
+							<li>
+								Waktu aktif: {cutoffTime} + {cutoffGracePeriod} menit = batas akhir
+							</li>
+						</ul>
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Submit Button -->
@@ -293,7 +514,9 @@
 			class="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-50 transition-all duration-200"
 		>
 			{#if loading}
-				<div class="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground"></div>
+				<div
+					class="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground"
+				></div>
 				Menyimpan...
 			{:else}
 				<Save class="h-5 w-5" />

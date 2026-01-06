@@ -5,7 +5,7 @@ export default defineConfig({
 	test: {
 		include: ['src/tests/**/*.{test,spec}.{js,ts}'],
 		environment: 'node',
-		globals: true,
+		globals: false,
 		testTimeout: 10000
 	},
 	resolve: {
