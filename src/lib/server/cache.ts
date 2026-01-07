@@ -141,11 +141,13 @@ class Cache {
 		// Stale but usable - return and refresh in background
 		if (age < effectiveStaleTTL) {
 			// Background refresh (fire and forget)
-			fetcher().then(data => {
-				this.set(key, data, ttl);
-			}).catch(() => {
-				// Ignore errors in background refresh
-			});
+			fetcher()
+				.then((data) => {
+					this.set(key, data, ttl);
+				})
+				.catch(() => {
+					// Ignore errors in background refresh
+				});
 			return entry.data;
 		}
 

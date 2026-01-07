@@ -1,7 +1,12 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { getPublicStores, getStoreById } from '$lib/server/stores';
-import { getUserStores, joinStore, getMemberByUserAndStore, getMemberCountsByStores } from '$lib/server/members';
+import {
+	getUserStores,
+	joinStore,
+	getMemberByUserAndStore,
+	getMemberCountsByStores
+} from '$lib/server/members';
 import { validateInviteCode, useInviteCode } from '$lib/server/invites';
 import { notifyNewJoinRequest, notifyJoinApproved } from '$lib/server/notifications';
 import { logger } from '$lib/server/logger';
@@ -11,14 +16,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const publicStores = await getPublicStores();
 
 	// Filter out stores user has already joined (active, pending, leaving)
-	const joinedStoreIds = new Set(memberships.map(m => m.store.id));
-	const discoverStoresRaw = publicStores.filter(s => !joinedStoreIds.has(s.id));
+	const joinedStoreIds = new Set(memberships.map((m) => m.store.id));
+	const discoverStoresRaw = publicStores.filter((s) => !joinedStoreIds.has(s.id));
 
 	// Get member counts in a SINGLE query (fixes N+1 issue)
-	const storeIds = discoverStoresRaw.map(s => s.id);
+	const storeIds = discoverStoresRaw.map((s) => s.id);
 	const memberCounts = await getMemberCountsByStores(storeIds);
 
-	const discoverStores = discoverStoresRaw.map(store => ({
+	const discoverStores = discoverStoresRaw.map((store) => ({
 		...store,
 		memberCount: memberCounts.get(store.id) || 0
 	}));
@@ -51,7 +56,9 @@ export const actions: Actions = {
 			} else if (existingMember.status === 'pending') {
 				return fail(400, { joinError: 'Permintaan Anda sedang menunggu persetujuan' });
 			} else if (existingMember.status === 'rejected') {
-				return fail(400, { joinError: 'Permintaan Anda sebelumnya ditolak. Gunakan kode invite untuk bypass.' });
+				return fail(400, {
+					joinError: 'Permintaan Anda sebelumnya ditolak. Gunakan kode invite untuk bypass.'
+				});
 			}
 		}
 

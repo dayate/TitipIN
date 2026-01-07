@@ -25,35 +25,26 @@ const loginSchema = z.object({
 		.refine((val) => val.length >= 10 && val.length <= 15, {
 			message: 'Nomor WhatsApp tidak valid'
 		}),
-	pin: z
-		.string()
-		.length(6, 'PIN harus 6 digit')
-		.regex(/^\d+$/, 'PIN hanya boleh berisi angka')
+	pin: z.string().length(6, 'PIN harus 6 digit').regex(/^\d+$/, 'PIN hanya boleh berisi angka')
 });
 
-const registerSchema = z.object({
-	name: z
-		.string()
-		.min(1, 'Nama wajib diisi')
-		.refine((val) => !/\d/.test(val), { message: 'Nama tidak boleh mengandung angka' }),
-	whatsapp: z
-		.string()
-		.min(1, 'Nomor WhatsApp wajib diisi')
-		.transform(normalizePhoneNumber),
-	pin: z
-		.string()
-		.length(6, 'PIN harus 6 digit')
-		.regex(/^\d+$/, 'PIN hanya boleh berisi angka'),
-	confirmPin: z
-		.string()
-		.length(6, 'Konfirmasi PIN harus 6 digit'),
-	role: z.enum(['owner', 'supplier'] as const, {
-		message: 'Role harus dipilih'
+const registerSchema = z
+	.object({
+		name: z
+			.string()
+			.min(1, 'Nama wajib diisi')
+			.refine((val) => !/\d/.test(val), { message: 'Nama tidak boleh mengandung angka' }),
+		whatsapp: z.string().min(1, 'Nomor WhatsApp wajib diisi').transform(normalizePhoneNumber),
+		pin: z.string().length(6, 'PIN harus 6 digit').regex(/^\d+$/, 'PIN hanya boleh berisi angka'),
+		confirmPin: z.string().length(6, 'Konfirmasi PIN harus 6 digit'),
+		role: z.enum(['owner', 'supplier'] as const, {
+			message: 'Role harus dipilih'
+		})
 	})
-}).refine((data) => data.pin === data.confirmPin, {
-	message: 'PIN dan Konfirmasi PIN tidak sama',
-	path: ['confirmPin']
-});
+	.refine((data) => data.pin === data.confirmPin, {
+		message: 'PIN dan Konfirmasi PIN tidak sama',
+		path: ['confirmPin']
+	});
 
 const createStoreSchema = z.object({
 	name: z.string().min(3, 'Nama lapak minimal 3 karakter'),
@@ -62,7 +53,10 @@ const createStoreSchema = z.object({
 });
 
 const joinStoreSchema = z.object({
-	code: z.string().min(4, 'Kode minimal 4 karakter').transform(val => val.toUpperCase())
+	code: z
+		.string()
+		.min(4, 'Kode minimal 4 karakter')
+		.transform((val) => val.toUpperCase())
 });
 
 describe('Auth Schemas', () => {

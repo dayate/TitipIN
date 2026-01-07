@@ -21,7 +21,10 @@
 <div class="mx-auto max-w-md space-y-6">
 	<!-- Header -->
 	<div>
-		<a href="/app/stores" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+		<a
+			href="/app/stores"
+			class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+		>
 			<ArrowLeft class="h-4 w-4" />
 			Kembali
 		</a>
@@ -30,22 +33,24 @@
 	{#if formSuccess}
 		<!-- Success State -->
 		<Card class="text-center">
-			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+			<div
+				class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+			>
 				<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
 			</div>
 			<h1 class="text-2xl font-bold text-foreground">Permintaan Terkirim! 🎉</h1>
 			<p class="mt-2 text-muted-foreground">
-				Permintaan bergabung ke <strong>{storeName}</strong> telah dikirim.
-				Tunggu persetujuan dari pemilik lapak.
+				Permintaan bergabung ke <strong>{storeName}</strong> telah dikirim. Tunggu persetujuan dari pemilik
+				lapak.
 			</p>
-			<Button href="/app/stores" class="mt-6 w-full">
-				Lihat Lapak Saya
-			</Button>
+			<Button href="/app/stores" class="mt-6 w-full">Lihat Lapak Saya</Button>
 		</Card>
 	{:else}
 		<Card>
 			<div class="mb-6 text-center">
-				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+				<div
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10"
+				>
 					<Link class="h-8 w-8 text-primary" />
 				</div>
 				<h1 class="text-2xl font-bold text-foreground">Gabung Lapak</h1>

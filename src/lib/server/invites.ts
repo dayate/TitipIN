@@ -41,11 +41,13 @@ export async function getActiveInviteCode(storeId: number): Promise<StoreInvite 
 	const [invite] = await db
 		.select()
 		.from(storeInvites)
-		.where(and(
-			eq(storeInvites.storeId, storeId),
-			eq(storeInvites.isActive, true),
-			gt(storeInvites.expiresAt, new Date())
-		))
+		.where(
+			and(
+				eq(storeInvites.storeId, storeId),
+				eq(storeInvites.isActive, true),
+				gt(storeInvites.expiresAt, new Date())
+			)
+		)
 		.limit(1);
 
 	return invite || null;
@@ -88,11 +90,7 @@ export async function validateInviteCode(code: string): Promise<{
 	}
 
 	// Get store info
-	const [store] = await db
-		.select()
-		.from(stores)
-		.where(eq(stores.id, invite.storeId))
-		.limit(1);
+	const [store] = await db.select().from(stores).where(eq(stores.id, invite.storeId)).limit(1);
 
 	if (!store) {
 		return { valid: false, error: 'Lapak tidak ditemukan' };
@@ -124,10 +122,7 @@ export async function regenerateInviteCode(
 	}
 ): Promise<StoreInvite> {
 	// Deactivate all existing codes for this store
-	await db
-		.update(storeInvites)
-		.set({ isActive: false })
-		.where(eq(storeInvites.storeId, storeId));
+	await db.update(storeInvites).set({ isActive: false }).where(eq(storeInvites.storeId, storeId));
 
 	// Create new code
 	return createInviteCode(storeId, createdBy, options);
@@ -135,10 +130,7 @@ export async function regenerateInviteCode(
 
 // Deactivate invite code
 export async function deactivateInviteCode(inviteId: number): Promise<boolean> {
-	await db
-		.update(storeInvites)
-		.set({ isActive: false })
-		.where(eq(storeInvites.id, inviteId));
+	await db.update(storeInvites).set({ isActive: false }).where(eq(storeInvites.id, inviteId));
 
 	return true;
 }

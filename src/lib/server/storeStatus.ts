@@ -21,12 +21,7 @@ export async function logStoreOpened(storeId: number): Promise<void> {
 		const existing = await db
 			.select()
 			.from(dailyStoreStatus)
-			.where(
-				and(
-					eq(dailyStoreStatus.storeId, storeId),
-					eq(dailyStoreStatus.date, today)
-				)
-			)
+			.where(and(eq(dailyStoreStatus.storeId, storeId), eq(dailyStoreStatus.date, today)))
 			.limit(1);
 
 		if (existing.length > 0) {
@@ -64,12 +59,7 @@ export async function logStoreClosed(storeId: number): Promise<void> {
 		const existing = await db
 			.select()
 			.from(dailyStoreStatus)
-			.where(
-				and(
-					eq(dailyStoreStatus.storeId, storeId),
-					eq(dailyStoreStatus.date, today)
-				)
-			)
+			.where(and(eq(dailyStoreStatus.storeId, storeId), eq(dailyStoreStatus.date, today)))
 			.limit(1);
 
 		if (existing.length > 0) {
@@ -104,12 +94,7 @@ export async function logEmergencyClose(storeId: number, reason?: string): Promi
 		const existing = await db
 			.select()
 			.from(dailyStoreStatus)
-			.where(
-				and(
-					eq(dailyStoreStatus.storeId, storeId),
-					eq(dailyStoreStatus.date, today)
-				)
-			)
+			.where(and(eq(dailyStoreStatus.storeId, storeId), eq(dailyStoreStatus.date, today)))
 			.limit(1);
 
 		if (existing.length > 0) {
@@ -157,12 +142,7 @@ export async function getStoreStatusForDate(storeId: number, date: string) {
 	const result = await db
 		.select()
 		.from(dailyStoreStatus)
-		.where(
-			and(
-				eq(dailyStoreStatus.storeId, storeId),
-				eq(dailyStoreStatus.date, date)
-			)
-		)
+		.where(and(eq(dailyStoreStatus.storeId, storeId), eq(dailyStoreStatus.date, date)))
 		.limit(1);
 
 	return result[0] || null;
@@ -173,5 +153,5 @@ export async function getStoreStatusForDate(storeId: number, date: string) {
  */
 export async function getStoreOpenDaysCount(storeId: number, days = 30): Promise<number> {
 	const history = await getStoreStatusHistory(storeId, days);
-	return history.filter(h => h.wasOpen).length;
+	return history.filter((h) => h.wasOpen).length;
 }

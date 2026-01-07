@@ -2,7 +2,12 @@ import type { PageServerLoad, Actions } from './$types';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { getStoreById } from '$lib/server/stores';
 import { isActiveMember } from '$lib/server/members';
-import { getSupplierProducts, countSupplierProducts, deleteProduct, getProductById } from '$lib/server/products';
+import {
+	getSupplierProducts,
+	countSupplierProducts,
+	deleteProduct,
+	getProductById
+} from '$lib/server/products';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	if (!locals.user) {

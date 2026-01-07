@@ -89,7 +89,9 @@ export async function getStoreCutoffStatus(storeId: number): Promise<CutoffStatu
 	// Calculate effective cutoff (cutoff + grace period)
 	const cutoffMinutes = timeToMinutes(cutoffTime);
 	const effectiveCutoffMinutes = cutoffMinutes + gracePeriod;
-	const effectiveCutoffTime = `${Math.floor(effectiveCutoffMinutes / 60).toString().padStart(2, '0')}:${(effectiveCutoffMinutes % 60).toString().padStart(2, '0')}`;
+	const effectiveCutoffTime = `${Math.floor(effectiveCutoffMinutes / 60)
+		.toString()
+		.padStart(2, '0')}:${(effectiveCutoffMinutes % 60).toString().padStart(2, '0')}`;
 
 	const currentMinutes = timeToMinutes(currentTime);
 	const isAfterCutoff = currentMinutes >= effectiveCutoffMinutes;
@@ -234,7 +236,10 @@ export async function runAutoCancelForAllStores(): Promise<AutoCancelResult[]> {
 /**
  * Send cutoff warning notifications to suppliers with pending drafts
  */
-export async function sendCutoffWarnings(storeId: number, minutesBefore: number = 30): Promise<number> {
+export async function sendCutoffWarnings(
+	storeId: number,
+	minutesBefore: number = 30
+): Promise<number> {
 	const status = await getStoreCutoffStatus(storeId);
 
 	if (!status || status.minutesUntilCutoff > minutesBefore || status.minutesUntilCutoff <= 0) {

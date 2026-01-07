@@ -11,13 +11,8 @@ export const createStoreSchema = z.object({
 		.string()
 		.min(3, 'Nama lapak minimal 3 karakter')
 		.max(50, 'Nama lapak maksimal 50 karakter'),
-	description: z
-		.string()
-		.max(500, 'Deskripsi maksimal 500 karakter')
-		.optional(),
-	visibility: z
-		.enum(['public', 'private'])
-		.default('private')
+	description: z.string().max(500, 'Deskripsi maksimal 500 karakter').optional(),
+	visibility: z.enum(['public', 'private']).default('private')
 });
 
 // Update Store Schema
@@ -27,26 +22,14 @@ export const updateStoreSchema = z.object({
 		.min(3, 'Nama lapak minimal 3 karakter')
 		.max(50, 'Nama lapak maksimal 50 karakter')
 		.optional(),
-	description: z
-		.string()
-		.max(500, 'Deskripsi maksimal 500 karakter')
-		.nullable()
-		.optional(),
+	description: z.string().max(500, 'Deskripsi maksimal 500 karakter').nullable().optional(),
 	phone: z
 		.string()
 		.regex(/^(\+62|62|0)?8[1-9][0-9]{7,10}$/, 'Format nomor telepon tidak valid')
 		.nullable()
 		.optional(),
-	address: z
-		.string()
-		.max(200, 'Alamat maksimal 200 karakter')
-		.nullable()
-		.optional(),
-	operatingDays: z
-		.string()
-		.max(50, 'Hari operasional maksimal 50 karakter')
-		.nullable()
-		.optional(),
+	address: z.string().max(200, 'Alamat maksimal 200 karakter').nullable().optional(),
+	operatingDays: z.string().max(50, 'Hari operasional maksimal 50 karakter').nullable().optional(),
 	openTime: z
 		.string()
 		.regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format jam tidak valid (HH:MM)')
@@ -57,23 +40,11 @@ export const updateStoreSchema = z.object({
 		.regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format jam tidak valid (HH:MM)')
 		.nullable()
 		.optional(),
-	visibility: z
-		.enum(['public', 'private'])
-		.optional(),
-	isOpen: z
-		.boolean()
-		.optional(),
-	autoApprove: z
-		.boolean()
-		.optional(),
-	emergencyMode: z
-		.boolean()
-		.optional(),
-	announcement: z
-		.string()
-		.max(500, 'Pengumuman maksimal 500 karakter')
-		.nullable()
-		.optional()
+	visibility: z.enum(['public', 'private']).optional(),
+	isOpen: z.boolean().optional(),
+	autoApprove: z.boolean().optional(),
+	emergencyMode: z.boolean().optional(),
+	announcement: z.string().max(500, 'Pengumuman maksimal 500 karakter').nullable().optional()
 });
 
 // Join Store Schema
@@ -87,13 +58,8 @@ export const joinStoreSchema = z.object({
 
 // Leave Store Schema
 export const leaveStoreSchema = z.object({
-	memberId: z
-		.number()
-		.positive('Member ID tidak valid'),
-	reason: z
-		.string()
-		.min(5, 'Alasan minimal 5 karakter')
-		.max(500, 'Alasan maksimal 500 karakter')
+	memberId: z.number().positive('Member ID tidak valid'),
+	reason: z.string().min(5, 'Alasan minimal 5 karakter').max(500, 'Alasan maksimal 500 karakter')
 });
 
 // Type exports

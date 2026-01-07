@@ -1,7 +1,12 @@
 import type { PageServerLoad, Actions } from './$types';
 import { error } from '@sveltejs/kit';
 import { getStoreById, isStoreOwner } from '$lib/server/stores';
-import { generateWeeklyReport, generateMonthlyReport, reportToCSV, reportToText } from '$lib/server/reporting';
+import {
+	generateWeeklyReport,
+	generateMonthlyReport,
+	reportToCSV,
+	reportToText
+} from '$lib/server/reporting';
 
 export const load: PageServerLoad = async ({ params, locals, url }) => {
 	const storeId = parseInt(params.id);

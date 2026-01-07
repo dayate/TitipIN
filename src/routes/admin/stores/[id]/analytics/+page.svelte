@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { formatCurrency, formatDate } from "$lib/utils";
-	import { Card, Button } from "$lib/components/ui";
+	import { formatCurrency, formatDate } from '$lib/utils';
+	import { Card, Button } from '$lib/components/ui';
 	import {
 		TrendingUp,
 		Users,
@@ -8,8 +8,8 @@
 		DollarSign,
 		Calendar,
 		ArrowLeft,
-		BarChart3,
-	} from "lucide-svelte";
+		BarChart3
+	} from 'lucide-svelte';
 
 	export let data;
 
@@ -19,11 +19,10 @@
 	$: period = data.period;
 
 	function getBadgeClass(score: number): string {
-		if (score >= 80)
-			return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+		if (score >= 80) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
 		if (score >= 50)
-			return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
-		return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+			return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
+		return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
 	}
 </script>
 
@@ -75,9 +74,7 @@
 
 	<!-- Stats Cards -->
 	<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-		<Card
-			class="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20"
-		>
+		<Card class="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
 			<div class="flex items-center gap-3">
 				<div class="p-2 rounded-lg bg-green-500/20">
 					<DollarSign class="h-5 w-5 text-green-500" />
@@ -91,9 +88,7 @@
 			</div>
 		</Card>
 
-		<Card
-			class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20"
-		>
+		<Card class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
 			<div class="flex items-center gap-3">
 				<div class="p-2 rounded-lg bg-blue-500/20">
 					<TrendingUp class="h-5 w-5 text-blue-500" />
@@ -105,9 +100,7 @@
 			</div>
 		</Card>
 
-		<Card
-			class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20"
-		>
+		<Card class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20">
 			<div class="flex items-center gap-3">
 				<div class="p-2 rounded-lg bg-purple-500/20">
 					<Users class="h-5 w-5 text-purple-500" />
@@ -119,9 +112,7 @@
 			</div>
 		</Card>
 
-		<Card
-			class="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-orange-500/20"
-		>
+		<Card class="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-orange-500/20">
 			<div class="flex items-center gap-3">
 				<div class="p-2 rounded-lg bg-orange-500/20">
 					<Package class="h-5 w-5 text-orange-500" />
@@ -144,8 +135,7 @@
 			<div class="h-48 flex items-end gap-1">
 				{#each revenueData as day}
 					{@const maxRevenue = Math.max(...revenueData.map((d) => d.revenue))}
-					{@const height =
-						maxRevenue > 0 ? (day.revenue / maxRevenue) * 100 : 0}
+					{@const height = maxRevenue > 0 ? (day.revenue / maxRevenue) * 100 : 0}
 					<div class="flex-1 flex flex-col items-center gap-1">
 						<div
 							class="w-full bg-primary/80 rounded-t transition-all hover:bg-primary cursor-pointer"
@@ -170,9 +160,7 @@
 			{#if dashboard.topSuppliers.length > 0}
 				<div class="space-y-3">
 					{#each dashboard.topSuppliers as supplier, i}
-						<div
-							class="flex items-center justify-between p-2 rounded-lg bg-muted/50"
-						>
+						<div class="flex items-center justify-between p-2 rounded-lg bg-muted/50">
 							<div class="flex items-center gap-3">
 								<span
 									class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-sm font-medium"
@@ -192,7 +180,7 @@
 								</p>
 								<span
 									class="text-xs px-2 py-0.5 rounded-full {getBadgeClass(
-										supplier.reliabilityScore,
+										supplier.reliabilityScore
 									)}"
 								>
 									{supplier.reliabilityScore}%
@@ -202,9 +190,7 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-muted-foreground text-center py-8">
-					Belum ada data supplier
-				</p>
+				<p class="text-muted-foreground text-center py-8">Belum ada data supplier</p>
 			{/if}
 		</Card>
 
@@ -214,9 +200,7 @@
 			{#if dashboard.recentTransactions.length > 0}
 				<div class="space-y-2">
 					{#each dashboard.recentTransactions as trx}
-						<div
-							class="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
-						>
+						<div class="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
 							<div>
 								<p class="font-medium">{trx.supplierName}</p>
 								<p class="text-sm text-muted-foreground">{trx.date}</p>
@@ -224,8 +208,7 @@
 							<div class="text-right">
 								<p class="font-medium">{formatCurrency(trx.totalPayout)}</p>
 								<span
-									class="text-xs px-2 py-0.5 rounded-full {trx.status ===
-									'completed'
+									class="text-xs px-2 py-0.5 rounded-full {trx.status === 'completed'
 										? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
 										: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
 								>
@@ -236,9 +219,7 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-muted-foreground text-center py-8">
-					Belum ada transaksi
-				</p>
+				<p class="text-muted-foreground text-center py-8">Belum ada transaksi</p>
 			{/if}
 		</Card>
 	</div>
@@ -248,8 +229,6 @@
 		<Button href="/admin/stores/{store.id}/reliability" variant="outline">
 			Lihat Reliability Supplier
 		</Button>
-		<Button href="/admin/stores/{store.id}/reports" variant="outline">
-			Generate Laporan
-		</Button>
+		<Button href="/admin/stores/{store.id}/reports" variant="outline">Generate Laporan</Button>
 	</div>
 </div>

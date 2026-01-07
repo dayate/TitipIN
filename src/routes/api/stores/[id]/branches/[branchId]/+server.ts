@@ -20,12 +20,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		const [branch] = await db
 			.select()
 			.from(storeBranches)
-			.where(
-				and(
-					eq(storeBranches.id, branchId),
-					eq(storeBranches.storeId, storeId)
-				)
-			)
+			.where(and(eq(storeBranches.id, branchId), eq(storeBranches.storeId, storeId)))
 			.limit(1);
 
 		if (!branch) {
@@ -92,12 +87,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 				isMain: isMain ?? undefined,
 				isActive: isActive ?? undefined
 			})
-			.where(
-				and(
-					eq(storeBranches.id, branchId),
-					eq(storeBranches.storeId, storeId)
-				)
-			)
+			.where(and(eq(storeBranches.id, branchId), eq(storeBranches.storeId, storeId)))
 			.returning();
 
 		if (!updated) {
@@ -144,12 +134,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 	try {
 		await db
 			.delete(storeBranches)
-			.where(
-				and(
-					eq(storeBranches.id, branchId),
-					eq(storeBranches.storeId, storeId)
-				)
-			);
+			.where(and(eq(storeBranches.id, branchId), eq(storeBranches.storeId, storeId)));
 
 		return json({ success: true, message: 'Branch deleted' });
 	} catch (error) {

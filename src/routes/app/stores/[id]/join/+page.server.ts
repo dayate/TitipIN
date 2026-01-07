@@ -1,7 +1,13 @@
 import type { PageServerLoad, Actions } from './$types';
 import { error, fail } from '@sveltejs/kit';
 import { getStoreById } from '$lib/server/stores';
-import { joinStore, getMemberByUserAndStore, getRejectionCooldownMs, getRejectionCooldownDays, canRejoinAfterRejection } from '$lib/server/members';
+import {
+	joinStore,
+	getMemberByUserAndStore,
+	getRejectionCooldownMs,
+	getRejectionCooldownDays,
+	canRejoinAfterRejection
+} from '$lib/server/members';
 import { notifyNewJoinRequest } from '$lib/server/notifications';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -60,7 +66,9 @@ export const actions: Actions = {
 				// Check cooldown
 				if (!canRejoinAfterRejection(existingMember.rejectedAt)) {
 					const days = getRejectionCooldownDays(existingMember.rejectedAt);
-					return fail(400, { error: `Anda harus menunggu ${days} hari lagi untuk mengajukan permintaan bergabung` });
+					return fail(400, {
+						error: `Anda harus menunggu ${days} hari lagi untuk mengajukan permintaan bergabung`
+					});
 				}
 			}
 		}

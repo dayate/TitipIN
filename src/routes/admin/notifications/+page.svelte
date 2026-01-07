@@ -65,7 +65,7 @@
 		});
 	}
 
-	let unreadCount = $derived(data.notifications.filter(n => !n.isRead).length);
+	let unreadCount = $derived(data.notifications.filter((n) => !n.isRead).length);
 </script>
 
 <svelte:head>
@@ -109,7 +109,9 @@
 			{#each data.notifications as notification}
 				{@const IconComponent = getNotificationIcon(notification.type)}
 				{@const colorClass = getNotificationColor(notification.type)}
-				<Card class="relative {!notification.isRead ? 'border-l-4 border-l-primary bg-primary/5' : ''}">
+				<Card
+					class="relative {!notification.isRead ? 'border-l-4 border-l-primary bg-primary/5' : ''}"
+				>
 					<div class="flex gap-4">
 						<!-- Icon -->
 						<div class="flex-shrink-0">
@@ -122,7 +124,11 @@
 						<div class="flex-1 min-w-0">
 							<div class="flex items-start justify-between gap-2">
 								<div>
-									<h3 class="font-semibold text-foreground {!notification.isRead ? '' : 'font-normal'}">
+									<h3
+										class="font-semibold text-foreground {!notification.isRead
+											? ''
+											: 'font-normal'}"
+									>
 										{notification.title}
 									</h3>
 									<p class="mt-1 text-sm text-muted-foreground">{notification.message}</p>
@@ -143,14 +149,17 @@
 								{#if !notification.isRead}
 									<form method="POST" action="?/markAsRead" use:enhance class="inline">
 										<input type="hidden" name="notificationId" value={notification.id} />
-										<Button type="submit" size="sm" variant="ghost">
-											Tandai Dibaca
-										</Button>
+										<Button type="submit" size="sm" variant="ghost">Tandai Dibaca</Button>
 									</form>
 								{/if}
 								<form method="POST" action="?/delete" use:enhance class="inline">
 									<input type="hidden" name="notificationId" value={notification.id} />
-									<Button type="submit" size="sm" variant="ghost" class="text-destructive hover:bg-destructive/10">
+									<Button
+										type="submit"
+										size="sm"
+										variant="ghost"
+										class="text-destructive hover:bg-destructive/10"
+									>
 										<Trash2 class="h-3.5 w-3.5" />
 									</Button>
 								</form>

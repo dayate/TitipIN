@@ -60,6 +60,46 @@ export class ConflictError extends AppError {
 	}
 }
 
+export class DatabaseError extends AppError {
+	public readonly originalError?: Error;
+
+	constructor(message: string = 'Terjadi kesalahan database', originalError?: Error) {
+		super(message, 500, 'DATABASE_ERROR');
+		this.originalError = originalError;
+	}
+}
+
+export class BusinessLogicError extends AppError {
+	constructor(message: string) {
+		super(message, 422, 'BUSINESS_LOGIC_ERROR');
+	}
+}
+
+// Type guard to check if error is AppError
+export function isAppError(error: unknown): error is AppError {
+	return error instanceof AppError;
+}
+
+// Centralized error handler utility
+export function handleError(error: unknown, context?: string): AppError {
+	// Log the error with context
+	const prefix = context ? `[${context}]` : '[Error]';
+
+	if (isAppError(error)) {
+		console.error(`${prefix} ${error.code}: ${error.message}`);
+		return error;
+	}
+
+	if (error instanceof Error) {
+		console.error(`${prefix} Unexpected error:`, error.message);
+		console.error(error.stack);
+		return new AppError(error.message, 500, 'INTERNAL_ERROR');
+	}
+
+	console.error(`${prefix} Unknown error:`, error);
+	return new AppError('Terjadi kesalahan yang tidak terduga', 500, 'UNKNOWN_ERROR');
+}
+
 // Error response helper
 export interface ErrorResponse {
 	success: false;

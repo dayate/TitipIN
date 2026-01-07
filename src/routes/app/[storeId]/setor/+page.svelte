@@ -98,9 +98,7 @@
 		setQty(productId, val);
 	}
 
-	let totalItems = $derived(
-		Object.values(quantities).reduce((sum, qty) => sum + qty, 0)
-	);
+	let totalItems = $derived(Object.values(quantities).reduce((sum, qty) => sum + qty, 0));
 
 	let totalValue = $derived(
 		data.products.reduce((sum, product) => {
@@ -117,7 +115,9 @@
 
 <div class="space-y-6">
 	<!-- Header with Gradient -->
-	<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6">
+	<div
+		class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6"
+	>
 		<div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl"></div>
 		<a
 			href="/app/stores"
@@ -127,7 +127,9 @@
 			Kembali
 		</a>
 		<div class="flex items-center gap-4">
-			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
+			<div
+				class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm"
+			>
 				<ShoppingBag class="h-7 w-7 text-primary" />
 			</div>
 			<div>
@@ -163,12 +165,15 @@
 	<!-- Store Closed Warning -->
 	{#if data.storeClosed}
 		<div class="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 text-center">
-			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
+			<div
+				class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10"
+			>
 				<Package class="h-8 w-8 text-red-500" />
 			</div>
 			<h2 class="text-lg font-semibold text-foreground">Lapak Sedang Tutup</h2>
 			<p class="mt-2 text-muted-foreground">
-				Anda tidak dapat melakukan setoran saat lapak sedang tutup. Silakan coba lagi saat lapak sudah buka.
+				Anda tidak dapat melakukan setoran saat lapak sedang tutup. Silakan coba lagi saat lapak
+				sudah buka.
 			</p>
 			<a
 				href="/app/{data.store.id}"
@@ -211,16 +216,18 @@
 
 			{#each data.products as product}
 				{@const qty = getQty(product.id)}
-				<div class="rounded-2xl border border-border bg-card p-4 shadow-sm transition-all {qty > 0 ? 'border-primary/30 bg-primary/5' : ''}">
+				<div
+					class="rounded-2xl border border-border bg-card p-4 shadow-sm transition-all {qty > 0
+						? 'border-primary/30 bg-primary/5'
+						: ''}"
+				>
 					<div class="flex items-center gap-4">
 						<!-- Product Image -->
-						<div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-muted overflow-hidden">
+						<div
+							class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-muted overflow-hidden"
+						>
 							{#if product.imageUrl}
-								<img
-									src={product.imageUrl}
-									alt={product.name}
-									class="h-full w-full object-cover"
-								/>
+								<img src={product.imageUrl} alt={product.name} class="h-full w-full object-cover" />
 							{:else}
 								<ImageOff class="h-6 w-6 text-muted-foreground" />
 							{/if}
@@ -260,7 +267,11 @@
 										e.preventDefault();
 									}
 								}}
-								class="h-10 w-14 border-y border-border bg-background text-center text-lg font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {validationErrors[product.id] ? 'border-destructive' : ''}"
+								class="h-10 w-14 border-y border-border bg-background text-center text-lg font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none {validationErrors[
+									product.id
+								]
+									? 'border-destructive'
+									: ''}"
 							/>
 
 							<button
@@ -289,7 +300,9 @@
 
 			<!-- Summary & Submit -->
 			{#if hasChanges}
-				<div class="sticky bottom-4 mt-6 rounded-2xl border border-primary/20 bg-card/95 p-4 shadow-lg backdrop-blur">
+				<div
+					class="sticky bottom-4 mt-6 rounded-2xl border border-primary/20 bg-card/95 p-4 shadow-lg backdrop-blur"
+				>
 					<div class="flex items-center justify-between">
 						<div>
 							<p class="text-sm text-muted-foreground">Total Setoran</p>

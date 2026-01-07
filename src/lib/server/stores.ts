@@ -4,11 +4,14 @@ import { eq, and, desc } from 'drizzle-orm';
 import { slugify } from '$lib/utils';
 
 // Create a new store
-export async function createStore(ownerId: number, data: {
-	name: string;
-	description?: string;
-	visibility?: 'public' | 'private';
-}): Promise<Store> {
+export async function createStore(
+	ownerId: number,
+	data: {
+		name: string;
+		description?: string;
+		visibility?: 'public' | 'private';
+	}
+): Promise<Store> {
 	const slug = slugify(data.name) + '-' + Date.now().toString(36);
 
 	const [store] = await db
@@ -38,22 +41,14 @@ export async function getStoresByOwner(ownerId: number): Promise<Store[]> {
 
 // Get store by ID
 export async function getStoreById(storeId: number): Promise<Store | null> {
-	const [store] = await db
-		.select()
-		.from(stores)
-		.where(eq(stores.id, storeId))
-		.limit(1);
+	const [store] = await db.select().from(stores).where(eq(stores.id, storeId)).limit(1);
 
 	return store || null;
 }
 
 // Get store by slug
 export async function getStoreBySlug(slug: string): Promise<Store | null> {
-	const [store] = await db
-		.select()
-		.from(stores)
-		.where(eq(stores.slug, slug))
-		.limit(1);
+	const [store] = await db.select().from(stores).where(eq(stores.slug, slug)).limit(1);
 
 	return store || null;
 }
@@ -68,25 +63,27 @@ export async function getPublicStores(): Promise<Store[]> {
 }
 
 // Update store
-export async function updateStore(storeId: number, data: Partial<{
-	name: string;
-	description: string | null;
-	phone: string | null;
-	address: string | null;
-	operatingDays: string | null;
-	visibility: 'public' | 'private';
-	isOpen: boolean;
-	autoApprove: boolean;
-	emergencyMode: boolean;
-	announcement: string | null;
-	openTime: string | null;
-	closeTime: string | null;
-	// Cut-off settings
-	cutoffTime: string | null;
-	autoCancelEnabled: boolean;
-	cutoffGracePeriod: number;
-}>): Promise<Store | null> {
-
+export async function updateStore(
+	storeId: number,
+	data: Partial<{
+		name: string;
+		description: string | null;
+		phone: string | null;
+		address: string | null;
+		operatingDays: string | null;
+		visibility: 'public' | 'private';
+		isOpen: boolean;
+		autoApprove: boolean;
+		emergencyMode: boolean;
+		announcement: string | null;
+		openTime: string | null;
+		closeTime: string | null;
+		// Cut-off settings
+		cutoffTime: string | null;
+		autoCancelEnabled: boolean;
+		cutoffGracePeriod: number;
+	}>
+): Promise<Store | null> {
 	const [updated] = await db
 		.update(stores)
 		.set({
@@ -102,9 +99,7 @@ export async function updateStore(storeId: number, data: Partial<{
 // Delete store
 export async function deleteStore(storeId: number): Promise<boolean> {
 	try {
-		const result = await db
-			.delete(stores)
-			.where(eq(stores.id, storeId));
+		const result = await db.delete(stores).where(eq(stores.id, storeId));
 
 		// SQLite returns { changes: number } for delete operations
 		return true; // If no error thrown, delete succeeded
@@ -120,7 +115,10 @@ export async function toggleStoreStatus(storeId: number, isOpen: boolean): Promi
 }
 
 // Toggle auto approve
-export async function toggleAutoApprove(storeId: number, autoApprove: boolean): Promise<Store | null> {
+export async function toggleAutoApprove(
+	storeId: number,
+	autoApprove: boolean
+): Promise<Store | null> {
 	return updateStore(storeId, { autoApprove });
 }
 
@@ -138,26 +136,17 @@ export async function getStoreWithStats(storeId: number) {
 	const members = await db
 		.select()
 		.from(storeMembers)
-		.where(and(
-			eq(storeMembers.storeId, storeId),
-			eq(storeMembers.status, 'active')
-		));
+		.where(and(eq(storeMembers.storeId, storeId), eq(storeMembers.status, 'active')));
 
 	const pending = await db
 		.select()
 		.from(storeMembers)
-		.where(and(
-			eq(storeMembers.storeId, storeId),
-			eq(storeMembers.status, 'pending')
-		));
+		.where(and(eq(storeMembers.storeId, storeId), eq(storeMembers.status, 'pending')));
 
 	// Import products and transactions tables
 	const { products, dailyTransactions } = await import('./db/schema');
 
-	const productList = await db
-		.select()
-		.from(products)
-		.where(eq(products.storeId, storeId));
+	const productList = await db.select().from(products).where(eq(products.storeId, storeId));
 
 	const transactionList = await db
 		.select()
@@ -166,7 +155,7 @@ export async function getStoreWithStats(storeId: number) {
 
 	// Calculate total revenue
 	const totalRevenue = transactionList
-		.filter(t => t.status === 'completed')
+		.filter((t) => t.status === 'completed')
 		.reduce((sum, t) => sum + t.totalPayout, 0);
 
 	return {

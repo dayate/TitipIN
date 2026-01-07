@@ -17,19 +17,31 @@ const envSchema = z.object({
 	DATABASE_URL: z.string().default('file:./dev.db'),
 
 	// Session
-	SESSION_SECRET: z.string().min(16, 'SESSION_SECRET must be at least 16 characters').default('dev-secret-change-in-production'),
-	SESSION_MAX_AGE: z.coerce.number().positive().default(60 * 60 * 24 * 30), // 30 days
+	SESSION_SECRET: z
+		.string()
+		.min(16, 'SESSION_SECRET must be at least 16 characters')
+		.default('dev-secret-change-in-production'),
+	SESSION_MAX_AGE: z.coerce
+		.number()
+		.positive()
+		.default(60 * 60 * 24 * 30), // 30 days
 
 	// Rate Limiting
 	LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
-	LOGIN_WINDOW_MS: z.coerce.number().positive().default(15 * 60 * 1000), // 15 minutes
+	LOGIN_WINDOW_MS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60 * 1000), // 15 minutes
 
 	// App
 	APP_NAME: z.string().default('Mak Unyil'),
 	NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
 	// Feature Flags (boolean strings)
-	ENABLE_WHATSAPP_NOTIFICATIONS: z.string().default('false').transform(v => v === 'true' || v === '1'),
+	ENABLE_WHATSAPP_NOTIFICATIONS: z
+		.string()
+		.default('false')
+		.transform((v) => v === 'true' || v === '1'),
 	ENABLED_FEATURES: z.string().optional(),
 	DISABLED_FEATURES: z.string().optional()
 });
@@ -123,4 +135,3 @@ export function verifyConfig(): void {
 }
 
 export default config;
-

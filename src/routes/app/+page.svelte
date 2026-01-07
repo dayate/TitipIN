@@ -11,14 +11,20 @@
 
 <div class="space-y-6">
 	<!-- Header -->
-	<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6">
+	<div
+		class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6"
+	>
 		<div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl"></div>
 		<div class="flex items-center gap-4">
-			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
+			<div
+				class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm"
+			>
 				<Store class="h-7 w-7 text-primary" />
 			</div>
 			<div>
-				<h1 class="text-2xl font-bold text-foreground">Selamat Datang, {data.user?.name || 'Penyetor'}! 👋</h1>
+				<h1 class="text-2xl font-bold text-foreground">
+					Selamat Datang, {data.user?.name || 'Penyetor'}! 👋
+				</h1>
 				<p class="text-muted-foreground">Pilih lapak untuk mulai berjualan</p>
 			</div>
 		</div>
@@ -38,7 +44,9 @@
 							<p class="text-sm text-muted-foreground">Kelola lapak yang Anda ikuti</p>
 						</div>
 					</div>
-					<ArrowRight class="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+					<ArrowRight
+						class="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors"
+					/>
 				</div>
 			</a>
 		</Card>
@@ -55,7 +63,9 @@
 							<p class="text-sm text-muted-foreground">Cari & gabung lapak baru</p>
 						</div>
 					</div>
-					<ArrowRight class="h-5 w-5 text-muted-foreground group-hover:text-green-500 transition-colors" />
+					<ArrowRight
+						class="h-5 w-5 text-muted-foreground group-hover:text-green-500 transition-colors"
+					/>
 				</div>
 			</a>
 		</Card>
@@ -72,7 +82,9 @@
 							<p class="text-sm text-muted-foreground">Lihat riwayat transaksi Anda</p>
 						</div>
 					</div>
-					<ArrowRight class="h-5 w-5 text-muted-foreground group-hover:text-blue-500 transition-colors" />
+					<ArrowRight
+						class="h-5 w-5 text-muted-foreground group-hover:text-blue-500 transition-colors"
+					/>
 				</div>
 			</a>
 		</Card>
@@ -83,21 +95,35 @@
 		<h2 class="text-lg font-semibold text-foreground mb-4">Cara Menggunakan</h2>
 		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			<div class="flex gap-3">
-				<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">1</div>
+				<div
+					class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary"
+				>
+					1
+				</div>
 				<div>
 					<p class="font-medium text-foreground">Cari atau Gabung Lapak</p>
-					<p class="text-sm text-muted-foreground">Temukan lapak publik atau gunakan kode undangan</p>
+					<p class="text-sm text-muted-foreground">
+						Temukan lapak publik atau gunakan kode undangan
+					</p>
 				</div>
 			</div>
 			<div class="flex gap-3">
-				<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">2</div>
+				<div
+					class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary"
+				>
+					2
+				</div>
 				<div>
 					<p class="font-medium text-foreground">Daftarkan Produk</p>
 					<p class="text-sm text-muted-foreground">Tambahkan produk yang ingin Anda setorkan</p>
 				</div>
 			</div>
 			<div class="flex gap-3">
-				<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">3</div>
+				<div
+					class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary"
+				>
+					3
+				</div>
 				<div>
 					<p class="font-medium text-foreground">Mulai Setor</p>
 					<p class="text-sm text-muted-foreground">Input setoran harian dan pantau penjualan</p>

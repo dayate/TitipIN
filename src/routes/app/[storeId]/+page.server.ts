@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const transactions = await getSupplierTransactions(locals.user.id, storeId);
 	const transactionCount = transactions.length;
 	const totalEarnings = transactions
-		.filter(t => t.status === 'completed')
+		.filter((t) => t.status === 'completed')
 		.reduce((sum, t) => sum + t.totalPayout, 0);
 
 	// Get tomorrow's date for setoran

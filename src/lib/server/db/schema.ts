@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
 // ============================================
 // ENUMS (as string unions in TypeScript)
@@ -111,8 +111,8 @@ export const storeBranches = sqliteTable('store_branches', {
 	name: text('name').notNull(),
 	address: text('address').notNull(),
 	phone: text('phone'),
-	latitude: integer('latitude'),
-	longitude: integer('longitude'),
+	latitude: real('latitude'),
+	longitude: real('longitude'),
 	isMain: integer('is_main', { mode: 'boolean' }).notNull().default(false),
 	isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
@@ -197,21 +197,21 @@ export const transactionItems = sqliteTable('transaction_items', {
 
 // 10. Notifications
 export type NotificationType =
-	| 'join_request'           // Admin: ada user request join
-	| 'join_approved'          // User: request disetujui
-	| 'join_rejected'          // User: request ditolak
-	| 'member_kicked'          // User: dikeluarkan dari lapak
-	| 'leave_request'          // [NEW] Admin: ada user request keluar
-	| 'leave_approved'         // [NEW] User: request keluar disetujui
-	| 'product_approved'       // [NEW] User: produk disetujui
-	| 'product_rejected'       // [NEW] User: produk ditolak
-	| 'transaction_verified'   // [NEW] User: transaksi diverifikasi
-	| 'transaction_completed'  // [NEW] User: transaksi selesai
-	| 'transaction_cancelled'  // [NEW] User: transaksi dibatalkan
-	| 'store_closed'           // [NEW] User: lapak tutup mendadak
-	| 'cutoff_warning'         // [NEW] User: peringatan mendekati cutoff
-	| 'info'                   // General info
-	| 'system';                // System notification
+	| 'join_request' // Admin: ada user request join
+	| 'join_approved' // User: request disetujui
+	| 'join_rejected' // User: request ditolak
+	| 'member_kicked' // User: dikeluarkan dari lapak
+	| 'leave_request' // [NEW] Admin: ada user request keluar
+	| 'leave_approved' // [NEW] User: request keluar disetujui
+	| 'product_approved' // [NEW] User: produk disetujui
+	| 'product_rejected' // [NEW] User: produk ditolak
+	| 'transaction_verified' // [NEW] User: transaksi diverifikasi
+	| 'transaction_completed' // [NEW] User: transaksi selesai
+	| 'transaction_cancelled' // [NEW] User: transaksi dibatalkan
+	| 'store_closed' // [NEW] User: lapak tutup mendadak
+	| 'cutoff_warning' // [NEW] User: peringatan mendekati cutoff
+	| 'info' // General info
+	| 'system'; // System notification
 
 export const notifications = sqliteTable('notifications', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -221,7 +221,7 @@ export const notifications = sqliteTable('notifications', {
 	type: text('type').$type<NotificationType>().notNull().default('info'),
 	title: text('title').notNull(),
 	message: text('message').notNull(),
-	detailUrl: text('detail_url'),  // Link ke halaman terkait
+	detailUrl: text('detail_url'), // Link ke halaman terkait
 	relatedStoreId: integer('related_store_id').references(() => stores.id, { onDelete: 'set null' }),
 	relatedMemberId: integer('related_member_id'),
 	isRead: integer('is_read', { mode: 'boolean' }).notNull().default(false),
@@ -245,7 +245,9 @@ export const auditLogs = sqliteTable('audit_logs', {
 // 11. Daily Store Status (History)
 export const dailyStoreStatus = sqliteTable('daily_store_status', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	storeId: integer('store_id').notNull().references(() => stores.id, { onDelete: 'cascade' }),
+	storeId: integer('store_id')
+		.notNull()
+		.references(() => stores.id, { onDelete: 'cascade' }),
 	date: text('date').notNull(), // YYYY-MM-DD
 	wasOpen: integer('was_open', { mode: 'boolean' }).notNull(),
 	openedAt: integer('opened_at', { mode: 'timestamp' }),
@@ -266,8 +268,12 @@ export const rateLimits = sqliteTable('rate_limits', {
 // 13. Supplier Stats (Reliability Tracking)
 export const supplierStats = sqliteTable('supplier_stats', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	supplierId: integer('supplier_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-	storeId: integer('store_id').notNull().references(() => stores.id, { onDelete: 'cascade' }),
+	supplierId: integer('supplier_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	storeId: integer('store_id')
+		.notNull()
+		.references(() => stores.id, { onDelete: 'cascade' }),
 	totalTransactions: integer('total_transactions').notNull().default(0),
 	completedTransactions: integer('completed_transactions').notNull().default(0),
 	cancelledBySupplier: integer('cancelled_by_supplier').notNull().default(0),

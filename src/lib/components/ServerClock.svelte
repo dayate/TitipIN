@@ -7,10 +7,23 @@
 	function updateTime() {
 		const now = new Date();
 		// Convert to WIB (GMT+7)
-		const wib = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+		const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
 
 		const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-		const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+		const months = [
+			'Jan',
+			'Feb',
+			'Mar',
+			'Apr',
+			'Mei',
+			'Jun',
+			'Jul',
+			'Agu',
+			'Sep',
+			'Okt',
+			'Nov',
+			'Des'
+		];
 
 		const dayName = days[wib.getUTCDay()];
 		const date = wib.getUTCDate();

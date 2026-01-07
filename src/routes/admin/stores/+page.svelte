@@ -30,11 +30,15 @@
 
 <div class="space-y-6">
 	<!-- Header with Gradient -->
-	<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6">
+	<div
+		class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6"
+	>
 		<div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl"></div>
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div class="flex items-center gap-4">
-				<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
+				<div
+					class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm"
+				>
 					<Store class="h-7 w-7 text-primary" />
 				</div>
 				<div>
@@ -56,7 +60,9 @@
 				<Store class="h-8 w-8 text-muted-foreground" />
 			</div>
 			<h2 class="text-lg font-semibold text-foreground">Belum ada lapak</h2>
-			<p class="mt-2 text-muted-foreground">Buat lapak pertama Anda untuk mulai menerima penyetor</p>
+			<p class="mt-2 text-muted-foreground">
+				Buat lapak pertama Anda untuk mulai menerima penyetor
+			</p>
 			<Button href="/admin/stores/new" class="mt-4 gap-2 rounded-xl">
 				<Plus class="h-4 w-4" />
 				Buat Lapak Pertama
@@ -65,12 +71,16 @@
 	{:else}
 		<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 			{#each data.stores as store}
-				<div class="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+				<div
+					class="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm transition-all hover:shadow-md hover:border-primary/30"
+				>
 					<!-- Header -->
 					<div class="p-4 pb-3">
 						<div class="flex items-start justify-between">
 							<div class="flex items-center gap-3">
-								<div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
+								<div
+									class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10"
+								>
 									<Store class="h-6 w-6 text-primary" />
 								</div>
 								<div class="min-w-0">
@@ -86,7 +96,9 @@
 									</div>
 								</div>
 							</div>
-							<span class="rounded-full px-2.5 py-1 text-xs font-medium {getStatusColor(store.isOpen)}">
+							<span
+								class="rounded-full px-2.5 py-1 text-xs font-medium {getStatusColor(store.isOpen)}"
+							>
 								{store.isOpen ? 'Buka' : 'Tutup'}
 							</span>
 						</div>

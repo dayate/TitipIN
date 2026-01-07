@@ -33,7 +33,14 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 
 	// Check if store is open
 	if (!store.isOpen) {
-		return { store, products: [], transaction: null, items: [], date: getTomorrowDate(), storeClosed: true };
+		return {
+			store,
+			products: [],
+			transaction: null,
+			items: [],
+			date: getTomorrowDate(),
+			storeClosed: true
+		};
 	}
 
 	// Get approved products for this supplier

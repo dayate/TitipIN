@@ -153,7 +153,7 @@ describe('Notification Store Logic', () => {
 		function markAsRead(state: NotificationState, notificationId: number): NotificationState {
 			return {
 				...state,
-				notifications: state.notifications.map(n =>
+				notifications: state.notifications.map((n) =>
 					n.id === notificationId ? { ...n, isRead: true } : n
 				),
 				unreadCount: Math.max(0, state.unreadCount - 1)
@@ -163,7 +163,7 @@ describe('Notification Store Logic', () => {
 		function markAllAsRead(state: NotificationState): NotificationState {
 			return {
 				...state,
-				notifications: state.notifications.map(n => ({ ...n, isRead: true })),
+				notifications: state.notifications.map((n) => ({ ...n, isRead: true })),
 				unreadCount: 0
 			};
 		}
@@ -202,7 +202,7 @@ describe('Notification Store Logic', () => {
 			const newState = markAllAsRead(state);
 
 			expect(newState.unreadCount).toBe(0);
-			expect(newState.notifications.every(n => n.isRead)).toBe(true);
+			expect(newState.notifications.every((n) => n.isRead)).toBe(true);
 		});
 
 		it('should not go negative on unread count', () => {
@@ -219,17 +219,11 @@ describe('Notification Store Logic', () => {
 	});
 
 	describe('Display Logic', () => {
-		function getDisplayUnreadCount(
-			sseCount: number,
-			serverCount: number
-		): number {
+		function getDisplayUnreadCount(sseCount: number, serverCount: number): number {
 			return sseCount > 0 ? sseCount : serverCount;
 		}
 
-		function getDisplayNotifications<T>(
-			sseNotifications: T[],
-			serverNotifications: T[]
-		): T[] {
+		function getDisplayNotifications<T>(sseNotifications: T[], serverNotifications: T[]): T[] {
 			return sseNotifications.length > 0 ? sseNotifications : serverNotifications;
 		}
 

@@ -37,7 +37,7 @@ export const FEATURES = {
 	NEW_TRANSACTION_UI: 'new_transaction_ui'
 } as const;
 
-export type FeatureFlag = typeof FEATURES[keyof typeof FEATURES];
+export type FeatureFlag = (typeof FEATURES)[keyof typeof FEATURES];
 
 /**
  * Default feature states
@@ -63,7 +63,12 @@ const defaultFeatures: Record<FeatureFlag, boolean> = {
  */
 function parseEnabledFeatures(): Set<string> {
 	const enabledStr = env.ENABLED_FEATURES || '';
-	return new Set(enabledStr.split(',').map(f => f.trim()).filter(Boolean));
+	return new Set(
+		enabledStr
+			.split(',')
+			.map((f) => f.trim())
+			.filter(Boolean)
+	);
 }
 
 /**
@@ -72,7 +77,12 @@ function parseEnabledFeatures(): Set<string> {
  */
 function parseDisabledFeatures(): Set<string> {
 	const disabledStr = env.DISABLED_FEATURES || '';
-	return new Set(disabledStr.split(',').map(f => f.trim()).filter(Boolean));
+	return new Set(
+		disabledStr
+			.split(',')
+			.map((f) => f.trim())
+			.filter(Boolean)
+	);
 }
 
 /**
@@ -150,10 +160,7 @@ export function getClientFeatures(): Record<FeatureFlag, boolean> {
  *   // Only runs if analytics is enabled
  * });
  */
-export function withFeature<T>(
-	feature: FeatureFlag,
-	callback: () => T
-): T | undefined {
+export function withFeature<T>(feature: FeatureFlag, callback: () => T): T | undefined {
 	if (isFeatureEnabled(feature)) {
 		return callback();
 	}

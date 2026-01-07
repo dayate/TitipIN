@@ -13,14 +13,14 @@
 	--color-primary-400: oklch(0.64 0.16 250);
 	--color-primary-500: oklch(0.55 0.18 250);
 	--color-primary-600: oklch(0.48 0.18 250);
-	--color-primary-700: oklch(0.40 0.16 250);
+	--color-primary-700: oklch(0.4 0.16 250);
 	--color-primary-800: oklch(0.34 0.12 250);
 	--color-primary-900: oklch(0.28 0.08 250);
-	--color-primary-950: oklch(0.20 0.06 250);
+	--color-primary-950: oklch(0.2 0.06 250);
 
 	/* Accent Colors */
 	--color-accent-50: oklch(0.97 0.02 200);
-	--color-accent-500: oklch(0.60 0.15 200);
+	--color-accent-500: oklch(0.6 0.15 200);
 	--color-accent-600: oklch(0.52 0.14 200);
 
 	/* Neutral Colors */
@@ -28,19 +28,19 @@
 	--color-gray-100: oklch(0.96 0 0);
 	--color-gray-200: oklch(0.92 0 0);
 	--color-gray-300: oklch(0.87 0 0);
-	--color-gray-400: oklch(0.70 0 0);
+	--color-gray-400: oklch(0.7 0 0);
 	--color-gray-500: oklch(0.55 0 0);
 	--color-gray-600: oklch(0.45 0 0);
 	--color-gray-700: oklch(0.37 0 0);
 	--color-gray-800: oklch(0.27 0 0);
-	--color-gray-900: oklch(0.20 0 0);
+	--color-gray-900: oklch(0.2 0 0);
 	--color-gray-950: oklch(0.13 0 0);
 
 	/* Semantic Colors */
 	--color-success: oklch(0.65 0.15 145);
 	--color-warning: oklch(0.75 0.15 75);
-	--color-error: oklch(0.60 0.20 25);
-	--color-info: oklch(0.60 0.15 250);
+	--color-error: oklch(0.6 0.2 25);
+	--color-info: oklch(0.6 0.15 250);
 
 	/* Border Radius */
 	--radius-sm: 0.375rem;
@@ -148,7 +148,11 @@
 body {
 	background-color: var(--background);
 	color: var(--foreground);
-	font-family: 'Inter', system-ui, -apple-system, sans-serif;
+	font-family:
+		'Inter',
+		system-ui,
+		-apple-system,
+		sans-serif;
 }
 
 /* Focus ring styles */
@@ -183,25 +187,57 @@ html {
 }
 
 /* Utility classes for theme colors */
-.bg-background { background-color: var(--background); }
-.bg-foreground { background-color: var(--foreground); }
-.bg-card { background-color: var(--card); }
-.bg-primary { background-color: var(--primary); }
-.bg-secondary { background-color: var(--secondary); }
-.bg-muted { background-color: var(--muted); }
-.bg-accent { background-color: var(--accent); }
-.bg-destructive { background-color: var(--destructive); }
+.bg-background {
+	background-color: var(--background);
+}
+.bg-foreground {
+	background-color: var(--foreground);
+}
+.bg-card {
+	background-color: var(--card);
+}
+.bg-primary {
+	background-color: var(--primary);
+}
+.bg-secondary {
+	background-color: var(--secondary);
+}
+.bg-muted {
+	background-color: var(--muted);
+}
+.bg-accent {
+	background-color: var(--accent);
+}
+.bg-destructive {
+	background-color: var(--destructive);
+}
 
-.text-foreground { color: var(--foreground); }
-.text-muted-foreground { color: var(--muted-foreground); }
-.text-primary { color: var(--primary); }
-.text-primary-foreground { color: var(--primary-foreground); }
-.text-destructive { color: var(--destructive); }
+.text-foreground {
+	color: var(--foreground);
+}
+.text-muted-foreground {
+	color: var(--muted-foreground);
+}
+.text-primary {
+	color: var(--primary);
+}
+.text-primary-foreground {
+	color: var(--primary-foreground);
+}
+.text-destructive {
+	color: var(--destructive);
+}
 
-.border-border { border-color: var(--border); }
-.border-input { border-color: var(--input); }
+.border-border {
+	border-color: var(--border);
+}
+.border-input {
+	border-color: var(--input);
+}
 
-.ring-ring { --tw-ring-color: var(--ring); }
+.ring-ring {
+	--tw-ring-color: var(--ring);
+}
 
 /* ============================================
    REUSABLE COMPONENT CLASSES
@@ -291,7 +327,8 @@ html {
 	position: relative;
 	overflow: hidden;
 	border-radius: 1rem;
-	background: linear-gradient(to bottom right,
+	background: linear-gradient(
+		to bottom right,
 		color-mix(in oklch, var(--primary) 20%, transparent),
 		color-mix(in oklch, var(--primary) 10%, transparent),
 		var(--background)
@@ -326,7 +363,7 @@ html {
 
 .badge-warning {
 	background-color: oklch(0.95 0.05 75);
-	color: oklch(0.50 0.15 75);
+	color: oklch(0.5 0.15 75);
 	border: 1px solid oklch(0.85 0.1 75);
 }
 
@@ -338,7 +375,7 @@ html {
 
 .badge-error {
 	background-color: oklch(0.95 0.05 25);
-	color: oklch(0.50 0.18 25);
+	color: oklch(0.5 0.18 25);
 	border: 1px solid oklch(0.85 0.1 25);
 }
 
@@ -347,4 +384,3 @@ html {
 	color: oklch(0.75 0.15 25);
 	border-color: oklch(0.35 0.1 25);
 }
-

@@ -1,5 +1,5 @@
 import type { Handle } from '@sveltejs/kit';
-import { validateSession } from '$lib/server/auth';
+import { validateSession, verifySignedSessionId } from '$lib/server/auth';
 import { isStoreAdmin } from '$lib/server/members';
 import { isStoreOwner } from '$lib/server/stores';
 
@@ -33,28 +33,38 @@ const securityHeaders = {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// Get session ID from cookies
-	const sessionId = event.cookies.get('session_id');
+	// Get signed session ID from cookies
+	const signedSessionId = event.cookies.get('session_id');
 
-	if (sessionId) {
+	if (signedSessionId) {
 		try {
-			const result = await validateSession(sessionId);
+			// Verify signature and extract session ID
+			const sessionId = verifySignedSessionId(signedSessionId);
 
-			if (result) {
-				event.locals.user = {
-					id: result.user.id,
-					name: result.user.name,
-					whatsapp: result.user.whatsapp,
-					role: result.user.role,
-					status: result.user.status,
-					avatarUrl: result.user.avatarUrl
-				};
-				event.locals.session = result.session;
-			} else {
-				// Invalid or expired session, clear cookie
+			if (!sessionId) {
+				// Invalid signature, possible tampering
 				event.cookies.delete('session_id', { path: '/' });
 				event.locals.user = null;
 				event.locals.session = null;
+			} else {
+				const result = await validateSession(sessionId);
+
+				if (result) {
+					event.locals.user = {
+						id: result.user.id,
+						name: result.user.name,
+						whatsapp: result.user.whatsapp,
+						role: result.user.role,
+						status: result.user.status,
+						avatarUrl: result.user.avatarUrl
+					};
+					event.locals.session = result.session;
+				} else {
+					// Invalid or expired session, clear cookie
+					event.cookies.delete('session_id', { path: '/' });
+					event.locals.user = null;
+					event.locals.session = null;
+				}
 			}
 		} catch {
 			// Database error, clear session
@@ -142,4 +152,3 @@ export const handle: Handle = async ({ event, resolve }) => {
 		headers: newHeaders
 	});
 };
-

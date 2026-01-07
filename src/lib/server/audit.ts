@@ -45,7 +45,16 @@ export async function logAudit(params: AuditLogParams): Promise<void> {
  */
 export async function logTransactionAudit(
 	transactionId: number,
-	action: Extract<AuditAction, 'transaction_created' | 'transaction_verified' | 'transaction_completed' | 'transaction_cancelled' | 'qty_adjusted' | 'item_added' | 'item_removed'>,
+	action: Extract<
+		AuditAction,
+		| 'transaction_created'
+		| 'transaction_verified'
+		| 'transaction_completed'
+		| 'transaction_cancelled'
+		| 'qty_adjusted'
+		| 'item_added'
+		| 'item_removed'
+	>,
 	actorId: number,
 	oldValue?: object | null,
 	newValue?: object | null,
@@ -129,22 +138,13 @@ export async function logStoreAudit(
 /**
  * Get audit logs for an entity
  */
-export async function getAuditLogs(
-	entityType: string,
-	entityId: number,
-	limit = 50
-) {
+export async function getAuditLogs(entityType: string, entityId: number, limit = 50) {
 	const { eq, and, desc } = await import('drizzle-orm');
 
 	return db
 		.select()
 		.from(auditLogs)
-		.where(
-			and(
-				eq(auditLogs.entityType, entityType),
-				eq(auditLogs.entityId, entityId)
-			)
-		)
+		.where(and(eq(auditLogs.entityType, entityType), eq(auditLogs.entityId, entityId)))
 		.orderBy(desc(auditLogs.createdAt))
 		.limit(limit);
 }
@@ -157,9 +157,5 @@ export async function getStoreAuditLogs(storeId: number, limit = 100) {
 
 	// Get all transaction audits related to store
 	// Note: This is a simplified version, in production you'd join with transactions table
-	return db
-		.select()
-		.from(auditLogs)
-		.orderBy(desc(auditLogs.createdAt))
-		.limit(limit);
+	return db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(limit);
 }

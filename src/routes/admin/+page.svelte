@@ -34,7 +34,10 @@
 		{
 			label: 'Transaksi Hari Ini',
 			value: data.stats.todayTransactions.toString(),
-			change: data.stats.todayPendingValidation > 0 ? `${data.stats.todayPendingValidation} perlu validasi` : '',
+			change:
+				data.stats.todayPendingValidation > 0
+					? `${data.stats.todayPendingValidation} perlu validasi`
+					: '',
 			changeType: data.stats.todayPendingValidation > 0 ? 'negative' : 'positive',
 			icon: TrendingUp
 		},
@@ -48,10 +51,30 @@
 	];
 
 	const recentActivities = [
-		{ type: 'info', message: `Anda memiliki ${data.storeCount} lapak`, time: 'Hari ini', status: 'success' },
-		{ type: 'info', message: `${data.stats.pendingMembers} anggota menunggu approval`, time: 'Aktif', status: data.stats.pendingMembers > 0 ? 'pending' : 'success' },
-		{ type: 'info', message: `${data.stats.pendingProducts} produk menunggu approval`, time: 'Aktif', status: data.stats.pendingProducts > 0 ? 'pending' : 'success' },
-		{ type: 'info', message: `${data.stats.todayPendingValidation} setoran perlu divalidasi`, time: 'Hari ini', status: data.stats.todayPendingValidation > 0 ? 'warning' : 'success' }
+		{
+			type: 'info',
+			message: `Anda memiliki ${data.storeCount} lapak`,
+			time: 'Hari ini',
+			status: 'success'
+		},
+		{
+			type: 'info',
+			message: `${data.stats.pendingMembers} anggota menunggu approval`,
+			time: 'Aktif',
+			status: data.stats.pendingMembers > 0 ? 'pending' : 'success'
+		},
+		{
+			type: 'info',
+			message: `${data.stats.pendingProducts} produk menunggu approval`,
+			time: 'Aktif',
+			status: data.stats.pendingProducts > 0 ? 'pending' : 'success'
+		},
+		{
+			type: 'info',
+			message: `${data.stats.todayPendingValidation} setoran perlu divalidasi`,
+			time: 'Hari ini',
+			status: data.stats.todayPendingValidation > 0 ? 'warning' : 'success'
+		}
 	];
 </script>
 
@@ -65,22 +88,26 @@
 		<h1 class="text-2xl font-bold text-foreground">
 			Selamat datang, {data.user.name}! 👋
 		</h1>
-		<p class="text-muted-foreground">
-			Berikut ringkasan aktivitas lapak Anda hari ini
-		</p>
+		<p class="text-muted-foreground">Berikut ringkasan aktivitas lapak Anda hari ini</p>
 	</div>
 
 	<!-- Stats Grid -->
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		{#each stats as stat}
 			<Card class="flex items-start gap-4">
-				<div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
+				<div
+					class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10"
+				>
 					<stat.icon class="h-6 w-6 text-primary" />
 				</div>
 				<div class="min-w-0 flex-1">
 					<p class="text-sm text-muted-foreground">{stat.label}</p>
 					<p class="text-xl font-bold text-foreground">{stat.value}</p>
-					<div class="flex items-center gap-1 text-xs {stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'}">
+					<div
+						class="flex items-center gap-1 text-xs {stat.changeType === 'positive'
+							? 'text-green-600'
+							: 'text-red-600'}"
+					>
 						{#if stat.changeType === 'positive'}
 							<ArrowUpRight class="h-3 w-3" />
 						{:else}
@@ -101,11 +128,19 @@
 			<div class="space-y-4">
 				{#each recentActivities as activity}
 					<div class="flex items-start gap-3">
-						<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full
-							{activity.status === 'pending' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' : ''}
-							{activity.status === 'success' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : ''}
-							{activity.status === 'warning' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : ''}
-						">
+						<div
+							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full
+							{activity.status === 'pending'
+								? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+								: ''}
+							{activity.status === 'success'
+								? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+								: ''}
+							{activity.status === 'warning'
+								? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+								: ''}
+						"
+						>
 							{#if activity.status === 'pending'}
 								<Clock class="h-4 w-4" />
 							{:else if activity.status === 'success'}

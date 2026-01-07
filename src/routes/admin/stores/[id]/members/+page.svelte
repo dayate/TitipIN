@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Card, Button, Input } from "$lib/components/ui";
-	import { enhance } from "$app/forms";
-	import { formatDate } from "$lib/utils";
+	import { Card, Button, Input } from '$lib/components/ui';
+	import { enhance } from '$app/forms';
+	import { formatDate } from '$lib/utils';
 	import {
 		ArrowLeft,
 		Users,
@@ -14,32 +14,26 @@
 		User,
 		LogOut,
 		Shield,
-		ShieldOff,
-	} from "lucide-svelte";
+		ShieldOff
+	} from 'lucide-svelte';
 
 	let { data } = $props();
 
 	let rejectingMemberId = $state<number | null>(null);
-	let rejectReason = $state("");
+	let rejectReason = $state('');
 
-	let pendingMembers = $derived(
-		data.members.filter((m) => m.member.status === "pending"),
-	);
-	let activeMembers = $derived(
-		data.members.filter((m) => m.member.status === "active"),
-	);
-	let leavingMembers = $derived(
-		data.members.filter((m) => m.member.status === "leaving"),
-	);
+	let pendingMembers = $derived(data.members.filter((m) => m.member.status === 'pending'));
+	let activeMembers = $derived(data.members.filter((m) => m.member.status === 'active'));
+	let leavingMembers = $derived(data.members.filter((m) => m.member.status === 'leaving'));
 
 	function openRejectModal(memberId: number) {
 		rejectingMemberId = memberId;
-		rejectReason = "";
+		rejectReason = '';
 	}
 
 	function closeRejectModal() {
 		rejectingMemberId = null;
-		rejectReason = "";
+		rejectReason = '';
 	}
 </script>
 
@@ -175,15 +169,10 @@
 								</div>
 
 								{#if member.leaveReason}
-									<div
-										class="mt-3 rounded-lg bg-orange-100 dark:bg-orange-900/20 p-3"
-									>
+									<div class="mt-3 rounded-lg bg-orange-100 dark:bg-orange-900/20 p-3">
 										<div class="flex items-center gap-2 mb-1">
-											<MessageSquare
-												class="h-4 w-4 text-orange-600 dark:text-orange-400"
-											/>
-											<span
-												class="text-xs font-medium text-orange-600 dark:text-orange-400"
+											<MessageSquare class="h-4 w-4 text-orange-600 dark:text-orange-400" />
+											<span class="text-xs font-medium text-orange-600 dark:text-orange-400"
 												>Alasan Keluar:</span
 											>
 										</div>
@@ -194,24 +183,14 @@
 								<div class="mt-4 flex gap-2">
 									<form method="POST" action="?/approveLeave" use:enhance>
 										<input type="hidden" name="memberId" value={member.id} />
-										<Button
-											type="submit"
-											size="sm"
-											variant="outline"
-											class="gap-2"
-										>
+										<Button type="submit" size="sm" variant="outline" class="gap-2">
 											<CheckCircle2 class="h-4 w-4" />
 											Setujui Keluar
 										</Button>
 									</form>
 									<form method="POST" action="?/cancelLeave" use:enhance>
 										<input type="hidden" name="memberId" value={member.id} />
-										<Button
-											type="submit"
-											size="sm"
-											variant="ghost"
-											class="gap-2"
-										>
+										<Button type="submit" size="sm" variant="ghost" class="gap-2">
 											<XCircle class="h-4 w-4" />
 											Tolak
 										</Button>
@@ -235,29 +214,17 @@
 		</div>
 
 		{#if activeMembers.length === 0}
-			<p class="text-center text-muted-foreground py-8">
-				Belum ada anggota aktif
-			</p>
+			<p class="text-center text-muted-foreground py-8">Belum ada anggota aktif</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="w-full text-sm">
 					<thead>
 						<tr class="border-b border-border">
-							<th class="py-3 text-left font-medium text-muted-foreground"
-								>Nama</th
-							>
-							<th class="py-3 text-left font-medium text-muted-foreground"
-								>WhatsApp</th
-							>
-							<th class="py-3 text-left font-medium text-muted-foreground"
-								>Role</th
-							>
-							<th class="py-3 text-left font-medium text-muted-foreground"
-								>Bergabung</th
-							>
-							<th class="py-3 text-center font-medium text-muted-foreground"
-								>Aksi</th
-							>
+							<th class="py-3 text-left font-medium text-muted-foreground">Nama</th>
+							<th class="py-3 text-left font-medium text-muted-foreground">WhatsApp</th>
+							<th class="py-3 text-left font-medium text-muted-foreground">Role</th>
+							<th class="py-3 text-left font-medium text-muted-foreground">Bergabung</th>
+							<th class="py-3 text-center font-medium text-muted-foreground">Aksi</th>
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-border">
@@ -266,7 +233,7 @@
 								<td class="py-3 font-medium text-foreground">{user.name}</td>
 								<td class="py-3 text-muted-foreground">{user.whatsapp}</td>
 								<td class="py-3">
-									{#if member.role === "admin"}
+									{#if member.role === 'admin'}
 										<span
 											class="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full"
 										>
@@ -277,18 +244,12 @@
 										<span class="text-xs text-muted-foreground">Member</span>
 									{/if}
 								</td>
-								<td class="py-3 text-muted-foreground text-xs"
-									>{formatDate(member.createdAt!)}</td
-								>
+								<td class="py-3 text-muted-foreground text-xs">{formatDate(member.createdAt!)}</td>
 								<td class="py-3 text-center">
 									<div class="flex items-center justify-center gap-1">
-										{#if member.role === "admin"}
+										{#if member.role === 'admin'}
 											<form method="POST" action="?/demoteAdmin" use:enhance>
-												<input
-													type="hidden"
-													name="memberId"
-													value={member.id}
-												/>
+												<input type="hidden" name="memberId" value={member.id} />
 												<Button
 													type="submit"
 													size="sm"
@@ -301,11 +262,7 @@
 											</form>
 										{:else}
 											<form method="POST" action="?/promoteAdmin" use:enhance>
-												<input
-													type="hidden"
-													name="memberId"
-													value={member.id}
-												/>
+												<input type="hidden" name="memberId" value={member.id} />
 												<Button
 													type="submit"
 													size="sm"
@@ -342,14 +299,11 @@
 
 <!-- Reject Modal -->
 {#if rejectingMemberId !== null}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-	>
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
 		<Card class="w-full max-w-md">
 			<h3 class="text-lg font-semibold text-foreground">Tolak Permintaan</h3>
 			<p class="mt-2 text-muted-foreground">
-				Berikan alasan penolakan agar user memahami mengapa permintaannya
-				ditolak.
+				Berikan alasan penolakan agar user memahami mengapa permintaannya ditolak.
 			</p>
 
 			<form
@@ -380,17 +334,10 @@
 				</div>
 
 				<div class="flex gap-3">
-					<Button
-						type="button"
-						variant="outline"
-						class="flex-1"
-						onclick={closeRejectModal}
-					>
+					<Button type="button" variant="outline" class="flex-1" onclick={closeRejectModal}>
 						Batal
 					</Button>
-					<Button type="submit" variant="destructive" class="flex-1">
-						Tolak Permintaan
-					</Button>
+					<Button type="submit" variant="destructive" class="flex-1">Tolak Permintaan</Button>
 				</div>
 			</form>
 		</Card>

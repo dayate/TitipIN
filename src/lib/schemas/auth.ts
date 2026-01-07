@@ -30,57 +30,51 @@ export const loginSchema = z.object({
 		.min(1, 'Nomor WhatsApp wajib diisi')
 		.regex(phoneRegex, 'Format nomor WhatsApp tidak valid')
 		.transform(normalizePhoneNumber),
-	pin: z
-		.string()
-		.length(6, 'PIN harus 6 digit')
-		.regex(/^\d+$/, 'PIN hanya boleh berisi angka')
+	pin: z.string().length(6, 'PIN harus 6 digit').regex(/^\d+$/, 'PIN hanya boleh berisi angka')
 });
 
 // Register Schema
-export const registerSchema = z.object({
-	name: z
-		.string()
-		.min(2, 'Nama minimal 2 karakter')
-		.max(50, 'Nama maksimal 50 karakter')
-		.regex(/^[a-zA-Z\s]+$/, 'Nama hanya boleh berisi huruf'),
-	whatsapp: z
-		.string()
-		.min(1, 'Nomor WhatsApp wajib diisi')
-		.regex(phoneRegex, 'Format nomor WhatsApp tidak valid')
-		.transform(normalizePhoneNumber),
-	pin: z
-		.string()
-		.length(6, 'PIN harus 6 digit')
-		.regex(/^\d+$/, 'PIN hanya boleh berisi angka'),
-	confirmPin: z
-		.string()
-		.length(6, 'Konfirmasi PIN harus 6 digit'),
-	role: z.enum(['owner', 'supplier'] as const, {
-		message: 'Role harus dipilih'
+export const registerSchema = z
+	.object({
+		name: z
+			.string()
+			.min(2, 'Nama minimal 2 karakter')
+			.max(50, 'Nama maksimal 50 karakter')
+			.regex(/^[a-zA-Z\s]+$/, 'Nama hanya boleh berisi huruf'),
+		whatsapp: z
+			.string()
+			.min(1, 'Nomor WhatsApp wajib diisi')
+			.regex(phoneRegex, 'Format nomor WhatsApp tidak valid')
+			.transform(normalizePhoneNumber),
+		pin: z.string().length(6, 'PIN harus 6 digit').regex(/^\d+$/, 'PIN hanya boleh berisi angka'),
+		confirmPin: z.string().length(6, 'Konfirmasi PIN harus 6 digit'),
+		role: z.enum(['owner', 'supplier'] as const, {
+			message: 'Role harus dipilih'
+		})
 	})
-}).refine((data: { pin: string; confirmPin: string }) => data.pin === data.confirmPin, {
-	message: 'PIN dan Konfirmasi PIN tidak sama',
-	path: ['confirmPin']
-});
+	.refine((data: { pin: string; confirmPin: string }) => data.pin === data.confirmPin, {
+		message: 'PIN dan Konfirmasi PIN tidak sama',
+		path: ['confirmPin']
+	});
 
 // Reset PIN Schema
-export const resetPinSchema = z.object({
-	whatsapp: z
-		.string()
-		.min(1, 'Nomor WhatsApp wajib diisi')
-		.regex(phoneRegex, 'Format nomor WhatsApp tidak valid')
-		.transform(normalizePhoneNumber),
-	newPin: z
-		.string()
-		.length(6, 'PIN harus 6 digit')
-		.regex(/^\d+$/, 'PIN hanya boleh berisi angka'),
-	confirmPin: z
-		.string()
-		.length(6, 'Konfirmasi PIN harus 6 digit')
-}).refine((data: { newPin: string; confirmPin: string }) => data.newPin === data.confirmPin, {
-	message: 'PIN dan Konfirmasi PIN tidak sama',
-	path: ['confirmPin']
-});
+export const resetPinSchema = z
+	.object({
+		whatsapp: z
+			.string()
+			.min(1, 'Nomor WhatsApp wajib diisi')
+			.regex(phoneRegex, 'Format nomor WhatsApp tidak valid')
+			.transform(normalizePhoneNumber),
+		newPin: z
+			.string()
+			.length(6, 'PIN harus 6 digit')
+			.regex(/^\d+$/, 'PIN hanya boleh berisi angka'),
+		confirmPin: z.string().length(6, 'Konfirmasi PIN harus 6 digit')
+	})
+	.refine((data: { newPin: string; confirmPin: string }) => data.newPin === data.confirmPin, {
+		message: 'PIN dan Konfirmasi PIN tidak sama',
+		path: ['confirmPin']
+	});
 
 // Type exports
 export type LoginInput = z.infer<typeof loginSchema>;

@@ -23,7 +23,6 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	return { store, cutoffStatus };
 };
 
-
 export const actions: Actions = {
 	update: async ({ params, request, locals }) => {
 		const storeId = parseInt(params.id);

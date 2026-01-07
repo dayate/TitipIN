@@ -6,9 +6,11 @@ import { loginSchema, validateForm } from '$lib/schemas';
 import { logger } from '$lib/server/logger';
 
 function getClientIP(event: RequestEvent): string {
-	return event.request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-		|| event.request.headers.get('x-real-ip')
-		|| 'unknown';
+	return (
+		event.request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+		event.request.headers.get('x-real-ip') ||
+		'unknown'
+	);
 }
 
 export const actions: Actions = {

@@ -54,11 +54,7 @@ export async function generateWeeklyReport(storeId: number, weekOffset = 0): Pro
 	const { startDate, endDate } = getWeekRange(weekOffset);
 
 	// Get store info
-	const storeData = await db
-		.select()
-		.from(stores)
-		.where(eq(stores.id, storeId))
-		.limit(1);
+	const storeData = await db.select().from(stores).where(eq(stores.id, storeId)).limit(1);
 
 	const store = storeData[0];
 	if (!store) throw new Error('Store not found');
@@ -124,15 +120,14 @@ export async function generateWeeklyReport(storeId: number, weekOffset = 0): Pro
 /**
  * Generate monthly report for a store
  */
-export async function generateMonthlyReport(storeId: number, monthOffset = 0): Promise<MonthlyReport> {
+export async function generateMonthlyReport(
+	storeId: number,
+	monthOffset = 0
+): Promise<MonthlyReport> {
 	const { startDate, endDate } = getMonthRange(monthOffset);
 
 	// Get store info
-	const storeData = await db
-		.select()
-		.from(stores)
-		.where(eq(stores.id, storeId))
-		.limit(1);
+	const storeData = await db.select().from(stores).where(eq(stores.id, storeId)).limit(1);
 
 	const store = storeData[0];
 	if (!store) throw new Error('Store not found');
@@ -226,7 +221,7 @@ export async function generateSupplierEarningsReport(
 		.orderBy(desc(dailyTransactions.date));
 
 	const totalEarnings = results
-		.filter(r => r.status === 'completed')
+		.filter((r) => r.status === 'completed')
 		.reduce((sum, r) => sum + r.payout, 0);
 
 	return {
@@ -295,7 +290,7 @@ export function reportToText(report: WeeklyReport): string {
 
 function getWeekRange(weekOffset = 0): { startDate: string; endDate: string } {
 	const now = new Date();
-	now.setDate(now.getDate() - (weekOffset * 7));
+	now.setDate(now.getDate() - weekOffset * 7);
 
 	// Get Monday of the week
 	const dayOfWeek = now.getDay();
@@ -376,5 +371,5 @@ function getWeekNumber(date: Date): number {
 	const dayNum = d.getUTCDay() || 7;
 	d.setUTCDate(d.getUTCDate() + 4 - dayNum);
 	const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-	return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+	return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }

@@ -52,11 +52,7 @@ export async function checkRateLimitPersistent(
 
 	try {
 		// Try to get existing entry
-		const existing = await db
-			.select()
-			.from(rateLimits)
-			.where(eq(rateLimits.key, key))
-			.limit(1);
+		const existing = await db.select().from(rateLimits).where(eq(rateLimits.key, key)).limit(1);
 
 		if (existing.length === 0) {
 			// Create new entry
@@ -158,7 +154,10 @@ function checkRateLimitMemory(key: string, config: RateLimitConfig): RateLimitRe
 /**
  * Reset rate limit
  */
-export async function resetRateLimitPersistent(identifier: string, action: string = 'default'): Promise<void> {
+export async function resetRateLimitPersistent(
+	identifier: string,
+	action: string = 'default'
+): Promise<void> {
 	const key = `${action}:${identifier}`;
 	try {
 		await db.delete(rateLimits).where(eq(rateLimits.key, key));
@@ -174,10 +173,7 @@ export async function resetRateLimitPersistent(identifier: string, action: strin
 export async function cleanupExpiredRateLimits(): Promise<number> {
 	const now = new Date();
 	try {
-		const result = await db
-			.delete(rateLimits)
-			.where(lt(rateLimits.resetTime, now))
-			.returning();
+		const result = await db.delete(rateLimits).where(lt(rateLimits.resetTime, now)).returning();
 		return result.length;
 	} catch (error) {
 		console.error('[RateLimit] Cleanup failed:', error);
@@ -194,7 +190,8 @@ export const persistentRateLimiter = {
 		resetLogin: (ip: string) => resetRateLimitPersistent(ip, 'login')
 	},
 	api: {
-		general: (ip: string) => checkRateLimitPersistent(ip, 'api', { maxAttempts: 100, windowMs: 60 * 1000 })
+		general: (ip: string) =>
+			checkRateLimitPersistent(ip, 'api', { maxAttempts: 100, windowMs: 60 * 1000 })
 	}
 };
 

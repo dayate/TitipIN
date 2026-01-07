@@ -18,8 +18,6 @@
 			<Construction class="h-8 w-8 text-muted-foreground" />
 		</div>
 		<h2 class="text-lg font-semibold text-foreground">Segera Hadir</h2>
-		<p class="mt-2 text-muted-foreground">
-			Fitur laporan sedang dalam pengembangan
-		</p>
+		<p class="mt-2 text-muted-foreground">Fitur laporan sedang dalam pengembangan</p>
 	</Card>
 </div>

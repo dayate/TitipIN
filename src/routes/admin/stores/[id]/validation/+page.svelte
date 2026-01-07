@@ -104,7 +104,9 @@
 
 	<!-- Success Message -->
 	{#if form?.success}
-		<div class="flex items-center gap-2 rounded-lg bg-green-100 p-3 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
+		<div
+			class="flex items-center gap-2 rounded-lg bg-green-100 p-3 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400"
+		>
 			<CheckCircle2 class="h-4 w-4" />
 			Setoran berhasil divalidasi
 		</div>
@@ -141,7 +143,9 @@
 							</div>
 							<div class="text-right text-sm">
 								<p class="font-medium">{formatDate(transaction.date)}</p>
-								<p class="text-xs text-muted-foreground">Masuk: {formatDateTime(transaction.createdAt)}</p>
+								<p class="text-xs text-muted-foreground">
+									Masuk: {formatDateTime(transaction.createdAt)}
+								</p>
 							</div>
 						</div>
 
@@ -154,7 +158,9 @@
 									<div class="flex items-center justify-between rounded-lg bg-muted/50 p-3">
 										<div class="flex-1">
 											<p class="font-medium text-foreground">{product.name}</p>
-											<p class="text-xs text-muted-foreground">{formatCurrency(product.priceBuy)}</p>
+											<p class="text-xs text-muted-foreground">
+												{formatCurrency(product.priceBuy)}
+											</p>
 										</div>
 
 										<!-- Rencana -->
@@ -167,8 +173,14 @@
 										<div class="text-center">
 											<p class="text-xs text-muted-foreground mb-1">Aktual</p>
 											<input type="hidden" name="itemId" value={product.id} />
-											<input type="hidden" name="qtyActual" value={getQty(transaction.id, product.id)} />
-											<div class="inline-flex items-center rounded-lg border border-border overflow-hidden">
+											<input
+												type="hidden"
+												name="qtyActual"
+												value={getQty(transaction.id, product.id)}
+											/>
+											<div
+												class="inline-flex items-center rounded-lg border border-border overflow-hidden"
+											>
 												<button
 													type="button"
 													onclick={() => decrement(transaction.id, product.id)}

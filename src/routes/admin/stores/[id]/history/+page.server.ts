@@ -38,10 +38,10 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 	// Apply date filters
 	let filteredTransactions = allTransactions;
 	if (startDate) {
-		filteredTransactions = filteredTransactions.filter(t => t.transaction.date >= startDate);
+		filteredTransactions = filteredTransactions.filter((t) => t.transaction.date >= startDate);
 	}
 	if (endDate) {
-		filteredTransactions = filteredTransactions.filter(t => t.transaction.date <= endDate);
+		filteredTransactions = filteredTransactions.filter((t) => t.transaction.date <= endDate);
 	}
 
 	// Get items for each transaction
@@ -55,9 +55,9 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 	// Count by status (from filtered results)
 	const counts = {
 		total: transactionsWithItems.length,
-		draft: transactionsWithItems.filter(t => t.transaction.status === 'draft').length,
-		verified: transactionsWithItems.filter(t => t.transaction.status === 'verified').length,
-		completed: transactionsWithItems.filter(t => t.transaction.status === 'completed').length
+		draft: transactionsWithItems.filter((t) => t.transaction.status === 'draft').length,
+		verified: transactionsWithItems.filter((t) => t.transaction.status === 'verified').length,
+		completed: transactionsWithItems.filter((t) => t.transaction.status === 'completed').length
 	};
 
 	return {
@@ -91,7 +91,10 @@ export const actions: Actions = {
 			return fail(400, { error: 'Pilih minimal satu riwayat untuk dihapus' });
 		}
 
-		const transactionIds = transactionIdsStr.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+		const transactionIds = transactionIdsStr
+			.split(',')
+			.map((id) => parseInt(id))
+			.filter((id) => !isNaN(id));
 
 		if (transactionIds.length === 0) {
 			return fail(400, { error: 'Pilih minimal satu riwayat untuk dihapus' });

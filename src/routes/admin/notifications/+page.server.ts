@@ -1,6 +1,11 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
-import { getNotifications, markAsRead, markAllAsRead, deleteNotification } from '$lib/server/notifications';
+import {
+	getNotifications,
+	markAsRead,
+	markAllAsRead,
+	deleteNotification
+} from '$lib/server/notifications';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const notifications = await getNotifications(locals.user!.id, { limit: 100 });

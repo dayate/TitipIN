@@ -59,13 +59,7 @@ export type ImageType = keyof typeof IMAGE_CONFIG;
  * @returns Whether the type is allowed
  */
 export function isValidImageType(mimeType: string): boolean {
-	const allowedTypes = [
-		'image/jpeg',
-		'image/jpg',
-		'image/png',
-		'image/webp',
-		'image/gif'
-	];
+	const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
 	return allowedTypes.includes(mimeType.toLowerCase());
 }
 
@@ -110,9 +104,7 @@ export function getImageConfig(type: ImageType) {
  * @returns Srcset string
  */
 export function generateSrcsetHint(basePath: string, widths: number[] = [320, 640, 960]): string {
-	return widths
-		.map(w => `${basePath}?w=${w} ${w}w`)
-		.join(', ');
+	return widths.map((w) => `${basePath}?w=${w} ${w}w`).join(', ');
 }
 
 /**

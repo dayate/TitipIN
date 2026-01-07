@@ -55,8 +55,6 @@
 			</div>
 		</div>
 
-		<Button href="/auth/reset-pin" variant="outline" class="w-full">
-			Ubah PIN
-		</Button>
+		<Button href="/auth/reset-pin" variant="outline" class="w-full">Ubah PIN</Button>
 	</Card>
 </div>

@@ -62,7 +62,6 @@ export const actions: Actions = {
 				cutoffGracePeriod: isNaN(cutoffGracePeriod) ? 30 : cutoffGracePeriod
 			});
 
-
 			return { success: true, message: 'Pengaturan berhasil disimpan' };
 		} catch (err) {
 			console.error('Update store error:', err);

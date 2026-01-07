@@ -24,4 +24,3 @@ export const GET = async ({ locals }: RequestEvent) => {
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };
-

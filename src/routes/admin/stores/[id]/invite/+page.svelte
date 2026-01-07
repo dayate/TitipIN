@@ -1,15 +1,7 @@
 <script lang="ts">
 	import { Card, Button, Input } from '$lib/components/ui';
 	import { enhance } from '$app/forms';
-	import {
-		ArrowLeft,
-		Link,
-		Copy,
-		RefreshCw,
-		Clock,
-		CheckCircle2,
-		QrCode
-	} from 'lucide-svelte';
+	import { ArrowLeft, Link, Copy, RefreshCw, Clock, CheckCircle2, QrCode } from 'lucide-svelte';
 
 	let { data } = $props();
 
@@ -17,7 +9,9 @@
 	let copied = $state(false);
 	let loading = $state(false);
 
-	let inviteUrl = $derived(data.activeInvite ? `${data.baseUrl}/join/${data.activeInvite.code}` : '');
+	let inviteUrl = $derived(
+		data.activeInvite ? `${data.baseUrl}/join/${data.activeInvite.code}` : ''
+	);
 
 	let expiresLabel = $derived(() => {
 		if (!data.activeInvite) return '';
@@ -48,7 +42,10 @@
 <div class="mx-auto max-w-2xl space-y-6">
 	<!-- Header -->
 	<div>
-		<a href="/admin/stores/{data.store.id}" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+		<a
+			href="/admin/stores/{data.store.id}"
+			class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+		>
 			<ArrowLeft class="h-4 w-4" />
 			Kembali ke {data.store.name}
 		</a>
@@ -155,7 +152,9 @@
 		<ol class="space-y-2 text-sm text-muted-foreground">
 			<li>1. Bagikan <strong>link undangan</strong> atau <strong>kode</strong> ke calon anggota</li>
 			<li>2. Anggota membuka link atau memasukkan kode di aplikasi</li>
-			<li>3. Anda akan menerima notifikasi untuk <strong>menyetujui</strong> permintaan bergabung</li>
+			<li>
+				3. Anda akan menerima notifikasi untuk <strong>menyetujui</strong> permintaan bergabung
+			</li>
 			<li>4. Setelah disetujui, anggota bisa mulai menyetor produk</li>
 		</ol>
 	</Card>

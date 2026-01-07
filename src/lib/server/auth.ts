@@ -1,11 +1,13 @@
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
+import { createHmac } from 'crypto';
 import { db, users, sessions } from './db';
 import { eq, and, gt } from 'drizzle-orm';
 import type { User, UserRole } from './db/schema';
 
 const SALT_ROUNDS = 10;
 const SESSION_DURATION_DAYS = 30;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'default-dev-secret-change-in-prod';
 
 // ============================================
 // PASSWORD/PIN HASHING
@@ -17,6 +19,47 @@ export async function hashPin(pin: string): Promise<string> {
 
 export async function verifyPin(pin: string, hash: string): Promise<boolean> {
 	return bcrypt.compare(pin, hash);
+}
+
+// ============================================
+// SESSION SIGNING (HMAC-SHA256)
+// ============================================
+
+/**
+ * Sign a session ID using HMAC-SHA256
+ * Format: sessionId.signature
+ */
+export function signSessionId(sessionId: string): string {
+	const signature = createHmac('sha256', SESSION_SECRET).update(sessionId).digest('base64url');
+	return `${sessionId}.${signature}`;
+}
+
+/**
+ * Verify and extract session ID from signed string
+ * Returns null if signature is invalid
+ */
+export function verifySignedSessionId(signedId: string): string | null {
+	const parts = signedId.split('.');
+	if (parts.length !== 2) {
+		return null;
+	}
+
+	const [sessionId, signature] = parts;
+	const expectedSignature = createHmac('sha256', SESSION_SECRET)
+		.update(sessionId)
+		.digest('base64url');
+
+	// Timing-safe comparison
+	if (signature.length !== expectedSignature.length) {
+		return null;
+	}
+
+	let mismatch = 0;
+	for (let i = 0; i < signature.length; i++) {
+		mismatch |= signature.charCodeAt(i) ^ expectedSignature.charCodeAt(i);
+	}
+
+	return mismatch === 0 ? sessionId : null;
 }
 
 // ============================================
@@ -33,6 +76,9 @@ export function getSessionExpiry(): Date {
 	return expiry;
 }
 
+/**
+ * Create a new session and return SIGNED session ID
+ */
 export async function createSession(userId: number): Promise<string> {
 	const sessionId = generateSessionId();
 	const expiresAt = getSessionExpiry();
@@ -43,7 +89,8 @@ export async function createSession(userId: number): Promise<string> {
 		expiresAt
 	});
 
-	return sessionId;
+	// Return signed session ID for cookie storage
+	return signSessionId(sessionId);
 }
 
 export async function validateSession(sessionId: string): Promise<{

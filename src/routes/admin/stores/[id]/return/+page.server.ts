@@ -144,16 +144,12 @@ export const actions: Actions = {
 				totalSold += item.qtyActual - item.qtyReturned;
 			}
 
-			await updateSupplierStatsOnComplete(
-				completedTrx.supplierId,
-				storeId,
-				{
-					plannedQty: totalPlanned,
-					actualQty: totalActual,
-					soldQty: totalSold,
-					revenue: payout
-				}
-			);
+			await updateSupplierStatsOnComplete(completedTrx.supplierId, storeId, {
+				plannedQty: totalPlanned,
+				actualQty: totalActual,
+				soldQty: totalSold,
+				revenue: payout
+			});
 		}
 
 		return { success: true, trxId };

@@ -10,10 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Get owner's stores
-	const ownerStores = await db
-		.select()
-		.from(stores)
-		.where(eq(stores.ownerId, locals.user.id));
+	const ownerStores = await db.select().from(stores).where(eq(stores.ownerId, locals.user.id));
 
 	// If only one store, redirect directly to members
 	if (ownerStores.length === 1) {

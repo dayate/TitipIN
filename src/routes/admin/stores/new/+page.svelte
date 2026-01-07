@@ -21,7 +21,10 @@
 <div class="mx-auto max-w-2xl space-y-6">
 	<!-- Header -->
 	<div>
-		<a href="/admin/stores" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+		<a
+			href="/admin/stores"
+			class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+		>
 			<ArrowLeft class="h-4 w-4" />
 			Kembali ke Daftar Lapak
 		</a>
@@ -73,21 +76,39 @@
 					<button
 						type="button"
 						onclick={() => (visibility = 'private')}
-						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {visibility === 'private' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
+						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {visibility ===
+						'private'
+							? 'border-primary bg-primary/10'
+							: 'border-border hover:border-primary/50'}"
 					>
-						<div class="flex h-12 w-12 items-center justify-center rounded-full {visibility === 'private' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}">
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-full {visibility ===
+							'private'
+								? 'bg-primary text-primary-foreground'
+								: 'bg-muted text-muted-foreground'}"
+						>
 							<EyeOff class="h-6 w-6" />
 						</div>
 						<span class="font-medium text-foreground">Privat</span>
-						<span class="text-center text-xs text-muted-foreground">Hanya anggota yang dapat melihat</span>
+						<span class="text-center text-xs text-muted-foreground"
+							>Hanya anggota yang dapat melihat</span
+						>
 					</button>
 
 					<button
 						type="button"
 						onclick={() => (visibility = 'public')}
-						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {visibility === 'public' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
+						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {visibility ===
+						'public'
+							? 'border-primary bg-primary/10'
+							: 'border-border hover:border-primary/50'}"
 					>
-						<div class="flex h-12 w-12 items-center justify-center rounded-full {visibility === 'public' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}">
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-full {visibility ===
+							'public'
+								? 'bg-primary text-primary-foreground'
+								: 'bg-muted text-muted-foreground'}"
+						>
 							<Eye class="h-6 w-6" />
 						</div>
 						<span class="font-medium text-foreground">Publik</span>
@@ -104,9 +125,7 @@
 			{/if}
 
 			<div class="flex gap-3">
-				<Button href="/admin/stores" variant="outline" class="flex-1">
-					Batal
-				</Button>
+				<Button href="/admin/stores" variant="outline" class="flex-1">Batal</Button>
 				<Button type="submit" class="flex-1" disabled={!isFormValid || loading}>
 					{#if loading}
 						Membuat...

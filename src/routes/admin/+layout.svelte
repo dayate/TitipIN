@@ -1,17 +1,17 @@
 <script lang="ts">
-	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
-	import ServerClock from "$lib/components/ServerClock.svelte";
-	import { Button } from "$lib/components/ui";
-	import { getInitials } from "$lib/utils";
-	import { page } from "$app/stores";
-	import { enhance } from "$app/forms";
-	import { invalidateAll } from "$app/navigation";
-	import { onMount, onDestroy } from "svelte";
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import ServerClock from '$lib/components/ServerClock.svelte';
+	import { Button } from '$lib/components/ui';
+	import { getInitials } from '$lib/utils';
+	import { page } from '$app/stores';
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
+	import { onMount, onDestroy } from 'svelte';
 	import {
 		notificationStore,
 		unreadCount as sseUnreadCount,
-		notifications as sseNotifications,
-	} from "$lib/stores/notificationStore";
+		notifications as sseNotifications
+	} from '$lib/stores/notificationStore';
 	import {
 		Store,
 		LayoutDashboard,
@@ -26,8 +26,8 @@
 		X,
 		ChevronDown,
 		PanelLeftClose,
-		PanelLeft,
-	} from "lucide-svelte";
+		PanelLeft
+	} from 'lucide-svelte';
 
 	let { data, children } = $props();
 	let sidebarOpen = $state(false);
@@ -36,11 +36,11 @@
 	let notificationMenuOpen = $state(false);
 
 	const navItems = [
-		{ href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-		{ href: "/admin/stores", icon: Store, label: "Lapak" },
-		{ href: "/admin/transactions", icon: FileText, label: "Transaksi" },
-		{ href: "/admin/notifications", icon: Bell, label: "Notifikasi" },
-		{ href: "/admin/settings", icon: Settings, label: "Pengaturan" },
+		{ href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+		{ href: '/admin/stores', icon: Store, label: 'Lapak' },
+		{ href: '/admin/transactions', icon: FileText, label: 'Transaksi' },
+		{ href: '/admin/notifications', icon: Bell, label: 'Notifikasi' },
+		{ href: '/admin/settings', icon: Settings, label: 'Pengaturan' }
 	];
 
 	let currentPath = $derived($page.url.pathname);
@@ -51,12 +51,10 @@
 
 	// Gunakan real-time value jika lebih besar, fallback ke server data
 	let displayUnreadCount = $derived(
-		realtimeUnreadCount > 0 ? realtimeUnreadCount : data.unreadNotifications,
+		realtimeUnreadCount > 0 ? realtimeUnreadCount : data.unreadNotifications
 	);
 	let displayNotifications = $derived(
-		realtimeNotifications.length > 0
-			? realtimeNotifications
-			: data.notifications,
+		realtimeNotifications.length > 0 ? realtimeNotifications : data.notifications
 	);
 
 	// Inisialisasi SSE connection
@@ -64,7 +62,7 @@
 		// Initialize dengan data dari server (hydration)
 		notificationStore.initialize({
 			unreadCount: data.unreadNotifications,
-			notifications: data.notifications || [],
+			notifications: data.notifications || []
 		});
 		// Connect ke SSE untuk real-time updates
 		notificationStore.connect();
@@ -85,7 +83,7 @@
 		<div
 			class="fixed inset-0 z-40 bg-black/50 lg:hidden"
 			onclick={closeMobileSidebar}
-			onkeydown={(e) => e.key === "Escape" && closeMobileSidebar()}
+			onkeydown={(e) => e.key === 'Escape' && closeMobileSidebar()}
 			role="button"
 			tabindex="0"
 			aria-label="Close sidebar"
@@ -97,23 +95,17 @@
 		class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card transition-all duration-300
 			lg:static
 			{sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'}
-			{sidebarOpen
-			? 'w-64 translate-x-0'
-			: 'w-64 -translate-x-full lg:translate-x-0'}"
+			{sidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:translate-x-0'}"
 	>
 		<!-- Logo -->
 		<div class="flex h-16 items-center gap-3 border-b border-border px-4">
-			<div
-				class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary"
-			>
+			<div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary">
 				<Store class="h-6 w-6 text-primary-foreground" />
 			</div>
 			{#if !sidebarCollapsed}
 				<div class="min-w-0 flex-1 lg:block">
 					<span class="font-bold text-foreground">Mak Unyil</span>
-					<span class="block truncate text-xs text-muted-foreground"
-						>Admin Panel</span
-					>
+					<span class="block truncate text-xs text-muted-foreground">Admin Panel</span>
 				</div>
 			{/if}
 			<!-- Close button (Mobile) -->
@@ -136,15 +128,15 @@
 						? 'bg-primary text-primary-foreground'
 						: 'text-foreground hover:bg-muted'}
 						{sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''}"
-					title={sidebarCollapsed ? item.label : ""}
+					title={sidebarCollapsed ? item.label : ''}
 				>
 					<div class="relative flex-shrink-0">
 						<item.icon class="h-5 w-5" />
-						{#if item.label === "Notifikasi" && displayUnreadCount > 0}
+						{#if item.label === 'Notifikasi' && displayUnreadCount > 0}
 							<span
 								class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground"
 							>
-								{displayUnreadCount > 9 ? "9+" : displayUnreadCount}
+								{displayUnreadCount > 9 ? '9+' : displayUnreadCount}
 							</span>
 						{/if}
 					</div>
@@ -162,7 +154,7 @@
 					type="submit"
 					class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-muted
 						{sidebarCollapsed ? 'lg:justify-center lg:px-2' : ''}"
-					title={sidebarCollapsed ? "Keluar" : ""}
+					title={sidebarCollapsed ? 'Keluar' : ''}
 				>
 					<LogOut class="h-5 w-5 flex-shrink-0" />
 					{#if !sidebarCollapsed}
@@ -192,7 +184,7 @@
 			<button
 				onclick={() => (sidebarCollapsed = !sidebarCollapsed)}
 				class="hidden h-10 w-10 items-center justify-center rounded-lg hover:bg-muted lg:flex"
-				aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+				aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 			>
 				{#if sidebarCollapsed}
 					<PanelLeft class="h-5 w-5 text-foreground" />
@@ -220,7 +212,7 @@
 						<span
 							class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground"
 						>
-							{displayUnreadCount > 9 ? "9+" : displayUnreadCount}
+							{displayUnreadCount > 9 ? '9+' : displayUnreadCount}
 						</span>
 					{/if}
 				</button>
@@ -230,8 +222,7 @@
 					<div
 						class="fixed inset-0 z-40"
 						onclick={() => (notificationMenuOpen = false)}
-						onkeydown={(e) =>
-							e.key === "Escape" && (notificationMenuOpen = false)}
+						onkeydown={(e) => e.key === 'Escape' && (notificationMenuOpen = false)}
 						role="button"
 						tabindex="0"
 						aria-label="Close notifications"
@@ -240,9 +231,7 @@
 					<div
 						class="fixed inset-x-4 top-16 z-50 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] sm:max-h-96 overflow-hidden rounded-xl border border-border bg-card shadow-xl"
 					>
-						<div
-							class="flex items-center justify-between border-b border-border px-4 py-3"
-						>
+						<div class="flex items-center justify-between border-b border-border px-4 py-3">
 							<h3 class="font-semibold text-foreground">Notifikasi</h3>
 							{#if displayUnreadCount > 0}
 								<form
@@ -256,10 +245,7 @@
 										};
 									}}
 								>
-									<button
-										type="submit"
-										class="text-xs text-primary hover:underline"
-									>
+									<button type="submit" class="text-xs text-primary hover:underline">
 										Tandai Dibaca
 									</button>
 								</form>
@@ -275,17 +261,12 @@
 											notificationMenuOpen = false;
 											return async () => {
 												await invalidateAll();
-												window.location.href =
-													notification.detailUrl || "/admin/notifications";
+												window.location.href = notification.detailUrl || '/admin/notifications';
 											};
 										}}
 										class="block"
 									>
-										<input
-											type="hidden"
-											name="notificationId"
-											value={notification.id}
-										/>
+										<input type="hidden" name="notificationId" value={notification.id} />
 										<button
 											type="submit"
 											class="w-full text-left px-4 py-3 border-b border-border last:border-0 transition-all cursor-pointer
@@ -294,9 +275,7 @@
 										>
 											<div class="flex items-start gap-2">
 												{#if !notification.isRead}
-													<div
-														class="h-2 w-2 mt-1.5 flex-shrink-0 rounded-full bg-primary"
-													></div>
+													<div class="h-2 w-2 mt-1.5 flex-shrink-0 rounded-full bg-primary"></div>
 												{:else}
 													<div class="w-2 flex-shrink-0"></div>
 												{/if}
@@ -313,16 +292,12 @@
 													</p>
 													<p class="mt-1 text-[10px] text-muted-foreground/70">
 														{#if notification.createdAt}
-															{new Date(
-																notification.createdAt,
-															).toLocaleDateString("id-ID", {
-																day: "numeric",
-																month: "short",
-															})} • {new Date(
-																notification.createdAt,
-															).toLocaleTimeString("id-ID", {
-																hour: "2-digit",
-																minute: "2-digit",
+															{new Date(notification.createdAt).toLocaleDateString('id-ID', {
+																day: 'numeric',
+																month: 'short'
+															})} • {new Date(notification.createdAt).toLocaleTimeString('id-ID', {
+																hour: '2-digit',
+																minute: '2-digit'
 															})}
 														{/if}
 													</p>
@@ -332,9 +307,7 @@
 									</form>
 								{/each}
 							{:else}
-								<div
-									class="px-4 py-8 text-center text-sm text-muted-foreground"
-								>
+								<div class="px-4 py-8 text-center text-sm text-muted-foreground">
 									Tidak ada notifikasi
 								</div>
 							{/if}
@@ -377,7 +350,7 @@
 					<div
 						class="fixed inset-0 z-40"
 						onclick={() => (userMenuOpen = false)}
-						onkeydown={(e) => e.key === "Escape" && (userMenuOpen = false)}
+						onkeydown={(e) => e.key === 'Escape' && (userMenuOpen = false)}
 						role="button"
 						tabindex="0"
 						aria-label="Close menu"

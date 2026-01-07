@@ -40,9 +40,11 @@
 
 	const arrowClasses: Record<string, string> = {
 		top: 'top-full left-1/2 -translate-x-1/2 border-t-foreground border-x-transparent border-b-transparent',
-		bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-foreground border-x-transparent border-t-transparent',
+		bottom:
+			'bottom-full left-1/2 -translate-x-1/2 border-b-foreground border-x-transparent border-t-transparent',
 		left: 'left-full top-1/2 -translate-y-1/2 border-l-foreground border-y-transparent border-r-transparent',
-		right: 'right-full top-1/2 -translate-y-1/2 border-r-foreground border-y-transparent border-l-transparent'
+		right:
+			'right-full top-1/2 -translate-y-1/2 border-r-foreground border-y-transparent border-l-transparent'
 	};
 </script>
 
@@ -59,7 +61,9 @@
 
 	{#if visible && text}
 		<div
-			class="pointer-events-none absolute z-50 whitespace-nowrap rounded-lg bg-foreground px-2.5 py-1.5 text-xs font-medium text-background shadow-lg animate-in fade-in-0 zoom-in-95 duration-150 {positionClasses[position]}"
+			class="pointer-events-none absolute z-50 whitespace-nowrap rounded-lg bg-foreground px-2.5 py-1.5 text-xs font-medium text-background shadow-lg animate-in fade-in-0 zoom-in-95 duration-150 {positionClasses[
+				position
+			]}"
 		>
 			{text}
 			<div class="absolute border-4 {arrowClasses[position]}"></div>

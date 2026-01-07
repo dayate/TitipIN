@@ -31,11 +31,11 @@
 	let formError = $derived(form?.error || '');
 	let isFormValid = $derived(
 		whatsapp.replace(/\D/g, '').length >= 10 &&
-		whatsapp.replace(/\D/g, '').length <= 15 &&
-		pin.length >= 6 &&
-		/^\d+$/.test(pin) &&
-		!whatsappError() &&
-		!pinError()
+			whatsapp.replace(/\D/g, '').length <= 15 &&
+			pin.length >= 6 &&
+			/^\d+$/.test(pin) &&
+			!whatsappError() &&
+			!pinError()
 	);
 
 	// Get redirect URL from query params
@@ -64,7 +64,10 @@
 	<main class="flex flex-1 items-center justify-center px-4 py-12">
 		<Card class="w-full max-w-md">
 			<!-- Back Link -->
-			<a href="/" class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+			<a
+				href="/"
+				class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+			>
 				<ArrowLeft class="h-4 w-4" />
 				Kembali ke Beranda
 			</a>

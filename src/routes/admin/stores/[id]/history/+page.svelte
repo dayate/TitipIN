@@ -34,7 +34,9 @@
 
 	let filteredTransactions = $derived(() => {
 		if (activeTab === 'all') return data.transactions;
-		return data.transactions.filter((t: { transaction: { status: string } }) => t.transaction.status === activeTab);
+		return data.transactions.filter(
+			(t: { transaction: { status: string } }) => t.transaction.status === activeTab
+		);
 	});
 
 	function formatCurrency(value: number) {
@@ -151,19 +153,27 @@
 			<p class="text-muted-foreground">{data.store.name}</p>
 		</div>
 		<div class="flex items-center gap-2">
-			<Button onclick={() => showFilters = !showFilters} variant="outline" class="gap-2">
+			<Button onclick={() => (showFilters = !showFilters)} variant="outline" class="gap-2">
 				<Filter class="h-4 w-4" />
 				Filter
 				{#if hasFilters}
-					<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">!</span>
+					<span
+						class="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground"
+						>!</span
+					>
 				{/if}
 			</Button>
-			<Button href={exportUrl()} variant="outline" class="gap-2" disabled={data.transactions.length === 0}>
+			<Button
+				href={exportUrl()}
+				variant="outline"
+				class="gap-2"
+				disabled={data.transactions.length === 0}
+			>
 				<Download class="h-4 w-4" />
 				Export CSV
 			</Button>
 			{#if selectedIds.size > 0}
-				<Button onclick={() => showDeleteConfirm = true} variant="destructive" class="gap-2">
+				<Button onclick={() => (showDeleteConfirm = true)} variant="destructive" class="gap-2">
 					<Trash2 class="h-4 w-4" />
 					Hapus ({selectedIds.size})
 				</Button>
@@ -177,7 +187,7 @@
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<h3 class="font-semibold text-foreground">Filter Riwayat</h3>
-					<button onclick={() => showFilters = false} class="rounded-lg p-1 hover:bg-muted">
+					<button onclick={() => (showFilters = false)} class="rounded-lg p-1 hover:bg-muted">
 						<X class="h-4 w-4" />
 					</button>
 				</div>
@@ -239,7 +249,10 @@
 		{#each [{ key: 'all', label: 'Semua', count: data.counts.total }, { key: 'draft', label: 'Draft', count: data.counts.draft }, { key: 'verified', label: 'Tervalidasi', count: data.counts.verified }, { key: 'completed', label: 'Selesai', count: data.counts.completed }] as tab}
 			<button
 				onclick={() => (activeTab = tab.key as any)}
-				class="relative whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors {activeTab === tab.key ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
+				class="relative whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors {activeTab ===
+				tab.key
+					? 'text-primary'
+					: 'text-muted-foreground hover:text-foreground'}"
 			>
 				{tab.label} ({tab.count})
 				{#if activeTab === tab.key}
@@ -267,20 +280,39 @@
 							<th class="whitespace-nowrap px-4 py-3 text-left">
 								<input
 									type="checkbox"
-									checked={selectedIds.size === filteredTransactions().length && filteredTransactions().length > 0}
+									checked={selectedIds.size === filteredTransactions().length &&
+										filteredTransactions().length > 0}
 									onchange={toggleSelectAll}
 									class="h-4 w-4 rounded border-input"
 								/>
 							</th>
-							<th class="whitespace-nowrap px-4 py-3 text-left font-medium text-muted-foreground">Penyetor</th>
-							<th class="whitespace-nowrap px-4 py-3 text-left font-medium text-muted-foreground">Tanggal</th>
-							<th class="whitespace-nowrap px-4 py-3 text-left font-medium text-muted-foreground">Produk</th>
-							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground">Masuk</th>
-							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground">Terjual</th>
-							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground">Retur</th>
-							<th class="whitespace-nowrap px-4 py-3 text-right font-medium text-muted-foreground">Payout</th>
-							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground">Status</th>
-							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground">Aksi</th>
+							<th class="whitespace-nowrap px-4 py-3 text-left font-medium text-muted-foreground"
+								>Penyetor</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-left font-medium text-muted-foreground"
+								>Tanggal</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-left font-medium text-muted-foreground"
+								>Produk</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground"
+								>Masuk</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground"
+								>Terjual</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground"
+								>Retur</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-right font-medium text-muted-foreground"
+								>Payout</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground"
+								>Status</th
+							>
+							<th class="whitespace-nowrap px-4 py-3 text-center font-medium text-muted-foreground"
+								>Aksi</th
+							>
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-border">
@@ -298,7 +330,9 @@
 									</td>
 									<td class="whitespace-nowrap px-4 py-3">
 										<div class="flex items-center gap-2">
-											<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+											<div
+												class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10"
+											>
 												<User class="h-4 w-4 text-primary" />
 											</div>
 											<span class="font-medium">{supplier.name}</span>
@@ -312,13 +346,19 @@
 									</td>
 									<td class="px-4 py-3 text-muted-foreground" colspan="5">Tidak ada item</td>
 									<td class="px-4 py-3 text-center">
-										<span class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium {status.class}">
+										<span
+											class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium {status.class}"
+										>
 											<status.Icon class="h-3 w-3" />
 											{status.label}
 										</span>
 									</td>
 									<td class="px-4 py-3 text-center">
-										<Button href="/admin/stores/{data.store.id}/history/{transaction.id}" size="sm" variant="outline">
+										<Button
+											href="/admin/stores/{data.store.id}/history/{transaction.id}"
+											size="sm"
+											variant="outline"
+										>
 											Detail
 										</Button>
 									</td>
@@ -338,7 +378,9 @@
 											</td>
 											<td class="whitespace-nowrap px-4 py-3" rowspan={items.length}>
 												<div class="flex items-center gap-2">
-													<div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+													<div
+														class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10"
+													>
 														<User class="h-4 w-4 text-primary" />
 													</div>
 													<span class="font-medium">{supplier.name}</span>
@@ -349,16 +391,24 @@
 													<CalendarDays class="h-4 w-4 text-muted-foreground" />
 													<div>
 														<p class="font-medium">{formatDate(transaction.date)}</p>
-														<p class="text-xs text-muted-foreground">{formatDateTime(transaction.createdAt)}</p>
+														<p class="text-xs text-muted-foreground">
+															{formatDateTime(transaction.createdAt)}
+														</p>
 													</div>
 												</div>
 											</td>
 										{/if}
 										<td class="px-4 py-3">
 											<div class="flex items-center gap-3">
-												<div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden">
+												<div
+													class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden"
+												>
 													{#if product.imageUrl}
-														<img src={product.imageUrl} alt={product.name} class="h-full w-full object-cover" />
+														<img
+															src={product.imageUrl}
+															alt={product.name}
+															class="h-full w-full object-cover"
+														/>
 													{:else}
 														<ImageOff class="h-4 w-4 text-muted-foreground" />
 													{/if}
@@ -366,35 +416,60 @@
 												<div class="min-w-0">
 													<p class="font-medium text-foreground truncate">{product.name}</p>
 													<p class="text-xs text-muted-foreground">
-														Setor: {formatCurrency(product.priceBuy)} | Jual: {formatCurrency(product.priceSell)}
+														Setor: {formatCurrency(product.priceBuy)} | Jual: {formatCurrency(
+															product.priceSell
+														)}
 													</p>
 												</div>
 											</div>
 										</td>
-										<td class="whitespace-nowrap px-4 py-3 text-center font-medium">{item.qtyActual}</td>
-										<td class="whitespace-nowrap px-4 py-3 text-center font-medium text-green-600">{qtySold}</td>
-										<td class="whitespace-nowrap px-4 py-3 text-center font-medium text-red-600">{item.qtyReturned}</td>
+										<td class="whitespace-nowrap px-4 py-3 text-center font-medium"
+											>{item.qtyActual}</td
+										>
+										<td class="whitespace-nowrap px-4 py-3 text-center font-medium text-green-600"
+											>{qtySold}</td
+										>
+										<td class="whitespace-nowrap px-4 py-3 text-center font-medium text-red-600"
+											>{item.qtyReturned}</td
+										>
 										{#if idx === 0}
-											<td class="whitespace-nowrap px-4 py-3 text-right font-medium text-primary" rowspan={items.length}>
+											<td
+												class="whitespace-nowrap px-4 py-3 text-right font-medium text-primary"
+												rowspan={items.length}
+											>
 												{formatCurrency(transaction.totalPayout)}
 											</td>
 											<td class="px-4 py-3 text-center" rowspan={items.length}>
-												<span class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium {status.class}">
+												<span
+													class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium {status.class}"
+												>
 													<status.Icon class="h-3 w-3" />
 													{status.label}
 												</span>
 											</td>
 											<td class="px-4 py-3 text-center" rowspan={items.length}>
 												<div class="flex flex-col gap-1">
-													<Button href="/admin/stores/{data.store.id}/history/{transaction.id}" size="sm" variant="outline">
+													<Button
+														href="/admin/stores/{data.store.id}/history/{transaction.id}"
+														size="sm"
+														variant="outline"
+													>
 														Detail
 													</Button>
 													{#if transaction.status === 'draft'}
-														<Button href="/admin/stores/{data.store.id}/validation" size="sm" variant="outline">
+														<Button
+															href="/admin/stores/{data.store.id}/validation"
+															size="sm"
+															variant="outline"
+														>
 															Validasi
 														</Button>
 													{:else if transaction.status === 'verified'}
-														<Button href="/admin/stores/{data.store.id}/return" size="sm" class="gap-1">
+														<Button
+															href="/admin/stores/{data.store.id}/return"
+															size="sm"
+															class="gap-1"
+														>
 															<RotateCcw class="h-3 w-3" />
 															Retur
 														</Button>
@@ -417,7 +492,7 @@
 {#if showDeleteConfirm}
 	<div
 		class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-		onclick={() => showDeleteConfirm = false}
+		onclick={() => (showDeleteConfirm = false)}
 		onkeydown={(e) => e.key === 'Escape' && (showDeleteConfirm = false)}
 		role="button"
 		tabindex="0"
@@ -430,14 +505,14 @@
 			</div>
 			<h2 class="text-lg font-semibold text-foreground">Hapus Riwayat?</h2>
 			<p class="mt-2 text-sm text-muted-foreground">
-				Anda akan menghapus <strong>{selectedIds.size} riwayat</strong> setoran.
-				Tindakan ini tidak dapat dibatalkan.
+				Anda akan menghapus <strong>{selectedIds.size} riwayat</strong> setoran. Tindakan ini tidak dapat
+				dibatalkan.
 			</p>
 			<p class="mt-2 text-sm text-muted-foreground">
 				💡 Tip: Export data terlebih dahulu sebagai backup sebelum menghapus.
 			</p>
 			<div class="mt-6 flex gap-3">
-				<Button onclick={() => showDeleteConfirm = false} variant="outline" class="flex-1">
+				<Button onclick={() => (showDeleteConfirm = false)} variant="outline" class="flex-1">
 					Batal
 				</Button>
 				<form
@@ -459,7 +534,9 @@
 					<input type="hidden" name="transactionIds" value={Array.from(selectedIds).join(',')} />
 					<Button type="submit" variant="destructive" class="w-full gap-2" disabled={deleteLoading}>
 						{#if deleteLoading}
-							<div class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+							<div
+								class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+							></div>
 						{:else}
 							<Trash2 class="h-4 w-4" />
 						{/if}

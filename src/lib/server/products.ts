@@ -38,11 +38,7 @@ export async function createProduct(data: {
 
 // Get product by ID
 export async function getProductById(productId: number): Promise<Product | null> {
-	const [product] = await db
-		.select()
-		.from(products)
-		.where(eq(products.id, productId))
-		.limit(1);
+	const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
 
 	return product || null;
 }
@@ -56,16 +52,11 @@ export async function getSupplierProducts(
 	const results = await db
 		.select()
 		.from(products)
-		.where(
-			and(
-				eq(products.supplierId, supplierId),
-				eq(products.storeId, storeId)
-			)
-		)
+		.where(and(eq(products.supplierId, supplierId), eq(products.storeId, storeId)))
 		.orderBy(desc(products.createdAt));
 
 	if (status) {
-		return results.filter(p => p.status === status);
+		return results.filter((p) => p.status === status);
 	}
 
 	return results;
@@ -88,7 +79,7 @@ export async function getStoreProducts(storeId: number, status?: ProductStatus) 
 		.orderBy(desc(products.createdAt));
 
 	if (status) {
-		return results.filter(r => r.product.status === status);
+		return results.filter((r) => r.product.status === status);
 	}
 
 	return results;
@@ -111,7 +102,7 @@ export async function getApprovedProducts(storeId: number, supplierId?: number) 
 	const results = await query;
 
 	if (supplierId) {
-		return results.filter(p => p.supplierId === supplierId);
+		return results.filter((p) => p.supplierId === supplierId);
 	}
 
 	return results;
@@ -155,7 +146,10 @@ export async function deleteProduct(productId: number): Promise<boolean> {
 // ============================================
 
 // Approve product with price
-export async function approveProduct(productId: number, priceSell: number): Promise<Product | null> {
+export async function approveProduct(
+	productId: number,
+	priceSell: number
+): Promise<Product | null> {
 	const [updated] = await db
 		.update(products)
 		.set({ status: 'approved', priceSell })
@@ -182,16 +176,13 @@ export async function rejectProduct(productId: number): Promise<Product | null> 
 
 // Count products by status for a store
 export async function countStoreProductsByStatus(storeId: number) {
-	const allProducts = await db
-		.select()
-		.from(products)
-		.where(eq(products.storeId, storeId));
+	const allProducts = await db.select().from(products).where(eq(products.storeId, storeId));
 
 	return {
 		total: allProducts.length,
-		pending: allProducts.filter(p => p.status === 'pending').length,
-		approved: allProducts.filter(p => p.status === 'approved').length,
-		rejected: allProducts.filter(p => p.status === 'rejected').length
+		pending: allProducts.filter((p) => p.status === 'pending').length,
+		approved: allProducts.filter((p) => p.status === 'approved').length,
+		rejected: allProducts.filter((p) => p.status === 'rejected').length
 	};
 }
 
@@ -200,17 +191,12 @@ export async function countSupplierProducts(supplierId: number, storeId: number)
 	const allProducts = await db
 		.select()
 		.from(products)
-		.where(
-			and(
-				eq(products.supplierId, supplierId),
-				eq(products.storeId, storeId)
-			)
-		);
+		.where(and(eq(products.supplierId, supplierId), eq(products.storeId, storeId)));
 
 	return {
 		total: allProducts.length,
-		pending: allProducts.filter(p => p.status === 'pending').length,
-		approved: allProducts.filter(p => p.status === 'approved').length,
-		rejected: allProducts.filter(p => p.status === 'rejected').length
+		pending: allProducts.filter((p) => p.status === 'pending').length,
+		approved: allProducts.filter((p) => p.status === 'approved').length,
+		rejected: allProducts.filter((p) => p.status === 'rejected').length
 	};
 }

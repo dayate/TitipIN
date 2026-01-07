@@ -27,7 +27,9 @@ export async function joinStore(
 		// If rejected but cooldown not passed
 		else if (existing.status === 'rejected') {
 			const days = getRejectionCooldownDays(existing.rejectedAt);
-			throw new Error(`Anda harus menunggu ${days} hari lagi untuk mengajukan permintaan bergabung`);
+			throw new Error(
+				`Anda harus menunggu ${days} hari lagi untuk mengajukan permintaan bergabung`
+			);
 		}
 		// Other statuses (active, pending, leaving)
 		else {
@@ -54,14 +56,14 @@ export async function joinStore(
 }
 
 // Get member by user and store
-export async function getMemberByUserAndStore(userId: number, storeId: number): Promise<StoreMember | null> {
+export async function getMemberByUserAndStore(
+	userId: number,
+	storeId: number
+): Promise<StoreMember | null> {
 	const [member] = await db
 		.select()
 		.from(storeMembers)
-		.where(and(
-			eq(storeMembers.userId, userId),
-			eq(storeMembers.storeId, storeId)
-		))
+		.where(and(eq(storeMembers.userId, userId), eq(storeMembers.storeId, storeId)))
 		.limit(1);
 
 	return member || null;
@@ -93,7 +95,10 @@ export async function approveJoinRequest(memberId: number): Promise<StoreMember 
 }
 
 // Reject join request
-export async function rejectJoinRequest(memberId: number, reason?: string): Promise<StoreMember | null> {
+export async function rejectJoinRequest(
+	memberId: number,
+	reason?: string
+): Promise<StoreMember | null> {
 	const [updated] = await db
 		.update(storeMembers)
 		.set({
@@ -109,15 +114,16 @@ export async function rejectJoinRequest(memberId: number, reason?: string): Prom
 
 // Kick member (delete membership)
 export async function kickMember(memberId: number): Promise<boolean> {
-	await db
-		.delete(storeMembers)
-		.where(eq(storeMembers.id, memberId));
+	await db.delete(storeMembers).where(eq(storeMembers.id, memberId));
 
 	return true;
 }
 
 // Get store members with user info
-export async function getStoreMembers(storeId: number, status?: 'pending' | 'active' | 'suspended' | 'rejected') {
+export async function getStoreMembers(
+	storeId: number,
+	status?: 'pending' | 'active' | 'suspended' | 'rejected'
+) {
 	let query = db
 		.select({
 			member: storeMembers,
@@ -136,7 +142,7 @@ export async function getStoreMembers(storeId: number, status?: 'pending' | 'act
 	const results = await query;
 
 	if (status) {
-		return results.filter(r => r.member.status === status);
+		return results.filter((r) => r.member.status === status);
 	}
 
 	return results;
@@ -157,10 +163,7 @@ export async function getActiveMemberCount(storeId: number): Promise<number> {
 	const [result] = await db
 		.select({ count: count() })
 		.from(storeMembers)
-		.where(and(
-			eq(storeMembers.storeId, storeId),
-			eq(storeMembers.status, 'active')
-		));
+		.where(and(eq(storeMembers.storeId, storeId), eq(storeMembers.status, 'active')));
 	return result?.count || 0;
 }
 
@@ -174,10 +177,7 @@ export async function getMemberCountsByStores(storeIds: number[]): Promise<Map<n
 			count: count()
 		})
 		.from(storeMembers)
-		.where(and(
-			inArray(storeMembers.storeId, storeIds),
-			eq(storeMembers.status, 'active')
-		))
+		.where(and(inArray(storeMembers.storeId, storeIds), eq(storeMembers.status, 'active')))
 		.groupBy(storeMembers.storeId);
 
 	const countMap = new Map<number, number>();
@@ -208,13 +208,13 @@ export async function getUserStores(userId: number) {
 		.orderBy(desc(storeMembers.createdAt));
 
 	// Filter out rejected memberships (they should not appear in "Lapak Saya")
-	return memberships.filter(m => m.member.status !== 'rejected');
+	return memberships.filter((m) => m.member.status !== 'rejected');
 }
 
 // Get user's active stores (approved memberships)
 export async function getUserActiveStores(userId: number) {
 	const memberships = await getUserStores(userId);
-	return memberships.filter(m => m.member.status === 'active');
+	return memberships.filter((m) => m.member.status === 'active');
 }
 
 // Check if user is active member of store
@@ -230,7 +230,7 @@ export function canRejoinAfterRejection(rejectedAt: Date | null): boolean {
 	const cooldownMs = cooldownDays * 24 * 60 * 60 * 1000;
 	const now = new Date().getTime();
 	const rejectedTime = new Date(rejectedAt).getTime();
-	return (now - rejectedTime) >= cooldownMs;
+	return now - rejectedTime >= cooldownMs;
 }
 
 // Get remaining cooldown time in milliseconds
@@ -251,7 +251,10 @@ export function getRejectionCooldownDays(rejectedAt: Date | null): number {
 }
 
 // Request to leave store
-export async function requestLeaveStore(memberId: number, reason: string): Promise<StoreMember | null> {
+export async function requestLeaveStore(
+	memberId: number,
+	reason: string
+): Promise<StoreMember | null> {
 	const [updated] = await db
 		.update(storeMembers)
 		.set({
@@ -267,9 +270,7 @@ export async function requestLeaveStore(memberId: number, reason: string): Promi
 
 // Approve leave request (delete member)
 export async function approveLeaveRequest(memberId: number): Promise<boolean> {
-	await db
-		.delete(storeMembers)
-		.where(eq(storeMembers.id, memberId));
+	await db.delete(storeMembers).where(eq(storeMembers.id, memberId));
 
 	return true;
 }
@@ -291,9 +292,7 @@ export async function cancelLeaveRequest(memberId: number): Promise<StoreMember 
 
 // Delete rejected membership (so user can rejoin)
 export async function deleteRejectedMembership(memberId: number): Promise<boolean> {
-	await db
-		.delete(storeMembers)
-		.where(eq(storeMembers.id, memberId));
+	await db.delete(storeMembers).where(eq(storeMembers.id, memberId));
 
 	return true;
 }
@@ -333,6 +332,5 @@ export async function isStoreAdmin(userId: number, storeId: number): Promise<boo
 // Get store admins
 export async function getStoreAdmins(storeId: number) {
 	const members = await getStoreMembers(storeId, 'active');
-	return members.filter(m => m.member.role === 'admin');
+	return members.filter((m) => m.member.role === 'admin');
 }
-

@@ -28,7 +28,14 @@ function randomChoice<T>(arr: T[]): T {
 }
 
 function generateSlug(name: string): string {
-	return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + nanoid(6);
+	return (
+		name
+			.toLowerCase()
+			.replace(/\s+/g, '-')
+			.replace(/[^a-z0-9-]/g, '') +
+		'-' +
+		nanoid(6)
+	);
 }
 
 function formatDate(date: Date): string {
@@ -95,7 +102,7 @@ const PRODUCTS = [
 // SEED FUNCTIONS
 // ============================================
 
-function seedUsers(): { ownerIds: number[], supplierIds: number[] } {
+function seedUsers(): { ownerIds: number[]; supplierIds: number[] } {
 	console.log('📦 Seeding users...');
 
 	const ownerIds: number[] = [];
@@ -103,19 +110,27 @@ function seedUsers(): { ownerIds: number[], supplierIds: number[] } {
 
 	// Create owners
 	for (const owner of OWNERS) {
-		const result = db.prepare(`
+		const result = db
+			.prepare(
+				`
 			INSERT INTO users (name, whatsapp, pin_hash, role, status, created_at)
 			VALUES (?, ?, ?, 'owner', 'active', ?)
-		`).run(owner.name, owner.whatsapp, hashPin(owner.pin), Date.now());
+		`
+			)
+			.run(owner.name, owner.whatsapp, hashPin(owner.pin), Date.now());
 		ownerIds.push(result.lastInsertRowid as number);
 	}
 
 	// Create suppliers
 	for (const supplier of SUPPLIERS) {
-		const result = db.prepare(`
+		const result = db
+			.prepare(
+				`
 			INSERT INTO users (name, whatsapp, pin_hash, role, status, created_at)
 			VALUES (?, ?, ?, 'supplier', 'active', ?)
-		`).run(supplier.name, supplier.whatsapp, hashPin(supplier.pin), Date.now());
+		`
+			)
+			.run(supplier.name, supplier.whatsapp, hashPin(supplier.pin), Date.now());
 		supplierIds.push(result.lastInsertRowid as number);
 	}
 
@@ -132,10 +147,21 @@ function seedStores(ownerIds: number[]): number[] {
 		const store = STORES[i];
 		const ownerId = ownerIds[i % ownerIds.length];
 
-		const result = db.prepare(`
+		const result = db
+			.prepare(
+				`
 			INSERT INTO stores (owner_id, name, slug, description, visibility, is_open, auto_approve, operating_days, open_time, close_time, created_at, updated_at)
 			VALUES (?, ?, ?, ?, 'public', 1, 1, 'Senin-Sabtu', '04:00', '10:00', ?, ?)
-		`).run(ownerId, store.name, generateSlug(store.name), store.description, Date.now(), Date.now());
+		`
+			)
+			.run(
+				ownerId,
+				store.name,
+				generateSlug(store.name),
+				store.description,
+				Date.now(),
+				Date.now()
+			);
 		storeIds.push(result.lastInsertRowid as number);
 	}
 
@@ -153,18 +179,22 @@ function seedMembers(storeIds: number[], supplierIds: number[]): void {
 		const storeId = storeIds[i % storeIds.length];
 		const supplierId = supplierIds[i];
 
-		db.prepare(`
+		db.prepare(
+			`
 			INSERT INTO store_members (store_id, user_id, status, role, joined_at, created_at)
 			VALUES (?, ?, 'active', 'member', ?, ?)
-		`).run(storeId, supplierId, Date.now(), Date.now());
+		`
+		).run(storeId, supplierId, Date.now(), Date.now());
 		memberCount++;
 	}
 
 	// Some suppliers join multiple stores
-	db.prepare(`
+	db.prepare(
+		`
 		INSERT INTO store_members (store_id, user_id, status, role, joined_at, created_at)
 		VALUES (?, ?, 'active', 'member', ?, ?)
-	`).run(storeIds[1], supplierIds[0], Date.now(), Date.now());
+	`
+	).run(storeIds[1], supplierIds[0], Date.now(), Date.now());
 	memberCount++;
 
 	console.log(`   ✅ Created ${memberCount} store memberships`);
@@ -186,10 +216,14 @@ function seedProducts(storeIds: number[], supplierIds: number[]): Map<number, nu
 		const storeId = storeIds[i % storeIds.length];
 		const supplierId = supplierIds[i % supplierIds.length];
 
-		const result = db.prepare(`
+		const result = db
+			.prepare(
+				`
 			INSERT INTO products (supplier_id, store_id, name, price_buy, price_sell, status, is_active, created_at)
 			VALUES (?, ?, ?, ?, ?, 'approved', 1, ?)
-		`).run(supplierId, storeId, product.name, product.priceBuy, product.priceSell, Date.now());
+		`
+			)
+			.run(supplierId, storeId, product.name, product.priceBuy, product.priceSell, Date.now());
 
 		storeProducts.get(storeId)?.push(result.lastInsertRowid as number);
 		productCount++;
@@ -199,7 +233,11 @@ function seedProducts(storeIds: number[], supplierIds: number[]): Map<number, nu
 	return storeProducts;
 }
 
-function seedTransactions(storeIds: number[], supplierIds: number[], storeProducts: Map<number, number[]>): void {
+function seedTransactions(
+	storeIds: number[],
+	supplierIds: number[],
+	storeProducts: Map<number, number[]>
+): void {
 	console.log('📝 Seeding 30 days of transactions...');
 
 	let transactionCount = 0;
@@ -219,18 +257,26 @@ function seedTransactions(storeIds: number[], supplierIds: number[], storeProduc
 			if (products.length === 0) continue;
 
 			// Get suppliers for this store
-			const storeSuppliers = db.prepare(`
+			const storeSuppliers = db
+				.prepare(
+					`
 				SELECT user_id FROM store_members
 				WHERE store_id = ? AND status = 'active'
-			`).all(storeId) as { user_id: number }[];
+			`
+				)
+				.all(storeId) as { user_id: number }[];
 
 			// Each active supplier creates 1 transaction per day
 			for (const { user_id: supplierId } of storeSuppliers) {
 				// Get products for this supplier in this store
-				const supplierProducts = db.prepare(`
+				const supplierProducts = db
+					.prepare(
+						`
 					SELECT id, price_buy FROM products
 					WHERE store_id = ? AND supplier_id = ? AND is_active = 1
-				`).all(storeId, supplierId) as { id: number, price_buy: number }[];
+				`
+					)
+					.all(storeId, supplierId) as { id: number; price_buy: number }[];
 
 				if (supplierProducts.length === 0) continue;
 
@@ -248,12 +294,19 @@ function seedTransactions(storeIds: number[], supplierIds: number[], storeProduc
 				let totalItemsIn = 0;
 				let totalItemsSold = 0;
 				let totalPayout = 0;
-				const items: { productId: number, qtyPlanned: number, qtyActual: number, qtyReturned: number, priceBuy: number }[] = [];
+				const items: {
+					productId: number;
+					qtyPlanned: number;
+					qtyActual: number;
+					qtyReturned: number;
+					priceBuy: number;
+				}[] = [];
 
 				for (const product of supplierProducts) {
 					const qtyPlanned = randomInt(5, 20);
 					const qtyActual = status === 'draft' ? 0 : Math.max(0, qtyPlanned + randomInt(-2, 2));
-					const qtyReturned = status === 'completed' ? randomInt(0, Math.floor(qtyActual * 0.3)) : 0;
+					const qtyReturned =
+						status === 'completed' ? randomInt(0, Math.floor(qtyActual * 0.3)) : 0;
 					const qtySold = qtyActual - qtyReturned;
 
 					items.push({
@@ -270,20 +323,35 @@ function seedTransactions(storeIds: number[], supplierIds: number[], storeProduc
 				}
 
 				// Insert transaction
-				const trxResult = db.prepare(`
+				const trxResult = db
+					.prepare(
+						`
 					INSERT INTO daily_transactions (date, store_id, supplier_id, status, total_items_in, total_items_sold, total_payout, created_at)
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-				`).run(dateStr, storeId, supplierId, status, totalItemsIn, totalItemsSold, totalPayout, date.getTime());
+				`
+					)
+					.run(
+						dateStr,
+						storeId,
+						supplierId,
+						status,
+						totalItemsIn,
+						totalItemsSold,
+						totalPayout,
+						date.getTime()
+					);
 
 				const trxId = trxResult.lastInsertRowid as number;
 				transactionCount++;
 
 				// Insert transaction items
 				for (const item of items) {
-					db.prepare(`
+					db.prepare(
+						`
 						INSERT INTO transaction_items (trx_id, product_id, qty_planned, qty_actual, qty_returned)
 						VALUES (?, ?, ?, ?, ?)
-					`).run(trxId, item.productId, item.qtyPlanned, item.qtyActual, item.qtyReturned);
+					`
+					).run(trxId, item.productId, item.qtyPlanned, item.qtyActual, item.qtyReturned);
 					itemCount++;
 				}
 			}
@@ -299,18 +367,29 @@ function seedAuditLogs(storeIds: number[], ownerIds: number[]): void {
 	let logCount = 0;
 
 	// Get some transaction IDs
-	const transactions = db.prepare(`
+	const transactions = db
+		.prepare(
+			`
 		SELECT id FROM daily_transactions LIMIT 20
-	`).all() as { id: number }[];
+	`
+		)
+		.all() as { id: number }[];
 
 	const actions = ['transaction_created', 'transaction_verified', 'transaction_completed'];
 
 	for (const trx of transactions) {
 		const action = randomChoice(actions);
-		db.prepare(`
+		db.prepare(
+			`
 			INSERT INTO audit_logs (entity_type, entity_id, action, actor_id, created_at)
 			VALUES ('transaction', ?, ?, ?, ?)
-		`).run(trx.id, action, randomChoice(ownerIds), Date.now() - randomInt(0, 30 * 24 * 60 * 60 * 1000));
+		`
+		).run(
+			trx.id,
+			action,
+			randomChoice(ownerIds),
+			Date.now() - randomInt(0, 30 * 24 * 60 * 60 * 1000)
+		);
 		logCount++;
 	}
 
@@ -325,14 +404,20 @@ function seedSupplierStats(storeIds: number[], supplierIds: number[]): void {
 	for (const storeId of storeIds) {
 		for (const supplierId of supplierIds) {
 			// Check if this supplier is a member of this store
-			const isMember = db.prepare(`
+			const isMember = db
+				.prepare(
+					`
 				SELECT 1 FROM store_members WHERE store_id = ? AND user_id = ? AND status = 'active'
-			`).get(storeId, supplierId);
+			`
+				)
+				.get(storeId, supplierId);
 
 			if (!isMember) continue;
 
 			// Calculate stats from actual transactions
-			const stats = db.prepare(`
+			const stats = db
+				.prepare(
+					`
 				SELECT
 					COUNT(*) as total_transactions,
 					SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
@@ -342,24 +427,30 @@ function seedSupplierStats(storeIds: number[], supplierIds: number[]): void {
 					SUM(total_payout) as total_revenue
 				FROM daily_transactions
 				WHERE store_id = ? AND supplier_id = ?
-			`).get(storeId, supplierId) as {
-				total_transactions: number,
-				completed: number,
-				cancelled: number,
-				total_in: number,
-				total_sold: number,
-				total_revenue: number
+			`
+				)
+				.get(storeId, supplierId) as {
+				total_transactions: number;
+				completed: number;
+				cancelled: number;
+				total_in: number;
+				total_sold: number;
+				total_revenue: number;
 			};
 
-			const reliability = stats.total_transactions > 0
-				? Math.round((stats.completed / stats.total_transactions) * 100)
-				: 100;
+			const reliability =
+				stats.total_transactions > 0
+					? Math.round((stats.completed / stats.total_transactions) * 100)
+					: 100;
 
-			db.prepare(`
+			db.prepare(
+				`
 				INSERT INTO supplier_stats (supplier_id, store_id, total_transactions, completed_transactions, cancelled_by_supplier, total_planned_qty, total_actual_qty, total_sold_qty, total_revenue, reliability_score, created_at, updated_at)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-			`).run(
-				supplierId, storeId,
+			`
+			).run(
+				supplierId,
+				storeId,
 				stats.total_transactions || 0,
 				stats.completed || 0,
 				stats.cancelled || 0,
@@ -384,28 +475,51 @@ function seedNotifications(supplierIds: number[], ownerIds: number[]): void {
 	let notifCount = 0;
 
 	const messages = [
-		{ type: 'join_approved', title: 'Bergabung Disetujui', message: 'Selamat! Permintaan Anda untuk bergabung telah disetujui.' },
-		{ type: 'transaction_verified', title: 'Setoran Diverifikasi', message: 'Setoran hari ini telah diverifikasi oleh admin.' },
-		{ type: 'transaction_completed', title: 'Transaksi Selesai', message: 'Transaksi hari ini telah selesai. Silakan cek riwayat.' },
+		{
+			type: 'join_approved',
+			title: 'Bergabung Disetujui',
+			message: 'Selamat! Permintaan Anda untuk bergabung telah disetujui.'
+		},
+		{
+			type: 'transaction_verified',
+			title: 'Setoran Diverifikasi',
+			message: 'Setoran hari ini telah diverifikasi oleh admin.'
+		},
+		{
+			type: 'transaction_completed',
+			title: 'Transaksi Selesai',
+			message: 'Transaksi hari ini telah selesai. Silakan cek riwayat.'
+		},
 		{ type: 'info', title: 'Pengumuman', message: 'Besok lapak tutup karena hari libur.' }
 	];
 
 	// Notifications for suppliers
 	for (const supplierId of supplierIds) {
 		const notifData = randomChoice(messages);
-		db.prepare(`
+		db.prepare(
+			`
 			INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
 			VALUES (?, ?, ?, ?, ?, ?)
-		`).run(supplierId, notifData.type, notifData.title, notifData.message, randomChoice([0, 1]), Date.now() - randomInt(0, 7 * 24 * 60 * 60 * 1000));
+		`
+		).run(
+			supplierId,
+			notifData.type,
+			notifData.title,
+			notifData.message,
+			randomChoice([0, 1]),
+			Date.now() - randomInt(0, 7 * 24 * 60 * 60 * 1000)
+		);
 		notifCount++;
 	}
 
 	// Notifications for owners
 	for (const ownerId of ownerIds) {
-		db.prepare(`
+		db.prepare(
+			`
 			INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
 			VALUES (?, 'join_request', 'Permintaan Bergabung', 'Ada permintaan baru untuk bergabung ke lapak Anda.', 0, ?)
-		`).run(ownerId, Date.now() - randomInt(0, 3 * 24 * 60 * 60 * 1000));
+		`
+		).run(ownerId, Date.now() - randomInt(0, 3 * 24 * 60 * 60 * 1000));
 		notifCount++;
 	}
 
@@ -466,7 +580,6 @@ function main(): void {
 		console.log('   Owner: 081234567890 / PIN: 123456');
 		console.log('   Supplier: 082111222333 / PIN: 123456');
 		console.log('');
-
 	} catch (error) {
 		console.error('❌ Seed failed:', error);
 		process.exit(1);

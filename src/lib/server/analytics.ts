@@ -76,23 +76,13 @@ export async function getStoreDashboardData(
 	const supplierCount = await db
 		.select({ count: count() })
 		.from(storeMembers)
-		.where(
-			and(
-				eq(storeMembers.storeId, storeId),
-				eq(storeMembers.status, 'active')
-			)
-		);
+		.where(and(eq(storeMembers.storeId, storeId), eq(storeMembers.status, 'active')));
 
 	// Total products
 	const productCount = await db
 		.select({ count: count() })
 		.from(products)
-		.where(
-			and(
-				eq(products.storeId, storeId),
-				eq(products.status, 'approved')
-			)
-		);
+		.where(and(eq(products.storeId, storeId), eq(products.status, 'approved')));
 
 	// Recent transactions
 	const recentTransactions = await db

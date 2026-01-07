@@ -66,7 +66,9 @@
 
 <div class="min-h-screen bg-background">
 	<!-- Navigation -->
-	<nav class="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
+	<nav
+		class="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg"
+	>
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="flex h-16 items-center justify-between">
 				<!-- Logo -->
@@ -87,16 +89,15 @@
 					</a>
 					<ThemeToggle />
 					{#if data.user}
-						<Button href={data.user.role === 'owner' ? '/admin' : '/app'}>
-							Dashboard
-						</Button>
+						<Button href={data.user.role === 'owner' ? '/admin' : '/app'}>Dashboard</Button>
 					{:else}
-						<a href="/auth/login" class="text-muted-foreground transition-colors hover:text-foreground">
+						<a
+							href="/auth/login"
+							class="text-muted-foreground transition-colors hover:text-foreground"
+						>
 							Masuk
 						</a>
-						<Button href="/auth/register">
-							Daftar Gratis
-						</Button>
+						<Button href="/auth/register">Daftar Gratis</Button>
 					{/if}
 				</div>
 
@@ -128,9 +129,7 @@
 							</Button>
 						{:else}
 							<a href="/auth/login" class="text-muted-foreground">Masuk</a>
-							<Button href="/auth/register" class="w-full">
-								Daftar Gratis
-							</Button>
+							<Button href="/auth/register" class="w-full">Daftar Gratis</Button>
 						{/if}
 					</div>
 				</div>
@@ -142,16 +141,26 @@
 	<section class="relative overflow-hidden pt-32 pb-20">
 		<!-- Background Gradient -->
 		<div class="absolute inset-0 -z-10">
-			<div class="absolute inset-0 bg-gradient-to-br from-primary-100 via-background to-accent-50 dark:from-primary-950 dark:via-background dark:to-accent-50/10"></div>
-			<div class="absolute right-0 top-20 h-[500px] w-[500px] rounded-full bg-primary-200/30 blur-3xl dark:bg-primary-900/20"></div>
-			<div class="absolute -left-20 bottom-0 h-[400px] w-[400px] rounded-full bg-accent-200/30 blur-3xl dark:bg-accent-900/20"></div>
+			<div
+				class="absolute inset-0 bg-gradient-to-br from-primary-100 via-background to-accent-50 dark:from-primary-950 dark:via-background dark:to-accent-50/10"
+			></div>
+			<div
+				class="absolute right-0 top-20 h-[500px] w-[500px] rounded-full bg-primary-200/30 blur-3xl dark:bg-primary-900/20"
+			></div>
+			<div
+				class="absolute -left-20 bottom-0 h-[400px] w-[400px] rounded-full bg-accent-200/30 blur-3xl dark:bg-accent-900/20"
+			></div>
 		</div>
 
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="text-center">
-				<div class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary">
+				<div
+					class="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary"
+				>
 					<span class="relative flex h-2 w-2">
-						<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+						<span
+							class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"
+						></span>
 						<span class="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
 					</span>
 					Platform Konsinyasi Digital #1 di Indonesia
@@ -159,14 +168,16 @@
 
 				<h1 class="mb-6 text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
 					Kelola Bisnis Konsinyasi
-					<span class="block bg-gradient-to-r from-primary-500 to-accent-500 bg-clip-text text-transparent">
+					<span
+						class="block bg-gradient-to-r from-primary-500 to-accent-500 bg-clip-text text-transparent"
+					>
 						Tanpa Ribet
 					</span>
 				</h1>
 
 				<p class="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
-					Serahkan pencatatan manual kepada sistem digital. Penyetor input sendiri,
-					validasi otomatis, laporan lengkap. Semua dalam satu platform.
+					Serahkan pencatatan manual kepada sistem digital. Penyetor input sendiri, validasi
+					otomatis, laporan lengkap. Semua dalam satu platform.
 				</p>
 
 				<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -174,9 +185,7 @@
 						Mulai Sekarang
 						<ArrowRight class="h-5 w-5" />
 					</Button>
-					<Button size="lg" variant="outline" href="#fitur">
-						Lihat Fitur
-					</Button>
+					<Button size="lg" variant="outline" href="#fitur">Lihat Fitur</Button>
 				</div>
 
 				<!-- Stats -->
@@ -214,8 +223,12 @@
 
 			<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
 				{#each features as feature}
-					<div class="group rounded-2xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:shadow-lg">
-						<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+					<div
+						class="group rounded-2xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:shadow-lg"
+					>
+						<div
+							class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
+						>
 							<feature.icon class="h-6 w-6" />
 						</div>
 						<h3 class="mb-2 text-lg font-semibold text-foreground">{feature.title}</h3>
@@ -231,12 +244,10 @@
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="grid items-center gap-12 lg:grid-cols-2">
 				<div>
-					<h2 class="mb-4 text-3xl font-bold text-foreground">
-						Kenapa Pilih Mak Unyil?
-					</h2>
+					<h2 class="mb-4 text-3xl font-bold text-foreground">Kenapa Pilih Mak Unyil?</h2>
 					<p class="mb-8 text-muted-foreground">
-						Platform yang dirancang khusus untuk bisnis konsinyasi tradisional Indonesia.
-						Mudah digunakan, bahkan untuk yang tidak tech-savvy.
+						Platform yang dirancang khusus untuk bisnis konsinyasi tradisional Indonesia. Mudah
+						digunakan, bahkan untuk yang tidak tech-savvy.
 					</p>
 
 					<ul class="space-y-4">
@@ -306,7 +317,12 @@
 					Daftar Gratis Sekarang
 					<ArrowRight class="h-5 w-5" />
 				</Button>
-				<Button size="lg" variant="outline" href="/auth/login" class="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+				<Button
+					size="lg"
+					variant="outline"
+					href="/auth/login"
+					class="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+				>
 					Sudah Punya Akun? Masuk
 				</Button>
 			</div>

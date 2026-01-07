@@ -77,7 +77,9 @@ export const actions: Actions = {
 			if (product.imageUrl) {
 				const oldPath = join(process.cwd(), 'static', product.imageUrl);
 				if (existsSync(oldPath)) {
-					try { unlinkSync(oldPath); } catch {}
+					try {
+						unlinkSync(oldPath);
+					} catch {}
 				}
 			}
 

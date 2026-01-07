@@ -27,7 +27,8 @@
 		const cleaned = whatsapp.replace(/\D/g, '');
 		if (cleaned.length < 10) return 'Nomor minimal 10 digit';
 		if (cleaned.length > 15) return 'Nomor maksimal 15 digit';
-		if (!cleaned.startsWith('08') && !cleaned.startsWith('62')) return 'Nomor harus diawali 08 atau 62';
+		if (!cleaned.startsWith('08') && !cleaned.startsWith('62'))
+			return 'Nomor harus diawali 08 atau 62';
 		return '';
 	});
 
@@ -50,17 +51,17 @@
 
 	let isFormValid = $derived(
 		name.length >= 3 &&
-		name.length <= 50 &&
-		/^[a-zA-Z\s]+$/.test(name) &&
-		whatsapp.replace(/\D/g, '').length >= 10 &&
-		whatsapp.replace(/\D/g, '').length <= 15 &&
-		pin.length === 6 &&
-		/^\d+$/.test(pin) &&
-		pin === confirmPin &&
-		!nameError() &&
-		!whatsappError() &&
-		!pinError() &&
-		!confirmPinError()
+			name.length <= 50 &&
+			/^[a-zA-Z\s]+$/.test(name) &&
+			whatsapp.replace(/\D/g, '').length >= 10 &&
+			whatsapp.replace(/\D/g, '').length <= 15 &&
+			pin.length === 6 &&
+			/^\d+$/.test(pin) &&
+			pin === confirmPin &&
+			!nameError() &&
+			!whatsappError() &&
+			!pinError() &&
+			!confirmPinError()
 	);
 </script>
 
@@ -86,7 +87,10 @@
 	<main class="flex flex-1 items-center justify-center px-4 py-12">
 		<Card class="w-full max-w-md">
 			<!-- Back Link -->
-			<a href="/" class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+			<a
+				href="/"
+				class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+			>
 				<ArrowLeft class="h-4 w-4" />
 				Kembali ke Beranda
 			</a>
@@ -94,16 +98,16 @@
 			{#if formSuccess}
 				<!-- Success State -->
 				<div class="text-center">
-					<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+					<div
+						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+					>
 						<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
 					</div>
 					<h1 class="text-2xl font-bold text-foreground">Pendaftaran Berhasil! 🎉</h1>
 					<p class="mt-2 text-muted-foreground">
 						Akun Anda telah berhasil dibuat. Silakan login untuk melanjutkan.
 					</p>
-					<Button href="/auth/login" class="mt-6 w-full">
-						Masuk Sekarang
-					</Button>
+					<Button href="/auth/login" class="mt-6 w-full">Masuk Sekarang</Button>
 				</div>
 			{:else}
 				<div class="mb-6 text-center">
@@ -116,9 +120,16 @@
 					<button
 						type="button"
 						onclick={() => (role = 'supplier')}
-						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {role === 'supplier' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
+						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {role ===
+						'supplier'
+							? 'border-primary bg-primary/10'
+							: 'border-border hover:border-primary/50'}"
 					>
-						<div class="flex h-12 w-12 items-center justify-center rounded-full {role === 'supplier' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}">
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-full {role === 'supplier'
+								? 'bg-primary text-primary-foreground'
+								: 'bg-muted text-muted-foreground'}"
+						>
 							<User class="h-6 w-6" />
 						</div>
 						<span class="font-medium text-foreground">Penyetor</span>
@@ -128,9 +139,16 @@
 					<button
 						type="button"
 						onclick={() => (role = 'owner')}
-						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {role === 'owner' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}"
+						class="flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all {role ===
+						'owner'
+							? 'border-primary bg-primary/10'
+							: 'border-border hover:border-primary/50'}"
 					>
-						<div class="flex h-12 w-12 items-center justify-center rounded-full {role === 'owner' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}">
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-full {role === 'owner'
+								? 'bg-primary text-primary-foreground'
+								: 'bg-muted text-muted-foreground'}"
+						>
 							<Building2 class="h-6 w-6" />
 						</div>
 						<span class="font-medium text-foreground">Pemilik Lapak</span>
@@ -218,9 +236,7 @@
 
 				<p class="mt-6 text-center text-sm text-muted-foreground">
 					Sudah punya akun?
-					<a href="/auth/login" class="font-medium text-primary hover:underline">
-						Masuk di sini
-					</a>
+					<a href="/auth/login" class="font-medium text-primary hover:underline"> Masuk di sini </a>
 				</p>
 			{/if}
 		</Card>

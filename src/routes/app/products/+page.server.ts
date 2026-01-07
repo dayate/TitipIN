@@ -17,14 +17,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		})
 		.from(storeMembers)
 		.innerJoin(stores, eq(storeMembers.storeId, stores.id))
-		.where(
-			and(
-				eq(storeMembers.userId, locals.user.id),
-				eq(storeMembers.status, 'active')
-			)
-		);
+		.where(and(eq(storeMembers.userId, locals.user.id), eq(storeMembers.status, 'active')));
 
-	const activeStores = memberships.map(m => m.store);
+	const activeStores = memberships.map((m) => m.store);
 
 	// If only one store, redirect directly
 	if (activeStores.length === 1) {

@@ -34,11 +34,14 @@ export async function createNotification(data: {
 }
 
 // Get notifications for a user
-export async function getNotifications(userId: number, options?: {
-	limit?: number;
-	offset?: number;
-	unreadOnly?: boolean;
-}) {
+export async function getNotifications(
+	userId: number,
+	options?: {
+		limit?: number;
+		offset?: number;
+		unreadOnly?: boolean;
+	}
+) {
 	const limit = options?.limit || 50;
 	const offset = options?.offset || 0;
 
@@ -53,7 +56,7 @@ export async function getNotifications(userId: number, options?: {
 	const results = await query;
 
 	if (options?.unreadOnly) {
-		return results.filter(n => !n.isRead);
+		return results.filter((n) => !n.isRead);
 	}
 
 	return results;
@@ -64,10 +67,7 @@ export async function getUnreadCount(userId: number): Promise<number> {
 	const result = await db
 		.select({ count: sql<number>`count(*)` })
 		.from(notifications)
-		.where(and(
-			eq(notifications.userId, userId),
-			eq(notifications.isRead, false)
-		));
+		.where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
 
 	return result[0]?.count || 0;
 }
@@ -85,19 +85,14 @@ export async function markAsRead(notificationId: number) {
 
 // Mark all as read for a user
 export async function markAllAsRead(userId: number) {
-	await db
-		.update(notifications)
-		.set({ isRead: true })
-		.where(eq(notifications.userId, userId));
+	await db.update(notifications).set({ isRead: true }).where(eq(notifications.userId, userId));
 
 	return true;
 }
 
 // Delete notification
 export async function deleteNotification(notificationId: number) {
-	await db
-		.delete(notifications)
-		.where(eq(notifications.id, notificationId));
+	await db.delete(notifications).where(eq(notifications.id, notificationId));
 
 	return true;
 }
@@ -138,11 +133,7 @@ export async function notifyStoreOwner(
 }
 
 // Notify user about join request status
-export async function notifyJoinApproved(
-	userId: number,
-	storeName: string,
-	storeId: number
-) {
+export async function notifyJoinApproved(userId: number, storeName: string, storeId: number) {
 	return createNotification({
 		userId,
 		type: 'join_approved',
@@ -176,11 +167,7 @@ export async function notifyJoinRejected(
 	});
 }
 
-export async function notifyMemberKicked(
-	userId: number,
-	storeName: string,
-	storeId: number
-) {
+export async function notifyMemberKicked(userId: number, storeName: string, storeId: number) {
 	return createNotification({
 		userId,
 		type: 'member_kicked',
@@ -191,11 +178,7 @@ export async function notifyMemberKicked(
 	});
 }
 
-export async function notifyNewJoinRequest(
-	storeId: number,
-	userName: string,
-	memberId: number
-) {
+export async function notifyNewJoinRequest(storeId: number, userName: string, memberId: number) {
 	// Get store name
 	const [store] = await db
 		.select({ name: stores.name, ownerId: stores.ownerId })
@@ -332,21 +315,14 @@ export async function notifyTransactionCompleted(
 // STORE NOTIFICATIONS
 // ============================================
 
-export async function notifyStoreClosed(
-	storeId: number,
-	storeName: string,
-	reason?: string
-) {
+export async function notifyStoreClosed(storeId: number, storeName: string, reason?: string) {
 	// Get all active members
 	const { storeMembers } = await import('./db/schema');
 
 	const members = await db
 		.select({ userId: storeMembers.userId })
 		.from(storeMembers)
-		.where(and(
-			eq(storeMembers.storeId, storeId),
-			eq(storeMembers.status, 'active')
-		));
+		.where(and(eq(storeMembers.storeId, storeId), eq(storeMembers.status, 'active')));
 
 	const message = reason
 		? `Lapak ${storeName} tutup mendadak. Alasan: ${reason}`
@@ -354,24 +330,22 @@ export async function notifyStoreClosed(
 
 	// Create notification for each member
 	const notifications = await Promise.all(
-		members.map(m => createNotification({
-			userId: m.userId,
-			type: 'store_closed',
-			title: 'Lapak Tutup ⚠️',
-			message,
-			detailUrl: `/app/${storeId}`,
-			relatedStoreId: storeId
-		}))
+		members.map((m) =>
+			createNotification({
+				userId: m.userId,
+				type: 'store_closed',
+				title: 'Lapak Tutup ⚠️',
+				message,
+				detailUrl: `/app/${storeId}`,
+				relatedStoreId: storeId
+			})
+		)
 	);
 
 	return notifications;
 }
 
-export async function notifyLeaveApproved(
-	userId: number,
-	storeName: string,
-	storeId: number
-) {
+export async function notifyLeaveApproved(userId: number, storeName: string, storeId: number) {
 	return createNotification({
 		userId,
 		type: 'leave_approved',
@@ -381,4 +355,3 @@ export async function notifyLeaveApproved(
 		relatedStoreId: storeId
 	});
 }
-

@@ -31,12 +31,7 @@ export async function getOrCreateSupplierStats(supplierId: number, storeId: numb
 	const existing = await db
 		.select()
 		.from(supplierStats)
-		.where(
-			and(
-				eq(supplierStats.supplierId, supplierId),
-				eq(supplierStats.storeId, storeId)
-			)
-		)
+		.where(and(eq(supplierStats.supplierId, supplierId), eq(supplierStats.storeId, storeId)))
 		.limit(1);
 
 	if (existing.length > 0) {
@@ -88,17 +83,16 @@ export async function updateSupplierStatsOnComplete(
 	const newTotal = stats.totalTransactions + 1;
 
 	// Calculate accuracy: how close actual qty is to planned qty
-	const accuracy = newTotalPlanned > 0
-		? Math.round((newTotalActual / newTotalPlanned) * 100)
-		: 100;
+	const accuracy = newTotalPlanned > 0 ? Math.round((newTotalActual / newTotalPlanned) * 100) : 100;
 
 	// Calculate reliability score (weighted formula)
 	const completionRate = newTotal > 0 ? (newCompleted / newTotal) * 100 : 100;
 	const noShowPenalty = stats.noShowCount * 10;
 	const cancelPenalty = stats.cancelledBySupplier * 5;
-	const reliabilityScore = Math.max(0, Math.min(100,
-		Math.round(completionRate - noShowPenalty - cancelPenalty)
-	));
+	const reliabilityScore = Math.max(
+		0,
+		Math.min(100, Math.round(completionRate - noShowPenalty - cancelPenalty))
+	);
 
 	await db
 		.update(supplierStats)
@@ -127,14 +121,13 @@ export async function markSupplierNoShow(supplierId: number, storeId: number): P
 	const newTotal = stats.totalTransactions + 1;
 
 	// Recalculate reliability score
-	const completionRate = newTotal > 0
-		? (stats.completedTransactions / newTotal) * 100
-		: 100;
+	const completionRate = newTotal > 0 ? (stats.completedTransactions / newTotal) * 100 : 100;
 	const noShowPenalty = newNoShowCount * 10;
 	const cancelPenalty = stats.cancelledBySupplier * 5;
-	const reliabilityScore = Math.max(0, Math.min(100,
-		Math.round(completionRate - noShowPenalty - cancelPenalty)
-	));
+	const reliabilityScore = Math.max(
+		0,
+		Math.min(100, Math.round(completionRate - noShowPenalty - cancelPenalty))
+	);
 
 	await db
 		.update(supplierStats)
@@ -157,14 +150,13 @@ export async function markSupplierCancelled(supplierId: number, storeId: number)
 	const newTotal = stats.totalTransactions + 1;
 
 	// Recalculate reliability score
-	const completionRate = newTotal > 0
-		? (stats.completedTransactions / newTotal) * 100
-		: 100;
+	const completionRate = newTotal > 0 ? (stats.completedTransactions / newTotal) * 100 : 100;
 	const noShowPenalty = stats.noShowCount * 10;
 	const cancelPenalty = newCancelledCount * 5;
-	const reliabilityScore = Math.max(0, Math.min(100,
-		Math.round(completionRate - noShowPenalty - cancelPenalty)
-	));
+	const reliabilityScore = Math.max(
+		0,
+		Math.min(100, Math.round(completionRate - noShowPenalty - cancelPenalty))
+	);
 
 	await db
 		.update(supplierStats)
@@ -180,7 +172,9 @@ export async function markSupplierCancelled(supplierId: number, storeId: number)
 /**
  * Get all supplier reliability data for a store (for owner dashboard)
  */
-export async function getStoreSupplierReliability(storeId: number): Promise<SupplierReliabilityData[]> {
+export async function getStoreSupplierReliability(
+	storeId: number
+): Promise<SupplierReliabilityData[]> {
 	const results = await db
 		.select({
 			supplierId: supplierStats.supplierId,
@@ -211,12 +205,7 @@ export async function getSupplierStatsForStore(supplierId: number, storeId: numb
 	const results = await db
 		.select()
 		.from(supplierStats)
-		.where(
-			and(
-				eq(supplierStats.supplierId, supplierId),
-				eq(supplierStats.storeId, storeId)
-			)
-		)
+		.where(and(eq(supplierStats.supplierId, supplierId), eq(supplierStats.storeId, storeId)))
 		.limit(1);
 
 	return results[0] || null;
@@ -237,10 +226,7 @@ export async function getLowReliabilitySuppliers(storeId: number, threshold = 50
 		.from(supplierStats)
 		.innerJoin(users, eq(supplierStats.supplierId, users.id))
 		.where(
-			and(
-				eq(supplierStats.storeId, storeId),
-				sql`${supplierStats.reliabilityScore} < ${threshold}`
-			)
+			and(eq(supplierStats.storeId, storeId), sql`${supplierStats.reliabilityScore} < ${threshold}`)
 		)
 		.orderBy(supplierStats.reliabilityScore);
 

@@ -50,11 +50,23 @@
 	function getStatusBadge(status: string) {
 		switch (status) {
 			case 'completed':
-				return { class: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', label: 'Selesai', Icon: CheckCircle2 };
+				return {
+					class: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+					label: 'Selesai',
+					Icon: CheckCircle2
+				};
 			case 'verified':
-				return { class: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', label: 'Tervalidasi', Icon: FileText };
+				return {
+					class: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+					label: 'Tervalidasi',
+					Icon: FileText
+				};
 			default:
-				return { class: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', label: 'Draft', Icon: Clock };
+				return {
+					class: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+					label: 'Draft',
+					Icon: Clock
+				};
 		}
 	}
 
@@ -80,7 +92,9 @@
 				<h1 class="text-2xl font-bold text-foreground">Detail Transaksi</h1>
 				<p class="text-muted-foreground">{data.store.name}</p>
 			</div>
-			<span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium {status.class}">
+			<span
+				class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium {status.class}"
+			>
 				<status.Icon class="h-4 w-4" />
 				{status.label}
 			</span>
@@ -153,7 +167,9 @@
 			<div class="flex items-center gap-3">
 				<Wallet class="h-8 w-8 text-purple-500" />
 				<div>
-					<p class="text-lg font-bold text-foreground">{formatCurrency(data.summary.totalPayout)}</p>
+					<p class="text-lg font-bold text-foreground">
+						{formatCurrency(data.summary.totalPayout)}
+					</p>
 					<p class="text-xs text-muted-foreground">Bayar Supplier</p>
 				</div>
 			</div>
@@ -173,12 +189,20 @@
 					{@const revenue = sold * product.priceSell}
 					{@const profit = sold * (product.priceSell - product.priceBuy)}
 
-					<div class="flex flex-col gap-4 rounded-xl border border-border bg-muted/30 p-4 sm:flex-row sm:items-center">
+					<div
+						class="flex flex-col gap-4 rounded-xl border border-border bg-muted/30 p-4 sm:flex-row sm:items-center"
+					>
 						<!-- Product Image & Name -->
 						<div class="flex items-center gap-4 sm:w-64">
-							<div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden">
+							<div
+								class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden"
+							>
 								{#if product.imageUrl}
-									<img src={product.imageUrl} alt={product.name} class="h-full w-full object-cover" />
+									<img
+										src={product.imageUrl}
+										alt={product.name}
+										class="h-full w-full object-cover"
+									/>
 								{:else}
 									<ImageOff class="h-6 w-6 text-muted-foreground" />
 								{/if}
@@ -224,20 +248,28 @@
 				<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
 					<div class="text-center">
 						<p class="text-sm text-muted-foreground">Total Omset</p>
-						<p class="text-xl font-bold text-foreground">{formatCurrency(data.summary.totalRevenue)}</p>
+						<p class="text-xl font-bold text-foreground">
+							{formatCurrency(data.summary.totalRevenue)}
+						</p>
 					</div>
 					<div class="text-center">
 						<p class="text-sm text-muted-foreground">Profit Lapak</p>
-						<p class="text-xl font-bold text-green-600">{formatCurrency(data.summary.totalProfit)}</p>
+						<p class="text-xl font-bold text-green-600">
+							{formatCurrency(data.summary.totalProfit)}
+						</p>
 					</div>
 					<div class="text-center">
 						<p class="text-sm text-muted-foreground">Bayar Supplier</p>
-						<p class="text-xl font-bold text-purple-600">{formatCurrency(data.summary.totalPayout)}</p>
+						<p class="text-xl font-bold text-purple-600">
+							{formatCurrency(data.summary.totalPayout)}
+						</p>
 					</div>
 					<div class="text-center">
 						<p class="text-sm text-muted-foreground">Margin</p>
 						<p class="text-xl font-bold text-foreground">
-							{data.summary.totalRevenue > 0 ? Math.round((data.summary.totalProfit / data.summary.totalRevenue) * 100) : 0}%
+							{data.summary.totalRevenue > 0
+								? Math.round((data.summary.totalProfit / data.summary.totalRevenue) * 100)
+								: 0}%
 						</p>
 					</div>
 				</div>

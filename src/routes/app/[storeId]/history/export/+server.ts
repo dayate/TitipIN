@@ -61,7 +61,9 @@ export const GET: RequestHandler = async ({ params, locals, url }) => {
 		}
 	}
 
-	const csv = rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+	const csv = rows
+		.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
+		.join('\n');
 	const filename = `riwayat_${storeId}_${new Date().toISOString().split('T')[0]}.csv`;
 
 	return new Response(csv, {

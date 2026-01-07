@@ -7,7 +7,7 @@ import {
 	type DailyTransaction,
 	type TransactionStatus
 } from './db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, gte, lte } from 'drizzle-orm';
 
 // ============================================
 // TRANSACTION CRUD
@@ -86,6 +86,18 @@ export async function getStoreTransactions(
 		limit?: number;
 	}
 ) {
+	// Build dynamic conditions array for SQL-level filtering
+	const conditions = [eq(dailyTransactions.storeId, storeId)];
+
+	if (options?.status) {
+		conditions.push(eq(dailyTransactions.status, options.status));
+	}
+
+	if (options?.date) {
+		conditions.push(eq(dailyTransactions.date, options.date));
+	}
+
+	// Apply all conditions at SQL level - much more efficient than JS filtering
 	let query = db
 		.select({
 			transaction: dailyTransactions,
@@ -97,26 +109,15 @@ export async function getStoreTransactions(
 		})
 		.from(dailyTransactions)
 		.innerJoin(users, eq(dailyTransactions.supplierId, users.id))
-		.where(eq(dailyTransactions.storeId, storeId))
+		.where(and(...conditions))
 		.orderBy(desc(dailyTransactions.date), desc(dailyTransactions.createdAt));
 
-	const results = await query;
-
-	let filtered = results;
-
-	if (options?.status) {
-		filtered = filtered.filter((r) => r.transaction.status === options.status);
-	}
-
-	if (options?.date) {
-		filtered = filtered.filter((r) => r.transaction.date === options.date);
-	}
-
+	// Apply limit at SQL level if specified
 	if (options?.limit) {
-		filtered = filtered.slice(0, options.limit);
+		query = query.limit(options.limit) as typeof query;
 	}
 
-	return filtered;
+	return query;
 }
 
 // Get transactions by supplier with advanced filters
@@ -130,36 +131,37 @@ export async function getSupplierTransactions(
 		limit?: number;
 	}
 ) {
-	const results = await db
-		.select()
-		.from(dailyTransactions)
-		.where(
-			and(
-				eq(dailyTransactions.supplierId, supplierId),
-				eq(dailyTransactions.storeId, storeId)
-			)
-		)
-		.orderBy(desc(dailyTransactions.date));
-
-	let filtered = results;
+	// Build dynamic conditions array for SQL-level filtering
+	const conditions = [
+		eq(dailyTransactions.supplierId, supplierId),
+		eq(dailyTransactions.storeId, storeId)
+	];
 
 	if (options?.status) {
-		filtered = filtered.filter((r) => r.status === options.status);
+		conditions.push(eq(dailyTransactions.status, options.status));
 	}
 
 	if (options?.startDate) {
-		filtered = filtered.filter((r) => r.date >= options.startDate!);
+		conditions.push(gte(dailyTransactions.date, options.startDate));
 	}
 
 	if (options?.endDate) {
-		filtered = filtered.filter((r) => r.date <= options.endDate!);
+		conditions.push(lte(dailyTransactions.date, options.endDate));
 	}
 
+	// Apply all conditions at SQL level
+	let query = db
+		.select()
+		.from(dailyTransactions)
+		.where(and(...conditions))
+		.orderBy(desc(dailyTransactions.date));
+
+	// Apply limit at SQL level if specified
 	if (options?.limit) {
-		filtered = filtered.slice(0, options.limit);
+		query = query.limit(options.limit) as typeof query;
 	}
 
-	return filtered;
+	return query;
 }
 
 // Delete transactions by IDs
@@ -198,15 +200,7 @@ export function exportTransactionsToCSV(
 
 	for (const trx of transactions) {
 		if (trx.items.length === 0) {
-			rows.push([
-				trx.date,
-				trx.status,
-				'-',
-				'0',
-				'0',
-				'0',
-				'0'
-			]);
+			rows.push([trx.date, trx.status, '-', '0', '0', '0', '0']);
 		} else {
 			for (const { item, product } of trx.items) {
 				const qtySold = item.qtyActual - item.qtyReturned;
@@ -225,7 +219,7 @@ export function exportTransactionsToCSV(
 	}
 
 	// Convert to CSV string
-	return rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+	return rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
 }
 
 // ============================================
@@ -245,10 +239,7 @@ export async function upsertTransactionItem(data: {
 		.select()
 		.from(transactionItems)
 		.where(
-			and(
-				eq(transactionItems.trxId, data.trxId),
-				eq(transactionItems.productId, data.productId)
-			)
+			and(eq(transactionItems.trxId, data.trxId), eq(transactionItems.productId, data.productId))
 		)
 		.limit(1);
 
@@ -376,7 +367,7 @@ export async function completeTransaction(trxId: number) {
 export function getTodayDate(): string {
 	const now = new Date();
 	// Convert to WIB (GMT+7)
-	const wib = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+	const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
 	return wib.toISOString().split('T')[0];
 }
 
@@ -384,7 +375,7 @@ export function getTodayDate(): string {
 export function getTomorrowDate(): string {
 	const now = new Date();
 	// Convert to WIB (GMT+7) and add 1 day
-	const wib = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+	const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
 	wib.setDate(wib.getDate() + 1);
 	return wib.toISOString().split('T')[0];
 }

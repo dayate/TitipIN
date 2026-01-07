@@ -75,7 +75,8 @@
 			>
 				<Package class="h-5 w-5 flex-shrink-0" />
 				<p>
-					Setelah mengedit, produk akan kembali ke status "Menunggu" dan perlu disetujui ulang oleh admin.
+					Setelah mengedit, produk akan kembali ke status "Menunggu" dan perlu disetujui ulang oleh
+					admin.
 				</p>
 			</div>
 
@@ -85,11 +86,7 @@
 
 				{#if imagePreview}
 					<div class="relative w-40">
-						<img
-							src={imagePreview}
-							alt="Preview"
-							class="h-40 w-40 rounded-lg object-cover"
-						/>
+						<img src={imagePreview} alt="Preview" class="h-40 w-40 rounded-lg object-cover" />
 						<button
 							type="button"
 							onclick={removeImage}
@@ -158,9 +155,15 @@
 					bind:value={suggestedPrice}
 				/>
 				{#if suggestedPrice > 0 && priceBuy > 0}
-					{@const margin = ((suggestedPrice - priceBuy) / priceBuy * 100).toFixed(0)}
+					{@const margin = (((suggestedPrice - priceBuy) / priceBuy) * 100).toFixed(0)}
 					<p class="text-xs text-muted-foreground">
-						Margin keuntungan: <span class="font-medium {parseInt(margin) >= 20 ? 'text-green-600' : parseInt(margin) >= 10 ? 'text-yellow-600' : 'text-red-600'}">{margin}%</span>
+						Margin keuntungan: <span
+							class="font-medium {parseInt(margin) >= 20
+								? 'text-green-600'
+								: parseInt(margin) >= 10
+									? 'text-yellow-600'
+									: 'text-red-600'}">{margin}%</span
+						>
 					</p>
 				{/if}
 			</div>

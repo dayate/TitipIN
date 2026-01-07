@@ -2,7 +2,15 @@
 	import { Card, Button } from '$lib/components/ui';
 	import { enhance } from '$app/forms';
 	import {
-		Store, Clock, CheckCircle2, LogOut, Eye, EyeOff, Package, MapPin, Search
+		Store,
+		Clock,
+		CheckCircle2,
+		LogOut,
+		Eye,
+		EyeOff,
+		Package,
+		MapPin,
+		Search
 	} from 'lucide-svelte';
 
 	let { data } = $props();
@@ -17,13 +25,29 @@
 	function getStatusBadge(status: string) {
 		switch (status) {
 			case 'active':
-				return { class: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20', label: 'Aktif', Icon: CheckCircle2 };
+				return {
+					class: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
+					label: 'Aktif',
+					Icon: CheckCircle2
+				};
 			case 'pending':
-				return { class: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20', label: 'Menunggu', Icon: Clock };
+				return {
+					class: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
+					label: 'Menunggu',
+					Icon: Clock
+				};
 			case 'leaving':
-				return { class: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20', label: 'Minta Keluar', Icon: LogOut };
+				return {
+					class: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
+					label: 'Minta Keluar',
+					Icon: LogOut
+				};
 			default:
-				return { class: 'bg-muted text-muted-foreground border-border', label: status, Icon: Store };
+				return {
+					class: 'bg-muted text-muted-foreground border-border',
+					label: status,
+					Icon: Store
+				};
 		}
 	}
 
@@ -55,11 +79,15 @@
 
 <div class="space-y-6">
 	<!-- Header with Gradient -->
-	<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6">
+	<div
+		class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6"
+	>
 		<div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl"></div>
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div class="flex items-center gap-4">
-				<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
+				<div
+					class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm"
+				>
 					<Store class="h-7 w-7 text-primary" />
 				</div>
 				<div>
@@ -81,7 +109,9 @@
 				<Store class="h-8 w-8 text-muted-foreground" />
 			</div>
 			<h2 class="text-lg font-semibold text-foreground">Belum bergabung di lapak manapun</h2>
-			<p class="mt-2 text-muted-foreground">Cari lapak publik atau gunakan kode undangan untuk bergabung</p>
+			<p class="mt-2 text-muted-foreground">
+				Cari lapak publik atau gunakan kode undangan untuk bergabung
+			</p>
 			<Button href="/app/discover" class="mt-4 gap-2 rounded-xl">
 				<Search class="h-4 w-4" />
 				Temukan Lapak
@@ -91,12 +121,16 @@
 		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each data.memberships as { member, store }}
 				{@const status = getStatusBadge(member.status)}
-				<div class="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+				<div
+					class="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm transition-all hover:shadow-md hover:border-primary/30"
+				>
 					<!-- Header -->
 					<div class="p-4 pb-3">
 						<div class="flex items-start justify-between">
 							<div class="flex items-center gap-3">
-								<div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
+								<div
+									class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10"
+								>
 									<Store class="h-5 w-5 text-primary" />
 								</div>
 								<div class="min-w-0">
@@ -110,13 +144,19 @@
 											<span>Privat</span>
 										{/if}
 										<span>•</span>
-										<span class={store.isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+										<span
+											class={store.isOpen
+												? 'text-green-600 dark:text-green-400'
+												: 'text-red-600 dark:text-red-400'}
+										>
 											{store.isOpen ? 'Buka' : 'Tutup'}
 										</span>
 									</div>
 								</div>
 							</div>
-							<span class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium {status.class}">
+							<span
+								class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium {status.class}"
+							>
 								<status.Icon class="h-3 w-3" />
 								{status.label}
 							</span>
@@ -129,8 +169,12 @@
 									<Clock class="h-3.5 w-3.5 flex-shrink-0" />
 									<span>
 										{#if store.operatingDays}{store.operatingDays}{/if}
-										{#if store.operatingDays && store.openTime} • {/if}
-										{#if store.openTime}{formatTime(store.openTime)} - {formatTime(store.closeTime)}{/if}
+										{#if store.operatingDays && store.openTime}
+											•
+										{/if}
+										{#if store.openTime}{formatTime(store.openTime)} - {formatTime(
+												store.closeTime
+											)}{/if}
 									</span>
 								</div>
 							{/if}
@@ -171,14 +215,20 @@
 					{:else if member.status === 'pending'}
 						<div class="border-t border-border p-4">
 							<div class="rounded-xl bg-yellow-500/10 border border-yellow-500/20 p-3 text-center">
-								<p class="text-sm font-medium text-yellow-600 dark:text-yellow-400">Menunggu persetujuan</p>
-								<p class="mt-0.5 text-xs text-muted-foreground">Pemilik lapak akan review permintaan Anda</p>
+								<p class="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+									Menunggu persetujuan
+								</p>
+								<p class="mt-0.5 text-xs text-muted-foreground">
+									Pemilik lapak akan review permintaan Anda
+								</p>
 							</div>
 						</div>
 					{:else if member.status === 'leaving'}
 						<div class="border-t border-border p-4">
 							<div class="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 text-center">
-								<p class="text-sm font-medium text-orange-600 dark:text-orange-400">Permintaan Keluar Diajukan</p>
+								<p class="text-sm font-medium text-orange-600 dark:text-orange-400">
+									Permintaan Keluar Diajukan
+								</p>
 								<p class="mt-0.5 text-xs text-muted-foreground">Menunggu persetujuan admin</p>
 							</div>
 						</div>

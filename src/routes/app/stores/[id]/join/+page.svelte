@@ -80,7 +80,10 @@
 <div class="space-y-6">
 	<!-- Header -->
 	<div>
-		<a href="/app/stores" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+		<a
+			href="/app/stores"
+			class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+		>
 			<ArrowLeft class="h-4 w-4" />
 			Kembali
 		</a>
@@ -89,23 +92,24 @@
 	{#if formSuccess}
 		<!-- Success State -->
 		<Card class="text-center py-12">
-			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+			<div
+				class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+			>
 				<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
 			</div>
 			<h1 class="text-2xl font-bold text-foreground">Permintaan Terkirim! 🎉</h1>
 			<p class="mt-2 text-muted-foreground">
-				Permintaan bergabung ke <strong>{data.store.name}</strong> telah dikirim.
-				Tunggu persetujuan dari pemilik lapak.
+				Permintaan bergabung ke <strong>{data.store.name}</strong> telah dikirim. Tunggu persetujuan dari
+				pemilik lapak.
 			</p>
-			<Button href="/app/stores" class="mt-6">
-				Lihat Lapak Saya
-			</Button>
+			<Button href="/app/stores" class="mt-6">Lihat Lapak Saya</Button>
 		</Card>
-
 	{:else if data.existingMember?.status === 'rejected' && !data.canRejoin}
 		<!-- Rejected with Cooldown -->
 		<Card class="text-center py-12">
-			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+			<div
+				class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30"
+			>
 				<XCircle class="h-8 w-8 text-red-600 dark:text-red-400" />
 			</div>
 			<h1 class="text-2xl font-bold text-foreground">Permintaan Ditolak</h1>
@@ -116,7 +120,8 @@
 			{#if data.existingMember.rejectionReason}
 				<div class="mx-auto mt-4 max-w-md rounded-lg bg-muted p-4">
 					<p class="text-sm text-muted-foreground">
-						<strong>Alasan:</strong> {data.existingMember.rejectionReason}
+						<strong>Alasan:</strong>
+						{data.existingMember.rejectionReason}
 					</p>
 				</div>
 			{/if}
@@ -126,9 +131,7 @@
 				<div class="flex items-start gap-3">
 					<Clock class="h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400 mt-0.5" />
 					<div class="text-left">
-						<p class="font-medium text-yellow-800 dark:text-yellow-300">
-							Masa Tunggu
-						</p>
+						<p class="font-medium text-yellow-800 dark:text-yellow-300">Masa Tunggu</p>
 						<p class="mt-1 text-2xl font-bold text-yellow-700 dark:text-yellow-400 font-mono">
 							{formattedTime}
 						</p>
@@ -144,11 +147,10 @@
 				<div class="flex items-start gap-3">
 					<Key class="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
 					<div class="text-left">
-						<p class="font-medium text-foreground">
-							Punya Kode Undangan?
-						</p>
+						<p class="font-medium text-foreground">Punya Kode Undangan?</p>
 						<p class="mt-1 text-sm text-muted-foreground">
-							Jika Anda memiliki kode undangan dari pemilik lapak, Anda bisa langsung bergabung tanpa menunggu.
+							Jika Anda memiliki kode undangan dari pemilik lapak, Anda bisa langsung bergabung
+							tanpa menunggu.
 						</p>
 						<Button href="/app/join" variant="outline" size="sm" class="mt-3 gap-2">
 							<Key class="h-4 w-4" />
@@ -158,15 +160,14 @@
 				</div>
 			</div>
 
-			<Button href="/app/stores" variant="outline" class="mt-6">
-				Kembali ke Daftar Lapak
-			</Button>
+			<Button href="/app/stores" variant="outline" class="mt-6">Kembali ke Daftar Lapak</Button>
 		</Card>
-
 	{:else if data.existingMember}
 		<!-- Already member (active, pending, leaving) -->
 		<Card class="text-center py-12">
-			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+			<div
+				class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30"
+			>
 				<Clock class="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
 			</div>
 			{#if data.existingMember.status === 'active'}
@@ -174,42 +175,41 @@
 				<p class="mt-2 text-muted-foreground">
 					Anda sudah menjadi anggota <strong>{data.store.name}</strong>.
 				</p>
-				<Button href="/app/setor?store={data.store.id}" class="mt-6">
-					Setor Produk
-				</Button>
+				<Button href="/app/setor?store={data.store.id}" class="mt-6">Setor Produk</Button>
 			{:else if data.existingMember.status === 'pending'}
 				<h1 class="text-2xl font-bold text-foreground">Menunggu Persetujuan</h1>
 				<p class="mt-2 text-muted-foreground">
 					Permintaan Anda untuk bergabung ke <strong>{data.store.name}</strong> sedang menunggu persetujuan.
 				</p>
-				<Button href="/app/stores" class="mt-6" variant="outline">
-					Kembali
-				</Button>
+				<Button href="/app/stores" class="mt-6" variant="outline">Kembali</Button>
 			{:else if data.existingMember.status === 'leaving'}
 				<h1 class="text-2xl font-bold text-foreground">Permintaan Keluar Pending</h1>
 				<p class="mt-2 text-muted-foreground">
 					Anda sedang mengajukan keluar dari <strong>{data.store.name}</strong>.
 				</p>
-				<Button href="/app/stores" class="mt-6" variant="outline">
-					Kembali
-				</Button>
+				<Button href="/app/stores" class="mt-6" variant="outline">Kembali</Button>
 			{:else if data.existingMember.status === 'rejected' && data.canRejoin}
 				<!-- Can rejoin after cooldown passed -->
-				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+				<div
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+				>
 					<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
 				</div>
 				<h1 class="text-2xl font-bold text-foreground">Anda Bisa Mendaftar Lagi!</h1>
 				<p class="mt-2 text-muted-foreground">
-					Masa tunggu sudah berakhir. Anda dapat mengajukan permintaan bergabung kembali ke <strong>{data.store.name}</strong>.
+					Masa tunggu sudah berakhir. Anda dapat mengajukan permintaan bergabung kembali ke <strong
+						>{data.store.name}</strong
+					>.
 				</p>
 			{/if}
 		</Card>
-
 	{:else}
 		<!-- Store Info -->
 		<Card>
 			<div class="flex items-start gap-4">
-				<div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+				<div
+					class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10"
+				>
 					<Store class="h-8 w-8 text-primary" />
 				</div>
 				<div class="flex-1">
@@ -248,7 +248,9 @@
 			<!-- Option 1: Request Form -->
 			<Card class="relative">
 				<div class="absolute -top-3 left-4">
-					<span class="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+					<span
+						class="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground"
+					>
 						Opsi 1
 					</span>
 				</div>
@@ -329,7 +331,8 @@
 				</div>
 
 				<p class="mb-4 text-sm text-muted-foreground">
-					Jika Anda sudah memiliki kode undangan dari pemilik lapak, gunakan kode tersebut untuk bergabung lebih cepat.
+					Jika Anda sudah memiliki kode undangan dari pemilik lapak, gunakan kode tersebut untuk
+					bergabung lebih cepat.
 				</p>
 
 				<Button href="/app/join" variant="outline" class="w-full gap-2">

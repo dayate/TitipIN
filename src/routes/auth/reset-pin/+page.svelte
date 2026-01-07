@@ -14,11 +14,7 @@
 	let formError = $derived(form?.error || '');
 	let formSuccess = $derived(form?.success || false);
 	let pinMismatch = $derived(newPin !== confirmPin && confirmPin.length > 0);
-	let isFormValid = $derived(
-		whatsapp.length >= 10 &&
-		newPin.length >= 6 &&
-		newPin === confirmPin
-	);
+	let isFormValid = $derived(whatsapp.length >= 10 && newPin.length >= 6 && newPin === confirmPin);
 </script>
 
 <svelte:head>
@@ -43,7 +39,10 @@
 	<main class="flex flex-1 items-center justify-center px-4 py-12">
 		<Card class="w-full max-w-md">
 			<!-- Back Link -->
-			<a href="/auth/login" class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+			<a
+				href="/auth/login"
+				class="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+			>
 				<ArrowLeft class="h-4 w-4" />
 				Kembali ke Login
 			</a>
@@ -51,24 +50,22 @@
 			{#if formSuccess}
 				<!-- Success State -->
 				<div class="text-center">
-					<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+					<div
+						class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+					>
 						<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
 					</div>
 					<h1 class="text-2xl font-bold text-foreground">PIN Berhasil Direset</h1>
 					<p class="mt-2 text-muted-foreground">
 						PIN Anda telah berhasil diubah. Silakan login dengan PIN baru.
 					</p>
-					<Button href="/auth/login" class="mt-6 w-full">
-						Masuk Sekarang
-					</Button>
+					<Button href="/auth/login" class="mt-6 w-full">Masuk Sekarang</Button>
 				</div>
 			{:else}
 				<!-- Reset Form -->
 				<div class="mb-8 text-center">
 					<h1 class="text-2xl font-bold text-foreground">Reset PIN</h1>
-					<p class="mt-2 text-muted-foreground">
-						Masukkan nomor WhatsApp dan PIN baru Anda
-					</p>
+					<p class="mt-2 text-muted-foreground">Masukkan nomor WhatsApp dan PIN baru Anda</p>
 				</div>
 
 				<form
@@ -134,9 +131,7 @@
 
 				<p class="mt-6 text-center text-sm text-muted-foreground">
 					Ingat PIN Anda?
-					<a href="/auth/login" class="font-medium text-primary hover:underline">
-						Masuk di sini
-					</a>
+					<a href="/auth/login" class="font-medium text-primary hover:underline"> Masuk di sini </a>
 				</p>
 			{/if}
 		</Card>

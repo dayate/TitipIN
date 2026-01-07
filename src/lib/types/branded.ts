@@ -207,7 +207,5 @@ export type Unbrand<T> = T extends Brand<infer K, unknown> ? K : T;
  * Make all branded types in an object optional
  */
 export type WithOptionalIds<T> = {
-	[K in keyof T]: T[K] extends Brand<infer B, unknown>
-		? Brand<B, unknown> | undefined
-		: T[K];
+	[K in keyof T]: T[K] extends Brand<infer B, unknown> ? Brand<B, unknown> | undefined : T[K];
 };

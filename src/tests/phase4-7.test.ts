@@ -136,7 +136,7 @@ describe('Auto-Cancel Logic', () => {
 
 	describe('filterDraftsForCancel', () => {
 		function filterDraftsForCancel(transactions: Draft[]): Draft[] {
-			return transactions.filter(t => t.status === 'draft');
+			return transactions.filter((t) => t.status === 'draft');
 		}
 
 		it('should filter only draft transactions', () => {
@@ -144,7 +144,7 @@ describe('Auto-Cancel Logic', () => {
 				{ id: 1, status: 'draft', supplierId: 1 },
 				{ id: 2, status: 'verified', supplierId: 2 },
 				{ id: 3, status: 'draft', supplierId: 3 },
-				{ id: 4, status: 'completed', supplierId: 1 },
+				{ id: 4, status: 'completed', supplierId: 1 }
 			];
 
 			const drafts = filterDraftsForCancel(transactions);
@@ -156,7 +156,7 @@ describe('Auto-Cancel Logic', () => {
 		it('should return empty array when no drafts', () => {
 			const transactions: Draft[] = [
 				{ id: 1, status: 'verified', supplierId: 1 },
-				{ id: 2, status: 'completed', supplierId: 2 },
+				{ id: 2, status: 'completed', supplierId: 2 }
 			];
 
 			const drafts = filterDraftsForCancel(transactions);
@@ -166,14 +166,14 @@ describe('Auto-Cancel Logic', () => {
 
 	describe('getUniqueSupplierIds', () => {
 		function getUniqueSupplierIds(drafts: Draft[]): number[] {
-			return [...new Set(drafts.map(d => d.supplierId))];
+			return [...new Set(drafts.map((d) => d.supplierId))];
 		}
 
 		it('should return unique supplier IDs', () => {
 			const drafts: Draft[] = [
 				{ id: 1, status: 'draft', supplierId: 1 },
 				{ id: 2, status: 'draft', supplierId: 2 },
-				{ id: 3, status: 'draft', supplierId: 1 }, // duplicate
+				{ id: 3, status: 'draft', supplierId: 1 } // duplicate
 			];
 
 			const supplierIds = getUniqueSupplierIds(drafts);
@@ -280,17 +280,33 @@ describe('Store Branches', () => {
 
 	describe('Main Branch Logic', () => {
 		function hasMainBranch(branches: Branch[]): boolean {
-			return branches.some(b => b.isMain);
+			return branches.some((b) => b.isMain);
 		}
 
 		function countMainBranches(branches: Branch[]): number {
-			return branches.filter(b => b.isMain).length;
+			return branches.filter((b) => b.isMain).length;
 		}
 
 		it('should detect store with main branch', () => {
 			const branches: Branch[] = [
-				{ id: 1, storeId: 1, name: 'Cabang A', address: 'Addr A', phone: null, isMain: true, isActive: true },
-				{ id: 2, storeId: 1, name: 'Cabang B', address: 'Addr B', phone: null, isMain: false, isActive: true },
+				{
+					id: 1,
+					storeId: 1,
+					name: 'Cabang A',
+					address: 'Addr A',
+					phone: null,
+					isMain: true,
+					isActive: true
+				},
+				{
+					id: 2,
+					storeId: 1,
+					name: 'Cabang B',
+					address: 'Addr B',
+					phone: null,
+					isMain: false,
+					isActive: true
+				}
 			];
 
 			expect(hasMainBranch(branches)).toBe(true);
@@ -299,7 +315,15 @@ describe('Store Branches', () => {
 
 		it('should detect store without main branch', () => {
 			const branches: Branch[] = [
-				{ id: 1, storeId: 1, name: 'Cabang A', address: 'Addr A', phone: null, isMain: false, isActive: true },
+				{
+					id: 1,
+					storeId: 1,
+					name: 'Cabang A',
+					address: 'Addr A',
+					phone: null,
+					isMain: false,
+					isActive: true
+				}
 			];
 
 			expect(hasMainBranch(branches)).toBe(false);
@@ -308,13 +332,29 @@ describe('Store Branches', () => {
 
 	describe('Active Branches Filter', () => {
 		function getActiveBranches(branches: Branch[]): Branch[] {
-			return branches.filter(b => b.isActive);
+			return branches.filter((b) => b.isActive);
 		}
 
 		it('should filter only active branches', () => {
 			const branches: Branch[] = [
-				{ id: 1, storeId: 1, name: 'Active', address: 'Addr', phone: null, isMain: true, isActive: true },
-				{ id: 2, storeId: 1, name: 'Inactive', address: 'Addr', phone: null, isMain: false, isActive: false },
+				{
+					id: 1,
+					storeId: 1,
+					name: 'Active',
+					address: 'Addr',
+					phone: null,
+					isMain: true,
+					isActive: true
+				},
+				{
+					id: 2,
+					storeId: 1,
+					name: 'Inactive',
+					address: 'Addr',
+					phone: null,
+					isMain: false,
+					isActive: false
+				}
 			];
 
 			const active = getActiveBranches(branches);
@@ -356,7 +396,10 @@ describe('Store Settings', () => {
 	});
 
 	describe('Settings Merge', () => {
-		function mergeSettings(current: Partial<StoreSettings>, updates: Partial<StoreSettings>): StoreSettings {
+		function mergeSettings(
+			current: Partial<StoreSettings>,
+			updates: Partial<StoreSettings>
+		): StoreSettings {
 			const defaults: StoreSettings = {
 				cutoffTime: '11:00',
 				autoCancelEnabled: true,
@@ -371,10 +414,7 @@ describe('Store Settings', () => {
 		}
 
 		it('should merge partial updates correctly', () => {
-			const result = mergeSettings(
-				{ cutoffTime: '10:00' },
-				{ cutoffGracePeriod: 60 }
-			);
+			const result = mergeSettings({ cutoffTime: '10:00' }, { cutoffGracePeriod: 60 });
 
 			expect(result.cutoffTime).toBe('10:00');
 			expect(result.cutoffGracePeriod).toBe(60);

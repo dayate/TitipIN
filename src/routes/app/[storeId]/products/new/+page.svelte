@@ -73,19 +73,19 @@
 	>
 		<Card class="space-y-6">
 			<!-- Info -->
-			<div
-				class="flex items-start gap-3 rounded-lg bg-primary/10 p-4 text-sm text-primary"
-			>
+			<div class="flex items-start gap-3 rounded-lg bg-primary/10 p-4 text-sm text-primary">
 				<Package class="h-5 w-5 flex-shrink-0" />
 				<p>
-					Produk yang Anda daftarkan akan direview oleh admin lapak. Admin akan menentukan
-					harga jual produk.
+					Produk yang Anda daftarkan akan direview oleh admin lapak. Admin akan menentukan harga
+					jual produk.
 				</p>
 			</div>
 
 			<!-- Image Upload -->
 			<div class="space-y-2">
-				<label for="image-input" class="text-sm font-medium text-foreground">Foto Produk (Opsional)</label>
+				<label for="image-input" class="text-sm font-medium text-foreground"
+					>Foto Produk (Opsional)</label
+				>
 
 				<!-- Hidden file input that's always in DOM -->
 				<input
@@ -99,11 +99,7 @@
 
 				{#if imagePreview}
 					<div class="relative w-40">
-						<img
-							src={imagePreview}
-							alt="Preview"
-							class="h-40 w-40 rounded-lg object-cover"
-						/>
+						<img src={imagePreview} alt="Preview" class="h-40 w-40 rounded-lg object-cover" />
 						<button
 							type="button"
 							onclick={removeImage}
@@ -170,16 +166,23 @@
 					bind:value={suggestedPrice}
 				/>
 				{#if suggestedPrice > 0 && priceBuy > 0}
-					{@const margin = ((suggestedPrice - priceBuy) / priceBuy * 100).toFixed(0)}
+					{@const margin = (((suggestedPrice - priceBuy) / priceBuy) * 100).toFixed(0)}
 					<p class="text-xs text-muted-foreground">
-						Margin keuntungan: <span class="font-medium {parseInt(margin) >= 20 ? 'text-green-600' : parseInt(margin) >= 10 ? 'text-yellow-600' : 'text-red-600'}">{margin}%</span>
+						Margin keuntungan: <span
+							class="font-medium {parseInt(margin) >= 20
+								? 'text-green-600'
+								: parseInt(margin) >= 10
+									? 'text-yellow-600'
+									: 'text-red-600'}">{margin}%</span
+						>
 					</p>
 				{/if}
 			</div>
 
 			<div class="rounded-lg bg-muted p-4">
 				<p class="text-sm text-muted-foreground">
-					💡 <strong>Catatan:</strong> Harga jual final akan ditentukan oleh admin lapak saat menyetujui produk Anda. Rekomendasi harga jual akan dipertimbangkan.
+					💡 <strong>Catatan:</strong> Harga jual final akan ditentukan oleh admin lapak saat menyetujui
+					produk Anda. Rekomendasi harga jual akan dipertimbangkan.
 				</p>
 			</div>
 
@@ -198,4 +201,3 @@
 		</Card>
 	</form>
 </div>
-

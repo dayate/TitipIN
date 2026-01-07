@@ -21,12 +21,8 @@
 				<Store class="h-8 w-8 text-muted-foreground" />
 			</div>
 			<h2 class="text-lg font-semibold text-foreground">Belum ada lapak</h2>
-			<p class="mt-2 text-muted-foreground">
-				Anda belum memiliki lapak
-			</p>
-			<Button href="/admin/stores/new" class="mt-4">
-				Buat Lapak
-			</Button>
+			<p class="mt-2 text-muted-foreground">Anda belum memiliki lapak</p>
+			<Button href="/admin/stores/new" class="mt-4">Buat Lapak</Button>
 		</Card>
 	{:else}
 		<div class="grid gap-4 sm:grid-cols-2">

@@ -34,10 +34,10 @@ export const GET: RequestHandler = async ({ params, locals, url }) => {
 	// Apply date filters
 	let filteredTransactions = allTransactions;
 	if (startDate) {
-		filteredTransactions = filteredTransactions.filter(t => t.transaction.date >= startDate);
+		filteredTransactions = filteredTransactions.filter((t) => t.transaction.date >= startDate);
 	}
 	if (endDate) {
-		filteredTransactions = filteredTransactions.filter(t => t.transaction.date <= endDate);
+		filteredTransactions = filteredTransactions.filter((t) => t.transaction.date <= endDate);
 	}
 
 	// Get items for each transaction
@@ -49,21 +49,21 @@ export const GET: RequestHandler = async ({ params, locals, url }) => {
 	);
 
 	// Generate CSV with supplier info for admin
-	const headers = ['Tanggal', 'Penyetor', 'Produk', 'Masuk', 'Terjual', 'Retur', 'Payout', 'Status'];
+	const headers = [
+		'Tanggal',
+		'Penyetor',
+		'Produk',
+		'Masuk',
+		'Terjual',
+		'Retur',
+		'Payout',
+		'Status'
+	];
 	const rows: string[][] = [headers];
 
 	for (const { transaction, supplier, items } of transactionsWithItems) {
 		if (items.length === 0) {
-			rows.push([
-				transaction.date,
-				supplier.name,
-				'-',
-				'0',
-				'0',
-				'0',
-				'0',
-				transaction.status
-			]);
+			rows.push([transaction.date, supplier.name, '-', '0', '0', '0', '0', transaction.status]);
 		} else {
 			for (const { item, product } of items) {
 				const qtySold = item.qtyActual - item.qtyReturned;
@@ -82,7 +82,9 @@ export const GET: RequestHandler = async ({ params, locals, url }) => {
 		}
 	}
 
-	const csv = rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+	const csv = rows
+		.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
+		.join('\n');
 	const filename = `riwayat_admin_${storeId}_${new Date().toISOString().split('T')[0]}.csv`;
 
 	return new Response(csv, {

@@ -106,9 +106,7 @@
 		setQty(productId, val);
 	}
 
-	let totalItems = $derived(
-		Object.values(quantities).reduce((sum, qty) => sum + qty, 0)
-	);
+	let totalItems = $derived(Object.values(quantities).reduce((sum, qty) => sum + qty, 0));
 
 	let totalValue = $derived(
 		products.reduce((sum, product) => {
@@ -140,9 +138,13 @@
 
 	<!-- Modal -->
 	<div class="fixed inset-4 z-50 flex items-center justify-center sm:inset-8">
-		<div class="relative flex max-h-full w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+		<div
+			class="relative flex max-h-full w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+		>
 			<!-- Header -->
-			<div class="flex items-center justify-between border-b border-border bg-gradient-to-r from-primary/10 to-transparent p-4">
+			<div
+				class="flex items-center justify-between border-b border-border bg-gradient-to-r from-primary/10 to-transparent p-4"
+			>
 				<div class="flex items-center gap-3">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
 						<ShoppingBag class="h-5 w-5 text-primary" />
@@ -173,15 +175,21 @@
 
 			<!-- Success Message -->
 			{#if formSuccess}
-				<div class="mx-4 mt-4 flex items-center gap-3 rounded-xl bg-green-500/10 border border-green-500/20 p-3">
+				<div
+					class="mx-4 mt-4 flex items-center gap-3 rounded-xl bg-green-500/10 border border-green-500/20 p-3"
+				>
 					<CheckCircle2 class="h-5 w-5 text-green-600 dark:text-green-400" />
-					<span class="text-sm font-medium text-green-600 dark:text-green-400">Setoran berhasil disimpan!</span>
+					<span class="text-sm font-medium text-green-600 dark:text-green-400"
+						>Setoran berhasil disimpan!</span
+					>
 				</div>
 			{/if}
 
 			<!-- Error Message -->
 			{#if formError}
-				<div class="mx-4 mt-4 flex items-center gap-3 rounded-xl bg-destructive/10 border border-destructive/20 p-3">
+				<div
+					class="mx-4 mt-4 flex items-center gap-3 rounded-xl bg-destructive/10 border border-destructive/20 p-3"
+				>
 					<AlertCircle class="h-5 w-5 text-destructive" />
 					<span class="text-sm font-medium text-destructive">{formError}</span>
 				</div>
@@ -222,7 +230,9 @@
 				<div class="flex-1 overflow-y-auto p-4 space-y-3">
 					{#if products.length === 0}
 						<div class="py-12 text-center">
-							<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+							<div
+								class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted"
+							>
 								<ShoppingBag class="h-8 w-8 text-muted-foreground" />
 							</div>
 							<p class="font-medium text-foreground">Belum ada produk</p>
@@ -231,12 +241,22 @@
 					{:else}
 						{#each products as product}
 							{@const qty = getQty(product.id)}
-							<div class="rounded-xl border border-border bg-background p-3 transition-all {qty > 0 ? 'border-primary/40 bg-primary/5' : ''}">
+							<div
+								class="rounded-xl border border-border bg-background p-3 transition-all {qty > 0
+									? 'border-primary/40 bg-primary/5'
+									: ''}"
+							>
 								<div class="flex items-center gap-3">
 									<!-- Product Image -->
-									<div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden">
+									<div
+										class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden"
+									>
 										{#if product.imageUrl}
-											<img src={product.imageUrl} alt={product.name} class="h-full w-full object-cover" />
+											<img
+												src={product.imageUrl}
+												alt={product.name}
+												class="h-full w-full object-cover"
+											/>
 										{:else}
 											<ImageOff class="h-5 w-5 text-muted-foreground" />
 										{/if}
@@ -289,7 +309,9 @@
 								<!-- Subtotal -->
 								{#if qty > 0}
 									<div class="mt-2 flex justify-end text-xs text-muted-foreground">
-										Subtotal: <span class="ml-1 font-semibold text-primary">{formatCurrency(qty * product.priceBuy)}</span>
+										Subtotal: <span class="ml-1 font-semibold text-primary"
+											>{formatCurrency(qty * product.priceBuy)}</span
+										>
 									</div>
 								{/if}
 							</div>
@@ -313,7 +335,9 @@
 								class="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
 							>
 								{#if loading}
-									<div class="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground"></div>
+									<div
+										class="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground"
+									></div>
 									Menyimpan...
 								{:else}
 									<Save class="h-4 w-4" />

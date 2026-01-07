@@ -1,7 +1,14 @@
 import type { PageServerLoad, Actions } from './$types';
 import { error, fail } from '@sveltejs/kit';
 import { getStoreById } from '$lib/server/stores';
-import { getStoreProducts, approveProduct, rejectProduct, getProductById, countStoreProductsByStatus, deleteProduct } from '$lib/server/products';
+import {
+	getStoreProducts,
+	approveProduct,
+	rejectProduct,
+	getProductById,
+	countStoreProductsByStatus,
+	deleteProduct
+} from '$lib/server/products';
 import { createNotification } from '$lib/server/notifications';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
@@ -24,7 +31,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const counts = await countStoreProductsByStatus(storeId);
 
 	// Group products by supplier
-	const supplierMap = new Map<number, { supplier: { id: number; name: string }; products: typeof products }>();
+	const supplierMap = new Map<
+		number,
+		{ supplier: { id: number; name: string }; products: typeof products }
+	>();
 	for (const item of products) {
 		const supplierId = item.supplier.id;
 		if (!supplierMap.has(supplierId)) {

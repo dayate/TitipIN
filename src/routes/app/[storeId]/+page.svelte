@@ -31,12 +31,17 @@
 	<!-- Header -->
 	<div class="flex items-start justify-between">
 		<div>
-			<a href="/app/stores" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+			<a
+				href="/app/stores"
+				class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+			>
 				<ArrowLeft class="h-4 w-4" />
 				Kembali ke Daftar Lapak
 			</a>
 			<div class="mt-4 flex items-center gap-4">
-				<div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg">
+				<div
+					class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg"
+				>
 					<Store class="h-8 w-8 text-primary-foreground" />
 				</div>
 				<div>
@@ -45,7 +50,11 @@
 				</div>
 			</div>
 		</div>
-		<span class="rounded-full px-4 py-1.5 text-sm font-medium shadow-sm {data.store.isOpen ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}">
+		<span
+			class="rounded-full px-4 py-1.5 text-sm font-medium shadow-sm {data.store.isOpen
+				? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+				: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}"
+		>
 			{data.store.isOpen ? '🟢 Buka' : '🔴 Tutup'}
 		</span>
 	</div>
@@ -100,17 +109,32 @@
 
 	<!-- Main Actions -->
 	<Card>
-		<h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kelola Setoran</h3>
+		<h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+			Kelola Setoran
+		</h3>
 		<div class="grid grid-cols-3 gap-2">
-			<Button onclick={() => setoranModalOpen = true} variant="outline" class="h-auto flex-col gap-1.5 py-4 text-xs hover:border-primary hover:bg-primary/5" disabled={!data.store.isOpen}>
+			<Button
+				onclick={() => (setoranModalOpen = true)}
+				variant="outline"
+				class="h-auto flex-col gap-1.5 py-4 text-xs hover:border-primary hover:bg-primary/5"
+				disabled={!data.store.isOpen}
+			>
 				<ShoppingBag class="h-6 w-6 text-primary" />
 				<span>Input Setoran</span>
 			</Button>
-			<Button href="/app/{data.store.id}/products" variant="outline" class="h-auto flex-col gap-1.5 py-4 text-xs hover:border-primary hover:bg-primary/5">
+			<Button
+				href="/app/{data.store.id}/products"
+				variant="outline"
+				class="h-auto flex-col gap-1.5 py-4 text-xs hover:border-primary hover:bg-primary/5"
+			>
 				<Package class="h-6 w-6 text-primary" />
 				<span>Kelola Produk</span>
 			</Button>
-			<Button href="/app/{data.store.id}/history" variant="outline" class="h-auto flex-col gap-1.5 py-4 text-xs hover:border-primary hover:bg-primary/5">
+			<Button
+				href="/app/{data.store.id}/history"
+				variant="outline"
+				class="h-auto flex-col gap-1.5 py-4 text-xs hover:border-primary hover:bg-primary/5"
+			>
 				<History class="h-6 w-6 text-primary" />
 				<span>Riwayat</span>
 			</Button>
@@ -125,7 +149,9 @@
 					<Package class="h-6 w-6 text-yellow-600" />
 				</div>
 				<div class="flex-1">
-					<p class="font-semibold text-foreground">{data.counts.pending} Produk Menunggu Approval</p>
+					<p class="font-semibold text-foreground">
+						{data.counts.pending} Produk Menunggu Approval
+					</p>
 					<p class="text-sm text-muted-foreground">Admin sedang mereview produk Anda</p>
 				</div>
 				<Button href="/app/{data.store.id}/products" variant="outline">Lihat</Button>
@@ -142,7 +168,9 @@
 				</div>
 				<div class="flex-1">
 					<p class="font-semibold text-foreground">{data.counts.rejected} Produk Ditolak</p>
-					<p class="text-sm text-muted-foreground">Silakan perbarui atau hapus produk yang ditolak</p>
+					<p class="text-sm text-muted-foreground">
+						Silakan perbarui atau hapus produk yang ditolak
+					</p>
 				</div>
 				<Button href="/app/{data.store.id}/products" variant="outline">Perbarui</Button>
 			</div>
@@ -157,5 +185,5 @@
 	storeName={data.store.name}
 	date={data.setoranDate}
 	products={data.approvedProducts}
-	onClose={() => setoranModalOpen = false}
+	onClose={() => (setoranModalOpen = false)}
 />

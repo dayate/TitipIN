@@ -48,7 +48,9 @@ export const logger = {
 	// Specialized loggers for common operations
 	auth: {
 		login: (whatsapp: string, success: boolean) => {
-			logger.info(`Login attempt: ${success ? 'SUCCESS' : 'FAILED'}`, { whatsapp: whatsapp.slice(-4) });
+			logger.info(`Login attempt: ${success ? 'SUCCESS' : 'FAILED'}`, {
+				whatsapp: whatsapp.slice(-4)
+			});
 		},
 		register: (whatsapp: string) => {
 			logger.info('New user registered', { whatsapp: whatsapp.slice(-4) });

@@ -77,7 +77,10 @@ export const actions: Actions = {
 			return fail(400, { error: 'Pilih minimal satu riwayat untuk dihapus' });
 		}
 
-		const transactionIds = transactionIdsStr.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+		const transactionIds = transactionIdsStr
+			.split(',')
+			.map((id) => parseInt(id))
+			.filter((id) => !isNaN(id));
 
 		if (transactionIds.length === 0) {
 			return fail(400, { error: 'Pilih minimal satu riwayat untuk dihapus' });

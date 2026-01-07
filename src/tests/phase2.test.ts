@@ -25,7 +25,6 @@ describe('Audit Log Functions', () => {
 			const result = testValue ? JSON.stringify(testValue) : null;
 			expect(result).toBeNull();
 		});
-
 	});
 
 	describe('AuditAction Types', () => {
@@ -60,7 +59,6 @@ describe('Audit Log Functions', () => {
 			expect(validActions).toHaveLength(1);
 		});
 	});
-
 });
 
 // ===========================================

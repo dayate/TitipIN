@@ -2,7 +2,16 @@
 	import { Card, Button } from '$lib/components/ui';
 	import { enhance } from '$app/forms';
 	import {
-		Store, Search, Link, ChevronDown, ChevronUp, Eye, Users, Clock, CheckCircle2, ArrowRight
+		Store,
+		Search,
+		Link,
+		ChevronDown,
+		ChevronUp,
+		Eye,
+		Users,
+		Clock,
+		CheckCircle2,
+		ArrowRight
 	} from 'lucide-svelte';
 
 	let { data, form } = $props();
@@ -20,9 +29,10 @@
 
 	// Filtered discover stores
 	let filteredStores = $derived(
-		data.discoverStores.filter(store =>
-			store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			(store.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+		data.discoverStores.filter(
+			(store) =>
+				store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				(store.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
 		)
 	);
 </script>
@@ -33,10 +43,14 @@
 
 <div class="space-y-6">
 	<!-- Header with Gradient -->
-	<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6">
+	<div
+		class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6"
+	>
 		<div class="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl"></div>
 		<div class="flex items-center gap-4">
-			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm">
+			<div
+				class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 backdrop-blur-sm"
+			>
 				<Search class="h-7 w-7 text-primary" />
 			</div>
 			<div>
@@ -63,7 +77,7 @@
 		<div class="rounded-xl border border-border bg-card overflow-hidden">
 			<button
 				type="button"
-				onclick={() => joinCodeOpen = !joinCodeOpen}
+				onclick={() => (joinCodeOpen = !joinCodeOpen)}
 				class="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors"
 			>
 				<div class="flex items-center gap-3">
@@ -87,8 +101,13 @@
 					{#if joinSuccess}
 						<div class="rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-center">
 							<CheckCircle2 class="mx-auto h-8 w-8 text-green-600 dark:text-green-400" />
-							<p class="mt-2 text-sm font-medium text-green-600 dark:text-green-400">Berhasil bergabung ke {joinStoreName}! 🎉</p>
-							<a href="/app/stores" class="mt-3 inline-flex items-center gap-2 text-sm text-primary hover:underline">
+							<p class="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
+								Berhasil bergabung ke {joinStoreName}! 🎉
+							</p>
+							<a
+								href="/app/stores"
+								class="mt-3 inline-flex items-center gap-2 text-sm text-primary hover:underline"
+							>
 								Lihat Lapak Saya <ArrowRight class="h-4 w-4" />
 							</a>
 						</div>
@@ -112,7 +131,11 @@
 								bind:value={joinCode}
 								class="flex-1 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium uppercase tracking-widest text-center focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
 							/>
-							<Button type="submit" disabled={joinCode.length < 6 || joinLoading} class="gap-2 rounded-xl px-6">
+							<Button
+								type="submit"
+								disabled={joinCode.length < 6 || joinLoading}
+								class="gap-2 rounded-xl px-6"
+							>
 								{#if joinLoading}
 									Memproses...
 								{:else}
@@ -136,14 +159,20 @@
 		{#if filteredStores.length > 0}
 			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{#each filteredStores as store}
-					<div class="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+					<div
+						class="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30"
+					>
 						<!-- Header -->
 						<div class="flex items-center justify-between mb-3">
-							<span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-medium text-primary">
+							<span
+								class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-medium text-primary"
+							>
 								<Eye class="h-3 w-3" />
 								Publik
 							</span>
-							<span class={`text-xs font-medium ${store.isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+							<span
+								class={`text-xs font-medium ${store.isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+							>
 								{store.isOpen ? '● Buka' : '● Tutup'}
 							</span>
 						</div>
@@ -190,7 +219,9 @@
 			<div class="rounded-2xl border border-dashed border-border bg-muted/30 p-8 text-center">
 				<Store class="mx-auto h-8 w-8 text-muted-foreground" />
 				<p class="mt-2 text-muted-foreground">Belum ada lapak publik yang tersedia</p>
-				<p class="text-sm text-muted-foreground mt-1">Gunakan kode undangan untuk bergabung ke lapak privat</p>
+				<p class="text-sm text-muted-foreground mt-1">
+					Gunakan kode undangan untuk bergabung ke lapak privat
+				</p>
 			</div>
 		{/if}
 	</div>

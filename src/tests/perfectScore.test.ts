@@ -73,7 +73,7 @@ describe('Cache System', () => {
 			cache.set('expiring', 'value', 50); // 50ms TTL
 			expect(cache.get('expiring')).toBe('value');
 
-			await new Promise(resolve => setTimeout(resolve, 60));
+			await new Promise((resolve) => setTimeout(resolve, 60));
 			expect(cache.get('expiring')).toBeUndefined();
 		});
 	});
@@ -96,11 +96,7 @@ describe('Feature Flags Logic', () => {
 		[FEATURES.DARK_MODE]: true
 	};
 
-	function isFeatureEnabled(
-		feature: string,
-		enabled: Set<string>,
-		disabled: Set<string>
-	): boolean {
+	function isFeatureEnabled(feature: string, enabled: Set<string>, disabled: Set<string>): boolean {
 		if (disabled.has(feature)) return false;
 		if (enabled.has(feature)) return true;
 		return defaultFeatures[feature] ?? false;
@@ -269,13 +265,7 @@ describe('Branded Types Utilities', () => {
 // ===========================================
 
 describe('Image Optimization Utilities', () => {
-	const allowedTypes = [
-		'image/jpeg',
-		'image/jpg',
-		'image/png',
-		'image/webp',
-		'image/gif'
-	];
+	const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
 
 	function isValidImageType(mimeType: string): boolean {
 		return allowedTypes.includes(mimeType.toLowerCase());

@@ -38,45 +38,43 @@
 		<Card class="w-full max-w-md text-center">
 			{#if formSuccess}
 				<!-- Success State -->
-				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+				<div
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+				>
 					<CheckCircle2 class="h-8 w-8 text-green-600 dark:text-green-400" />
 				</div>
 				{#if autoApproved}
 					<h1 class="text-2xl font-bold text-foreground">Berhasil Bergabung! 🎉</h1>
 					<p class="mt-2 text-muted-foreground">
-						Anda sudah menjadi anggota <strong>{data.store?.name}</strong>.
-						Anda bisa langsung mulai menyetor produk.
+						Anda sudah menjadi anggota <strong>{data.store?.name}</strong>. Anda bisa langsung mulai
+						menyetor produk.
 					</p>
-					<Button href="/app/stores" class="mt-6 w-full">
-						Lihat Lapak Saya
-					</Button>
+					<Button href="/app/stores" class="mt-6 w-full">Lihat Lapak Saya</Button>
 				{:else}
 					<h1 class="text-2xl font-bold text-foreground">Permintaan Terkirim! 🎉</h1>
 					<p class="mt-2 text-muted-foreground">
-						Permintaan bergabung ke <strong>{data.store?.name}</strong> telah dikirim.
-						Tunggu persetujuan dari pemilik lapak.
+						Permintaan bergabung ke <strong>{data.store?.name}</strong> telah dikirim. Tunggu persetujuan
+						dari pemilik lapak.
 					</p>
-					<Button href="/app/stores" class="mt-6 w-full">
-						Lihat Lapak Saya
-					</Button>
+					<Button href="/app/stores" class="mt-6 w-full">Lihat Lapak Saya</Button>
 				{/if}
-
 			{:else if !data.valid}
 				<!-- Invalid Code -->
-				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+				<div
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30"
+				>
 					<XCircle class="h-8 w-8 text-red-600 dark:text-red-400" />
 				</div>
 				<h1 class="text-2xl font-bold text-foreground">Kode Tidak Valid</h1>
 				<p class="mt-2 text-muted-foreground">{data.error}</p>
 				<div class="mt-6 space-y-3">
-					<Button href="/" variant="outline" class="w-full">
-						Kembali ke Beranda
-					</Button>
+					<Button href="/" variant="outline" class="w-full">Kembali ke Beranda</Button>
 				</div>
-
 			{:else}
 				<!-- Valid Code - Show Store Info -->
-				<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+				<div
+					class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10"
+				>
 					<Store class="h-8 w-8 text-primary" />
 				</div>
 				<h1 class="text-2xl font-bold text-foreground">Gabung Lapak</h1>
@@ -119,9 +117,7 @@
 						<Button href="/auth/login?redirect=/join/{data.code}" class="w-full">
 							Masuk untuk Bergabung
 						</Button>
-						<Button href="/auth/register" variant="outline" class="w-full">
-							Buat Akun Baru
-						</Button>
+						<Button href="/auth/register" variant="outline" class="w-full">Buat Akun Baru</Button>
 					</div>
 				{/if}
 			{/if}
