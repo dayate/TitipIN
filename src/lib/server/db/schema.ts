@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 // ============================================
 // ENUMS (as string unions in TypeScript)
@@ -102,22 +102,6 @@ export const storeInvites = sqliteTable('store_invites', {
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
 });
 
-// 5. Store Branches
-export const storeBranches = sqliteTable('store_branches', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	storeId: integer('store_id')
-		.notNull()
-		.references(() => stores.id, { onDelete: 'cascade' }),
-	name: text('name').notNull(),
-	address: text('address').notNull(),
-	phone: text('phone'),
-	latitude: real('latitude'),
-	longitude: real('longitude'),
-	isMain: integer('is_main', { mode: 'boolean' }).notNull().default(false),
-	isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
-	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
-});
-
 // 6. Store Members
 
 export const storeMembers = sqliteTable('store_members', {
@@ -168,7 +152,7 @@ export const dailyTransactions = sqliteTable('daily_transactions', {
 	storeId: integer('store_id')
 		.notNull()
 		.references(() => stores.id, { onDelete: 'cascade' }),
-	branchId: integer('branch_id').references(() => storeBranches.id),
+
 	supplierId: integer('supplier_id')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
